@@ -100,3 +100,18 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Impressão (CLAUDE.md §11 fase 7): esconde ações interativas, força
+   fundo claro e texto legível independentemente do tema. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+  a[href]::after {
+    content: none;
+  }
+}
