@@ -85,6 +85,8 @@ export const catalogoRegras: Regra[] = [
     descricao: 'O contacto do GP deve parecer um email ou um número de telefone válido.',
     verificar: (registo) => {
       const contacto = registo.gestorProjeto.contacto.trim()
+      // Campo vazio é assinalado pela obrigatoriedade do schema, não por esta regra de formato.
+      if (!contacto) return true
       return EMAIL_RE.test(contacto) || TELEFONE_RE.test(contacto)
     },
     mensagem: 'O contacto do gestor de projeto não parece um email nem um telefone válido.',

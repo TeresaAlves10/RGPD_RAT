@@ -94,6 +94,12 @@ describe('GESTOR_PROJETO_CONTACTO_FORMATO', () => {
     registo.gestorProjeto = { ...registo.gestorProjeto, contacto: 'fala comigo' }
     expect(temOcorrencia(registo, 'GESTOR_PROJETO_CONTACTO_FORMATO')).toBe(true)
   })
+
+  it('não reporta a regra de formato quando o contacto está vazio (é assunto da obrigatoriedade do schema)', () => {
+    const registo = clone(registoResponsavelMinimo)
+    registo.gestorProjeto = { ...registo.gestorProjeto, contacto: '' }
+    expect(temOcorrencia(registo, 'GESTOR_PROJETO_CONTACTO_FORMATO')).toBe(false)
+  })
 })
 
 describe('CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA', () => {
