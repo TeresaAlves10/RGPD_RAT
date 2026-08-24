@@ -1,0 +1,25 @@
+[
+  { "id": "ciberseguranca", "label": "Cibersegurança", "tipo": "tecnica" },
+  { "id": "encriptacao", "label": "Encriptação", "tipo": "tecnica" },
+  { "id": "anonimizacao_pseudonimizacao", "label": "Anonimização ou pseudonimização", "tipo": "tecnica" },
+  {
+    "id": "seguranca_fisica",
+    "label": "Segurança física (câmaras, alarmes, controlo de visitantes)",
+    "tipo": "tecnica"
+  },
+  { "id": "destruicao_segura_papel", "label": "Destruição segura de papel", "tipo": "tecnica" },
+  { "id": "armarios_com_chave", "label": "Armários com chave", "tipo": "tecnica" },
+  { "id": "passwords", "label": "Passwords", "tipo": "tecnica" },
+  { "id": "direitos_acesso", "label": "Direitos de acesso", "tipo": "tecnica" },
+  { "id": "politicas_internas", "label": "Políticas internas (privacidade, passwords, uso responsável)", "tipo": "organizativa" },
+  {
+    "id": "due_diligence",
+    "label": "Due diligence (ex.: modelo de avaliação de fornecedores)",
+    "tipo": "organizativa"
+  },
+  { "id": "formacao_colaboradores", "label": "Formação de colaboradores", "tipo": "organizativa" },
+  { "id": "acessos_com_password", "label": "Acessos com password", "tipo": "organizativa" },
+  { "id": "plataforma_cloud_com_password", "label": "Plataforma cloud com password", "tipo": "organizativa" },
+  { "id": "pastas_com_perfis_de_acesso", "label": "Pastas com perfis de acesso", "tipo": "organizativa" },
+  { "id": "outro", "label": "Outro (especificar)", "tipo": "organizativa" }
+]
