@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Canvas de design gerado (regenerável a partir dos .dc.html)
+design/proposta-rat.html
