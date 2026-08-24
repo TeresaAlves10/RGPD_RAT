@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { serializarJson } from '@/io/json/exportar'
 import { interpretarJson } from '@/io/json/importar'
 import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
+import { SCHEMA_VERSION_ATUAL } from '@/domain/schema/ficheiro'
 
 describe('JSON canónico', () => {
   it('faz round-trip sem perdas: ficheiro -> JSON -> ficheiro', () => {
@@ -12,7 +13,7 @@ describe('JSON canónico', () => {
 
   it('inclui schemaVersion no texto exportado', () => {
     const texto = serializarJson(ficheiroRatFixtureValido)
-    expect(JSON.parse(texto).schemaVersion).toBe(1)
+    expect(JSON.parse(texto).schemaVersion).toBe(SCHEMA_VERSION_ATUAL)
   })
 
   it('rejeita texto que não valida contra o schema', () => {

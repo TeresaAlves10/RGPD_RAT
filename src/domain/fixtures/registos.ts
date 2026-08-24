@@ -25,6 +25,7 @@ export const registoResponsavelMinimo: RegistoResponsavel = {
   ],
   categoriasEspeciais: { aplicavel: false },
   prazoConservacao: '2 anos após o fim do processo de recrutamento.',
+  anotacoes: [],
 }
 
 export const registoResponsavelCompleto: RegistoResponsavel = {
@@ -73,6 +74,16 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
       dataContrato: '2023-01-15',
     },
   ],
+  anotacoes: [
+    {
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      campo: 'prazoConservacao',
+      texto: 'Confirmar se o prazo de 10 anos tem base legal identificada (ex.: Código do Trabalho).',
+      autor: 'DPO Fictício',
+      data: '2026-01-16T09:00:00.000Z',
+      resolvida: false,
+    },
+  ],
 }
 
 export const registoSubcontratadoMinimo: RegistoSubcontratado = {
@@ -90,6 +101,7 @@ export const registoSubcontratadoMinimo: RegistoSubcontratado = {
       categoriasTratamento: 'Armazenamento e backup de bases de dados de clientes finais.',
     },
   ],
+  anotacoes: [],
 }
 
 export const registoSubcontratadoCompleto: RegistoSubcontratado = {
@@ -124,10 +136,11 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
       categoriasTratamento: 'Gestão de tickets e histórico de contactos com utilizadores finais.',
     },
   ],
+  anotacoes: [],
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -144,7 +157,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   metadados: {
     // falta "equipa", que é obrigatório
     dataCriacao: '2026-01-15T10:00:00.000Z',

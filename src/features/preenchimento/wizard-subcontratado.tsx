@@ -53,6 +53,7 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
         aipdRealizada: 'nao_aplicavel',
         gestorProjeto: { nome: '', contacto: '' },
         responsaveis: [],
+        anotacoes: [],
       },
     [registoInicial],
   )

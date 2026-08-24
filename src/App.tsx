@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Link, Route, Routes } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { textos } from '@/i18n/pt'
 import {
@@ -16,6 +16,7 @@ import { RascunhoDialog } from '@/features/preenchimento/rascunho-dialog'
 import { ListaRegistos } from '@/features/preenchimento/paginas/lista-registos'
 import { EscolhaTipoRegisto } from '@/features/preenchimento/paginas/escolha-tipo-registo'
 import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina-formulario-registo'
+import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
 
 function Cabecalho() {
   return (
@@ -25,18 +26,26 @@ function Cabecalho() {
           <h1 className="text-base font-semibold">{textos.app.titulo}</h1>
           <p className="text-xs text-muted-foreground">{textos.app.descricao}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            if (window.confirm(textos.rascunho.confirmarLimpeza)) {
-              limparRascunho()
-              window.location.reload()
-            }
-          }}
-        >
-          {textos.rascunho.botaoLimpar}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/">{textos.navegacao.listaRegistos}</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/validacao">{textos.validador.tituloNav}</Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (window.confirm(textos.rascunho.confirmarLimpeza)) {
+                limparRascunho()
+                window.location.reload()
+              }
+            }}
+          >
+            {textos.rascunho.botaoLimpar}
+          </Button>
+        </div>
       </div>
     </header>
   )
@@ -54,6 +63,7 @@ function ConteudoApp() {
         <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
         <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
         <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
+        <Route path="/validacao" element={<ModoValidador />} />
       </Routes>
     </div>
   )

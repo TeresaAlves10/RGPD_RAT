@@ -1,22 +1,12 @@
 import { SCHEMA_VERSION_ATUAL, ficheiroRatSchema, schemaVersionSchema } from '@/domain/schema/ficheiro'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
+import { migradorV1ParaV2 } from '@/domain/migrations/v1-para-v2'
+import type { Migrador } from '@/domain/migrations/types'
 
-/**
- * Um migrador transforma um ficheiro da versão `de` para a versão `de + 1`.
- * Ver CLAUDE.md §2.5: nenhuma alteração ao formato do JSON sem incrementar
- * `schemaVersion` e escrever aqui o migrador correspondente.
- */
-export interface Migrador {
-  de: number
-  migrar(dados: Record<string, unknown>): Record<string, unknown>
-}
+export type { Migrador } from '@/domain/migrations/types'
 
-/**
- * Registo de migradores, por ordem crescente de `de`. Vazio por agora — só
- * existe a versão 1 do schema. O primeiro migrador real (v1 -> v2) entra
- * aqui quando o formato do JSON mudar pela primeira vez.
- */
-export const migradores: Migrador[] = []
+/** Registo de migradores, por ordem crescente de `de`. */
+export const migradores: Migrador[] = [migradorV1ParaV2]
 
 export class ErroVersaoDesconhecida extends Error {
   readonly versaoEncontrada: number

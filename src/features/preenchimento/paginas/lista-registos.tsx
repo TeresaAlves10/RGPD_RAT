@@ -125,6 +125,13 @@ export function ListaRegistos() {
                           ) : null}
                         </div>
                       )}
+                      {(registo.anotacoes?.length ?? 0) > 0 ? (
+                        <div className="mt-1">
+                          <Badge variant="secondary">
+                            {textos.lista.estadoAnotacoes(registo.anotacoes?.length ?? 0)}
+                          </Badge>
+                        </div>
+                      ) : null}
                     </td>
                     <td className="flex justify-end gap-2 p-3">
                       <Button size="sm" variant="outline" onClick={() => navigate(`/registos/${registo.id}/editar`)}>

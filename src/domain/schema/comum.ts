@@ -40,6 +40,21 @@ export type TransferenciaInternacional = z.infer<typeof transferenciaInternacion
 export const aipdSchema = z.enum(['sim', 'nao', 'nao_aplicavel'])
 export type Aipd = z.infer<typeof aipdSchema>
 
+/**
+ * Anotação do DPO sobre um campo de um registo (modo validador, CLAUDE.md
+ * §11 fase 6). `campo: 'geral'` significa uma anotação sobre o registo
+ * como um todo, não sobre um campo específico.
+ */
+export const anotacaoCampoSchema = z.object({
+  id: z.uuid(),
+  campo: z.string().min(1),
+  texto: z.string().min(1, 'A anotação não pode estar vazia.'),
+  autor: z.string().optional(),
+  data: z.iso.datetime(),
+  resolvida: z.boolean().optional(),
+})
+export type AnotacaoCampo = z.infer<typeof anotacaoCampoSchema>
+
 /** Campos comuns aos dois tipos de registo. */
 export const campoBaseRegistoSchema = z.object({
   id: z.uuid(),
@@ -54,5 +69,6 @@ export const campoBaseRegistoSchema = z.object({
   transferenciasInternacionais: transferenciaInternacionalSchema,
   aipdRealizada: aipdSchema,
   gestorProjeto: gestorProjetoSchema,
+  anotacoes: z.array(anotacaoCampoSchema).optional(),
 })
 export type CampoBaseRegisto = z.infer<typeof campoBaseRegistoSchema>

@@ -70,6 +70,7 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
         categoriasDados: [],
         categoriasEspeciais: { aplicavel: false },
         prazoConservacao: '',
+        anotacoes: [],
       },
     [registoInicial],
   )
