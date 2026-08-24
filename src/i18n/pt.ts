@@ -63,6 +63,9 @@ export const textos = {
     semRegistos: 'Ainda não existe nenhum registo neste ficheiro.',
     semRegistosSugestao: 'Cria o primeiro registo para começares.',
     botaoNovoRegisto: '+ Novo registo',
+    botaoCarregarExemplo: 'Carregar exemplo',
+    confirmarCarregarExemplo:
+      'Isto substitui os registos e os dados da equipa atuais por um exemplo fictício, pronto a explorar. Continuar?',
     colunaNome: 'Nome do tratamento',
     colunaTipo: 'Tipo',
     colunaDirecao: 'Direção',
