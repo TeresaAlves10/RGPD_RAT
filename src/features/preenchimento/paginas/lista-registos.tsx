@@ -11,10 +11,22 @@ import { BarraExportacao } from '@/features/preenchimento/barra-exportacao'
 import { BarraImportacao } from '@/features/preenchimento/barra-importacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import { registoSchema, type Registo } from '@/domain/schema/registo'
+import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
 
 export function ListaRegistos() {
   const navigate = useNavigate()
-  const { ficheiro, removerRegisto, definirMetadados } = useFicheiro()
+  const { ficheiro, removerRegisto, definirMetadados, definirFicheiro } = useFicheiro()
+
+  function aoCarregarExemplo() {
+    if (ficheiro.registos.length > 0 && !window.confirm(textos.lista.confirmarCarregarExemplo)) {
+      return
+    }
+    const agora = new Date().toISOString()
+    definirFicheiro({
+      ...structuredClone(ficheiroRatFixtureValido),
+      metadados: { ...structuredClone(ficheiroRatFixtureValido.metadados), dataCriacao: agora, dataUltimaEdicao: agora },
+    })
+  }
 
   const ocorrenciasPorRegisto = useMemo(() => {
     const todas = avaliarFicheiro(ficheiro)
@@ -81,15 +93,21 @@ export function ListaRegistos() {
         <div className="no-print flex flex-wrap items-center gap-4">
           <BarraImportacao />
           <BarraExportacao />
+          <Button variant="outline" onClick={aoCarregarExemplo}>
+            {textos.lista.botaoCarregarExemplo}
+          </Button>
           <Button onClick={() => navigate('/registos/novo')}>{textos.lista.botaoNovoRegisto}</Button>
         </div>
       </div>
 
       {ficheiro.registos.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center gap-2 py-10 text-center">
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
             <p className="font-medium">{textos.lista.semRegistos}</p>
             <p className="text-sm text-muted-foreground">{textos.lista.semRegistosSugestao}</p>
+            <Button variant="outline" onClick={aoCarregarExemplo}>
+              {textos.lista.botaoCarregarExemplo}
+            </Button>
           </CardContent>
         </Card>
       ) : (
