@@ -124,6 +124,15 @@ export const textos = {
     segurancaObservacoes: 'Segurança e observações',
   },
 
+  exportar: {
+    titulo: 'Exportar',
+    botaoJson: 'Exportar JSON',
+    botaoExcel: 'Exportar Excel',
+    botaoPdf: 'Exportar PDF',
+    aExportar: 'A exportar…',
+    erro: 'Não foi possível gerar o ficheiro. Tenta novamente.',
+  },
+
   rascunho: {
     tituloDialogo: 'Rascunho encontrado',
     mensagem: (data: string) => `Encontrámos um rascunho de ${data}. Continuar ou começar de novo?`,

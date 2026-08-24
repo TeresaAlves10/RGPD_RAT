@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { textos } from '@/i18n/pt'
 import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
+import { BarraExportacao } from '@/features/preenchimento/barra-exportacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import type { Registo } from '@/domain/schema/registo'
 
@@ -63,9 +64,12 @@ export function ListaRegistos() {
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">{textos.lista.titulo}</h1>
-        <Button onClick={() => navigate('/registos/novo')}>{textos.lista.botaoNovoRegisto}</Button>
+        <div className="flex flex-wrap items-center gap-4">
+          <BarraExportacao />
+          <Button onClick={() => navigate('/registos/novo')}>{textos.lista.botaoNovoRegisto}</Button>
+        </div>
       </div>
 
       {ficheiro.registos.length === 0 ? (
