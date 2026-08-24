@@ -17,6 +17,7 @@ import { ListaRegistos } from '@/features/preenchimento/paginas/lista-registos'
 import { EscolhaTipoRegisto } from '@/features/preenchimento/paginas/escolha-tipo-registo'
 import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina-formulario-registo'
 import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
+import { PaginaAjuda } from '@/features/ajuda/pagina-ajuda'
 
 function Cabecalho() {
   return (
@@ -26,12 +27,15 @@ function Cabecalho() {
           <h1 className="text-base font-semibold">{textos.app.titulo}</h1>
           <p className="text-xs text-muted-foreground">{textos.app.descricao}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="no-print flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link to="/">{textos.navegacao.listaRegistos}</Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/validacao">{textos.validador.tituloNav}</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/ajuda">{textos.navegacao.ajuda}</Link>
           </Button>
           <Button
             variant="outline"
@@ -64,6 +68,7 @@ function ConteudoApp() {
         <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
         <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
         <Route path="/validacao" element={<ModoValidador />} />
+        <Route path="/ajuda" element={<PaginaAjuda />} />
       </Routes>
     </div>
   )

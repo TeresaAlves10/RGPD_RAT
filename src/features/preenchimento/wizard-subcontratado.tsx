@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Campo } from '@/components/form/campo'
+import { PassosWizard, idPainelPasso } from '@/components/form/passos-wizard'
 import { textos } from '@/i18n/pt'
 import { mecanismoTransferencia } from '@/domain/schema/vocabularios'
 import { registoSubcontratadoSchema, type RegistoSubcontratado } from '@/domain/schema/subcontratado'
@@ -86,31 +87,23 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
 
   return (
     <form onSubmit={handleSubmit(submeter)} className="flex flex-col gap-6">
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Passos do formulário">
-        {PASSOS.map((titulo, indice) => (
-          <button
-            key={titulo}
-            type="button"
-            role="tab"
-            aria-selected={passo === indice}
-            onClick={() => setPasso(indice)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${
-              passo === indice
-                ? 'border-primary bg-primary text-primary-foreground'
-                : passosComErro.has(indice)
-                  ? 'border-destructive text-destructive'
-                  : 'border-border text-muted-foreground'
-            }`}
-          >
-            {indice + 1}. {titulo}
-          </button>
-        ))}
-      </div>
+      <PassosWizard
+        idBase="wizard-subcontratado"
+        titulos={PASSOS}
+        passoAtual={passo}
+        passosComErro={passosComErro}
+        onMudarPasso={setPasso}
+      />
 
       <p className="text-xs text-muted-foreground">{textos.formulario.obrigatorio}</p>
 
       {passo === 0 ? (
-        <div className="flex flex-col gap-4">
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 0)}
+          aria-labelledby="wizard-subcontratado-tab-0"
+        >
           <Campo id="direcao" label={textos.campos.direcao} obrigatorio erro={errors.direcao?.message}>
             <Input id="direcao" {...register('direcao')} />
           </Campo>
@@ -148,23 +141,34 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
       ) : null}
 
       {passo === 1 ? (
-        <Campo
-          id="responsaveis"
-          label={textos.campos.responsaveis}
-          obrigatorio
-          erro={errors.responsaveis?.message}
-          ajuda="responsaveis"
+        <div
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 1)}
+          aria-labelledby="wizard-subcontratado-tab-1"
         >
-          <Controller
-            name="responsaveis"
-            control={control}
-            render={({ field }) => <CampoResponsaveis valor={field.value} onChange={field.onChange} />}
-          />
-        </Campo>
+          <Campo
+            id="responsaveis"
+            label={textos.campos.responsaveis}
+            obrigatorio
+            erro={errors.responsaveis?.message}
+            ajuda="responsaveis"
+          >
+            <Controller
+              name="responsaveis"
+              control={control}
+              render={({ field }) => <CampoResponsaveis valor={field.value} onChange={field.onChange} />}
+            />
+          </Campo>
+        </div>
       ) : null}
 
       {passo === 2 ? (
-        <div className="flex flex-col gap-4">
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 2)}
+          aria-labelledby="wizard-subcontratado-tab-2"
+        >
           <Campo
             id="transferenciasInternacionais.existem"
             label={textos.campos['transferenciasInternacionais.existem']}
@@ -227,7 +231,12 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
       ) : null}
 
       {passo === 3 ? (
-        <div className="flex flex-col gap-4">
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 3)}
+          aria-labelledby="wizard-subcontratado-tab-3"
+        >
           <Campo
             id="medidasTecnicasOrganizativas"
             label={textos.campos.medidasTecnicasOrganizativas}

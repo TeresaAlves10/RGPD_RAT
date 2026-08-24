@@ -78,7 +78,7 @@ export function ListaRegistos() {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">{textos.lista.titulo}</h1>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="no-print flex flex-wrap items-center gap-4">
           <BarraImportacao />
           <BarraExportacao />
           <Button onClick={() => navigate('/registos/novo')}>{textos.lista.botaoNovoRegisto}</Button>
@@ -101,7 +101,7 @@ export function ListaRegistos() {
                 <th className="p-3">{textos.lista.colunaTipo}</th>
                 <th className="p-3">{textos.lista.colunaDirecao}</th>
                 <th className="p-3">{textos.lista.colunaEstado}</th>
-                <th className="p-3" />
+                <th className="no-print p-3" />
               </tr>
             </thead>
             <tbody>
@@ -133,7 +133,7 @@ export function ListaRegistos() {
                         </div>
                       ) : null}
                     </td>
-                    <td className="flex justify-end gap-2 p-3">
+                    <td className="no-print flex justify-end gap-2 p-3">
                       <Button size="sm" variant="outline" onClick={() => navigate(`/registos/${registo.id}/editar`)}>
                         {textos.lista.botaoEditar}
                       </Button>

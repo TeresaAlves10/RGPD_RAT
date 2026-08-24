@@ -7,6 +7,55 @@ export const textos = {
   navegacao: {
     listaRegistos: 'Registos',
     novoRegisto: 'Novo registo',
+    ajuda: 'Ajuda',
+  },
+
+  ajuda: {
+    titulo: 'Guia de utilização',
+    seccoes: [
+      {
+        titulo: '1. Preencher um registo',
+        paragrafos: [
+          'Em "Registos", clica em "+ Novo registo" e escolhe se a organização atua como Responsável pelo Tratamento (art. 30.º/1) ou como Subcontratado (art. 30.º/2) — os dois pedem campos diferentes.',
+          'O formulário está dividido em passos. Navega entre eles clicando nas abas ou com as setas do teclado quando uma aba está selecionada. Campos com * são obrigatórios.',
+          'Junto de alguns campos há um "?" com a fundamentação legal (artigo do RGPD relevante) — clica para abrir.',
+          'Avisos e erros adicionais (para além dos campos obrigatórios) aparecem no fundo do formulário; não impedem guardar o registo, mas convém rever antes de exportar.',
+        ],
+      },
+      {
+        titulo: '2. Rascunho local',
+        paragrafos: [
+          'O ficheiro em edição é guardado automaticamente no browser (localStorage) cerca de 1 segundo depois de cada alteração — nunca é enviado para nenhum servidor.',
+          'Ao reabrir a aplicação com um rascunho guardado, é sempre pedida confirmação explícita antes de o carregar.',
+          'Usa "Limpar rascunho local" no cabeçalho para apagar este rascunho a qualquer momento.',
+        ],
+      },
+      {
+        titulo: '3. Exportar e enviar ao DPO',
+        paragrafos: [
+          'Em "Registos", os botões "Exportar JSON", "Exportar Excel" e "Exportar PDF" geram o ficheiro correspondente para download.',
+          'JSON é o formato canónico — usa-o para reimportar e continuar a editar mais tarde, ou para o DPO validar.',
+          'Excel inclui uma folha legível e uma folha com o JSON completo (oculta), para poderes voltar a importar sem perder nada.',
+          'PDF é só para apresentação/arquivo — não pode ser reimportado.',
+          'O download nunca é bloqueado por erros de validação por resolver.',
+        ],
+      },
+      {
+        titulo: '4. Importar',
+        paragrafos: [
+          '"Importar" aceita um JSON ou Excel exportado por esta aplicação, e substitui o ficheiro em edição (pede confirmação se já tiveres registos).',
+          '"Importar (template antigo)" lê o template Excel anterior e mostra um relatório com os campos mapeados diretamente e os que ficam "por preencher" (porque usam listas fechadas que o template antigo não tinha) — o texto original desses campos fica guardado nas observações do registo.',
+        ],
+      },
+      {
+        titulo: '5. Modo validador (DPO)',
+        paragrafos: [
+          'Em "Modo validador", importa um ou mais ficheiros recebidos das equipas de uma vez.',
+          'O resumo da sessão mostra, por ficheiro, o número de registos, erros e avisos. "Ver detalhe" abre os registos individuais, com as ocorrências do motor de regras e um espaço para anotar o que precisa de correção — geral ou associado a um campo específico das ocorrências.',
+          'Exporta o ficheiro anotado (JSON/Excel/PDF) e envia de volta à equipa — as anotações viajam dentro do ficheiro.',
+        ],
+      },
+    ],
   },
 
   lista: {
