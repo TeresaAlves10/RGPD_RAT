@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+  <style>
+    body { margin: 0; background: #FAF8F4; font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #14584C; text-decoration: none; }
+    a:hover { color: #0E4038; text-decoration: underline; }
+    p { margin: 0; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #FAF8F4; color: #1B1A16;">
+
+  <!-- Barra superior -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 56px; height: 60px; border-bottom: 1px solid #E4DFD3; background: #FFFFFF;">
+    <div style="display: flex; align-items: baseline; gap: 14px;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 19px; font-weight: 600; letter-spacing: 0.02em;">RAT</span>
+      <span style="font-size: 12.5px; color: #8D8878; letter-spacing: 0.04em; text-transform: uppercase;">Registo de Atividades de Tratamento</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 32px;">
+      <div style="display: flex; align-items: center; gap: 24px; font-size: 13.5px;">
+        <span style="color: #1B1A16; font-weight: 500; border-bottom: 2px solid #14584C; padding-bottom: 3px;">Registos</span>
+        <span style="color: #6B6759;">Modo validador</span>
+        <span style="color: #6B6759;">Ajuda</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #6B6759;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #14584C; display: inline-block;"></span>
+        Guardado neste computador · há 2 min
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 40px 56px 56px;">
+
+    <!-- Cabeçalho -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; padding-bottom: 26px; border-bottom: 1px solid #E4DFD3;">
+      <div style="display: flex; flex-direction: column; gap: 9px;">
+        <h1 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1;">Direção de Sistemas de Informação</h1>
+        <p style="font-size: 14px; color: #6B6759;">12 tratamentos registados · última alteração a 24 de agosto de 2026</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 15px; border: 1px solid #D3CCBB; border-radius: 3px; font-size: 13.5px; color: #3D3B34; background: #FFFFFF;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 15px; border: 1px solid #D3CCBB; border-radius: 3px; font-size: 13.5px; color: #3D3B34; background: #FFFFFF;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importar
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 19px; border-radius: 3px; font-size: 14px; font-weight: 500; color: #FFFFFF; background: #14584C;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo tratamento
+        </span>
+      </div>
+    </div>
+
+    <!-- Barra de progresso do conjunto -->
+    <div style="display: flex; flex-direction: column; gap: 13px; padding: 26px 0 30px;">
+      <div style="display: flex; gap: 3px; height: 9px;">
+        <div style="flex-grow: 7; background: #14584C; border-radius: 2px;"></div>
+        <div style="flex-grow: 3; background: #C9A24D; border-radius: 2px;"></div>
+        <div style="flex-grow: 2; background: #E4DFD3; border-radius: 2px;"></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 26px; font-size: 13px; color: #3D3B34;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #14584C;"></span>7 prontos para enviar</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #C9A24D;"></span>3 a precisar de revisão</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #E4DFD3;"></span>2 por começar</span>
+      </div>
+    </div>
+
+    <!-- Precisa de atenção -->
+    <div style="display: flex; flex-direction: column; gap: 0; background: #FFFFFF; border: 1px solid #E4DFD3; border-radius: 4px; margin-bottom: 40px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 17px 24px; border-bottom: 1px solid #E4DFD3;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9E3B2A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span style="font-size: 14px; font-weight: 600;">Precisa da tua atenção</span>
+        <span style="font-size: 13px; color: #8D8878;">— três coisas concretas antes de enviares ao DPO</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 18px 24px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Gestão de candidaturas a emprego</span>
+          <span style="font-size: 13.5px; color: #3D3B34;">Falta dizer durante quanto tempo as candidaturas ficam guardadas.</span>
+        </div>
+        <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #14584C; font-weight: 500; white-space: nowrap;">
+          Preencher
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 18px 24px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Portal de marcação de consultas</span>
+          <span style="font-size: 13.5px; color: #3D3B34;">Há dados a sair da União Europeia sem estar indicado ao abrigo de quê.</span>
+        </div>
+        <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #14584C; font-weight: 500; white-space: nowrap;">
+          Resolver
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 18px 24px;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Helpdesk em regime de outsourcing</span>
+          <span style="font-size: 13.5px; color: #3D3B34;">O DPO deixou 2 anotações por responder na última revisão.</span>
+        </div>
+        <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #14584C; font-weight: 500; white-space: nowrap;">
+          Ver anotações
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Lista de tratamentos -->
+    <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #D3CCBB;">
+      <h2 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 21px; font-weight: 600;">Todos os tratamentos</h2>
+      <div style="display: flex; align-items: center; gap: 20px; font-size: 13px; color: #6B6759;">
+        <span>Ordenar por: <span style="color: #1B1A16;">estado</span></span>
+        <span>Filtrar</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Gestão administrativa de colaboradores</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Recursos Humanos · Bruno Fictício</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Responsável</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #14584C;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Completo
+        </span>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Gestão de candidaturas a emprego</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Recursos Humanos · Ana Fictícia</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Responsável</span>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 13px; color: #8D6A14;">Falta 1 campo</span>
+          <div style="display: flex; gap: 2px; height: 4px; width: 84px;">
+            <div style="flex-grow: 5; background: #C9A24D; border-radius: 1px;"></div>
+            <div style="flex-grow: 1; background: #E4DFD3; border-radius: 1px;"></div>
+          </div>
+        </div>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Portal de marcação de consultas</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Sistemas de Informação · Carla Fictícia</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Responsável</span>
+        <span style="font-size: 13px; color: #9E3B2A;">1 aviso</span>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Videovigilância das instalações</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Instalações e Segurança · Diana Fictícia</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Responsável</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #14584C;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Completo
+        </span>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Helpdesk em regime de outsourcing</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Operações · Carla Fictícia</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Subcontratado</span>
+        <span style="font-size: 13px; color: #8D6A14;">2 anotações</span>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 190px 132px 92px; gap: 24px; align-items: center; padding: 18px 4px; border-bottom: 1px solid #F0ECE3;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600;">Alojamento cloud para cliente</span>
+          <span style="font-size: 12.5px; color: #8D8878;">Operações · Diana Fictícia</span>
+        </div>
+        <span style="font-size: 13px; color: #6B6759;">Subcontratado</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #14584C;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Completo
+        </span>
+        <span style="font-size: 13px; color: #6B6759; text-align: right;">Abrir</span>
+      </div>
+
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 22px;">
+      <span style="font-size: 13.5px; color: #14584C;">Ver os restantes 6 tratamentos</span>
+      <span style="font-size: 13px; color: #8D8878;">Carregar exemplo para experimentar</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 34px; padding-top: 20px; border-top: 1px solid #E4DFD3;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8D8878" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span style="font-size: 12.5px; color: #8D8878;">Nada do que escreves aqui sai deste computador. Só os ficheiros que exportares, e só quando os enviares.</span>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

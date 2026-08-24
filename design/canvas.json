@@ -1,0 +1,34 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "1 · Painel inicial", "x": 0, "y": 0, "w": 1440, "h": 1400 },
+    { "file": "Escolha.dc.html", "title": "2 · Responsável ou subcontratado", "x": 1560, "y": 0, "w": 1440, "h": 1120 },
+    { "file": "Formulario.dc.html", "title": "3 · Formulário com fundamentação à vista", "x": 0, "y": 1560, "w": 1440, "h": 1540 },
+    { "file": "Registo.dc.html", "title": "4 · Registo em leitura", "x": 1560, "y": 1560, "w": 1440, "h": 1800 },
+    { "file": "Validador.dc.html", "title": "5 · Modo validador (DPO)", "x": 0, "y": 3520, "w": 1440, "h": 1040 },
+    { "file": "DirecaoCompacta.dc.html", "title": "Direção alternativa · compacta", "x": 1560, "y": 3520, "w": 1440, "h": 1000 }
+  ],
+  "annotations": [
+    {
+      "id": "nota-conceito",
+      "x": -360,
+      "y": 40,
+      "w": 280,
+      "text": "Direção principal: \"dossiê\".\n\nUm registo oficial bem composto, não um dashboard de SaaS. Serifa editorial nos títulos, fundo de papel quente, filetes em vez de caixas por todo o lado.\n\nA mudança de fundo no painel: em vez de contar erros (\"3 erros\"), diz-se o que falta em português corrente e leva-se a pessoa direta ao campo."
+    },
+    {
+      "id": "nota-formulario",
+      "x": -360,
+      "y": 1600,
+      "w": 280,
+      "text": "O problema principal do design atual está aqui.\n\nA fundamentação legal deixa de estar escondida atrás de um \"?\" e passa a marginália permanente na coluna direita — como numa edição anotada.\n\nCada campo é uma pergunta em linguagem corrente (\"Para que é que a equipa usa estes dados?\"), com o termo formal do RGPD em segundo plano. As alíneas da base de licitude ganham uma glosa em português comum."
+    },
+    {
+      "id": "nota-direccoes",
+      "x": -360,
+      "y": 3560,
+      "w": 280,
+      "text": "À direita, uma direção alternativa para comparares — densa e tabular, para quem gere muitos registos.\n\nSe preferires essa, aplico-a aos cinco ecrãs. Se preferires a principal, é só dizer o que ajustar."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

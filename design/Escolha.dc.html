@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+  <style>
+    body { margin: 0; background: #FAF8F4; font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #14584C; text-decoration: none; }
+    a:hover { color: #0E4038; text-decoration: underline; }
+    p { margin: 0; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #FAF8F4; color: #1B1A16;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 56px; height: 60px; border-bottom: 1px solid #E4DFD3; background: #FFFFFF;">
+    <div style="display: flex; align-items: baseline; gap: 14px;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 19px; font-weight: 600; letter-spacing: 0.02em;">RAT</span>
+      <span style="font-size: 12.5px; color: #8D8878; letter-spacing: 0.04em; text-transform: uppercase;">Novo tratamento</span>
+    </div>
+    <span style="font-size: 13.5px; color: #6B6759;">Cancelar</span>
+  </div>
+
+  <div style="max-width: 1000px; margin: 0 auto; padding: 56px 56px 64px;">
+
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6B6759; margin-bottom: 30px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6759" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar aos registos
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px;">
+      <h1 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 34px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.18; max-width: 660px;">Neste tratamento, quem decide o que se faz com os dados?</h1>
+      <p style="font-size: 15px; color: #6B6759; line-height: 1.6; max-width: 640px;">A resposta muda o que o RGPD te obriga a registar — por isso o formulário é diferente nos dois casos. Podes trocar mais tarde sem perder o que já preencheste.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
+
+      <!-- Responsável -->
+      <div style="display: flex; flex-direction: column; gap: 20px; background: #FFFFFF; border: 1px solid #D3CCBB; border-radius: 4px; padding: 28px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase; color: #9A7018;">Responsável pelo tratamento</span>
+          <h2 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 23px; font-weight: 600; line-height: 1.25;">Decidimos nós para que servem os dados e como são usados</h2>
+        </div>
+
+        <p style="font-size: 14.5px; color: #3D3B34; line-height: 1.65;">Ninguém de fora nos deu instruções: a finalidade e os meios do tratamento são escolha da organização.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: #F6F4EE; border-radius: 3px;">
+          <span style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8D8878;">Por exemplo</span>
+          <div style="display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; color: #3D3B34; line-height: 1.5;">
+            <span>Recrutamento e gestão de colaboradores</span>
+            <span>Um portal ou serviço que a equipa criou e gere</span>
+            <span>Videovigilância das nossas instalações</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 18px; border-top: 1px solid #E4DFD3;">
+          <span style="font-size: 12.5px; color: #8D8878;">6 secções · art. 30.º/1</span>
+          <span style="display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 19px; border-radius: 3px; font-size: 14px; font-weight: 500; color: #FFFFFF; background: #14584C;">
+            Começar
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Subcontratado -->
+      <div style="display: flex; flex-direction: column; gap: 20px; background: #FFFFFF; border: 1px solid #D3CCBB; border-radius: 4px; padding: 28px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase; color: #9A7018;">Subcontratado</span>
+          <h2 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 23px; font-weight: 600; line-height: 1.25;">Tratamos dados por conta de outra entidade, seguindo as instruções dela</h2>
+        </div>
+
+        <p style="font-size: 14.5px; color: #3D3B34; line-height: 1.65;">Há um cliente, um parceiro ou outro serviço que decide a finalidade; nós executamos o que foi contratado.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: #F6F4EE; border-radius: 3px;">
+          <span style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8D8878;">Por exemplo</span>
+          <div style="display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; color: #3D3B34; line-height: 1.5;">
+            <span>Alojar a base de dados de um cliente</span>
+            <span>Helpdesk contratado por outra entidade</span>
+            <span>Processar salários por conta de outro serviço</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 18px; border-top: 1px solid #E4DFD3;">
+          <span style="font-size: 12.5px; color: #8D8878;">4 secções · art. 30.º/2</span>
+          <span style="display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 19px; border-radius: 3px; font-size: 14px; font-weight: 500; color: #14584C; background: #FFFFFF; border: 1px solid #14584C;">
+            Começar
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14584C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Ajuda a decidir -->
+    <div style="display: flex; gap: 22px; margin-top: 32px; padding: 24px 26px; background: #F6F1E2; border-radius: 4px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A7018" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-size: 14.5px; font-weight: 600; color: #1B1A16;">Não tens a certeza?</span>
+        <p style="font-size: 14px; color: #5C5344; line-height: 1.65; max-width: 720px;">Faz esta pergunta: <span style="font-style: italic;">se amanhã decidíssemos usar estes dados para outra coisa, podíamos fazê-lo sozinhos?</span> Se sim, a equipa é <strong style="font-weight: 600;">responsável</strong>. Se tivesses de pedir autorização a quem nos entregou os dados, é <strong style="font-weight: 600;">subcontratado</strong>.</p>
+        <p style="font-size: 13.5px; color: #7A7466; line-height: 1.6;">Pode acontecer a mesma equipa ser as duas coisas em tratamentos diferentes — nesse caso cria um registo para cada.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
