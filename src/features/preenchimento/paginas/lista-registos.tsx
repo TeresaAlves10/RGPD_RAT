@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { textos } from '@/i18n/pt'
 import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
 import { BarraExportacao } from '@/features/preenchimento/barra-exportacao'
+import { BarraImportacao } from '@/features/preenchimento/barra-importacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
-import type { Registo } from '@/domain/schema/registo'
+import { registoSchema, type Registo } from '@/domain/schema/registo'
 
 export function ListaRegistos() {
   const navigate = useNavigate()
@@ -24,6 +25,17 @@ export function ListaRegistos() {
       if (ocorrencia.severidade === 'erro') atual.erros += 1
       else atual.avisos += 1
       mapa.set(ocorrencia.registoId, atual)
+    }
+    // Campos obrigatórios em falta (ex.: registos importados do template
+    // antigo, ainda "por preencher") contam como erros também, ao lado
+    // das regras de negócio do motor de regras.
+    for (const registo of ficheiro.registos) {
+      const resultado = registoSchema.safeParse(registo)
+      if (!resultado.success) {
+        const atual = mapa.get(registo.id) ?? { erros: 0, avisos: 0 }
+        atual.erros += resultado.error.issues.length
+        mapa.set(registo.id, atual)
+      }
     }
     return mapa
   }, [ficheiro])
@@ -67,6 +79,7 @@ export function ListaRegistos() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">{textos.lista.titulo}</h1>
         <div className="flex flex-wrap items-center gap-4">
+          <BarraImportacao />
           <BarraExportacao />
           <Button onClick={() => navigate('/registos/novo')}>{textos.lista.botaoNovoRegisto}</Button>
         </div>

@@ -21,6 +21,7 @@ interface FicheiroContextValue {
   definirFicheiro: (ficheiro: FicheiroRat) => void
   definirMetadados: (metadados: Partial<Omit<MetadadosEquipa, 'dataCriacao' | 'dataUltimaEdicao'>>) => void
   guardarRegisto: (registo: Registo) => void
+  adicionarRegistos: (registos: Registo[]) => void
   removerRegisto: (id: string) => void
   reiniciarFicheiro: () => void
 }
@@ -54,6 +55,14 @@ export function FicheiroProvider({ ficheiroInicial, children }: FicheiroProvider
     })
   }, [])
 
+  const adicionarRegistos = useCallback((novosRegistos: Registo[]) => {
+    setFicheiro((atual) => ({
+      ...atual,
+      registos: [...atual.registos, ...novosRegistos],
+      metadados: { ...atual.metadados, dataUltimaEdicao: agoraIso() },
+    }))
+  }, [])
+
   const removerRegisto = useCallback((id: string) => {
     setFicheiro((atual) => ({
       ...atual,
@@ -65,8 +74,16 @@ export function FicheiroProvider({ ficheiroInicial, children }: FicheiroProvider
   const reiniciarFicheiro = useCallback(() => setFicheiro(criarFicheiroVazio()), [])
 
   const valor = useMemo<FicheiroContextValue>(
-    () => ({ ficheiro, definirFicheiro, definirMetadados, guardarRegisto, removerRegisto, reiniciarFicheiro }),
-    [ficheiro, definirFicheiro, definirMetadados, guardarRegisto, removerRegisto, reiniciarFicheiro],
+    () => ({
+      ficheiro,
+      definirFicheiro,
+      definirMetadados,
+      guardarRegisto,
+      adicionarRegistos,
+      removerRegisto,
+      reiniciarFicheiro,
+    }),
+    [ficheiro, definirFicheiro, definirMetadados, guardarRegisto, adicionarRegistos, removerRegisto, reiniciarFicheiro],
   )
 
   return <FicheiroContext.Provider value={valor}>{children}</FicheiroContext.Provider>

@@ -194,6 +194,9 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
             ajuda="baseLicitude"
           >
             <Select id="baseLicitude" {...register('baseLicitude')}>
+              <option value="" disabled>
+                —
+              </option>
               {baseLicitude.map((opcao) => (
                 <option key={opcao.id} value={opcao.id}>
                   {opcao.label}
