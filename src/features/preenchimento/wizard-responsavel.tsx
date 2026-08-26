@@ -21,6 +21,7 @@ import { CampoMedidas } from '@/features/preenchimento/campos/campo-medidas'
 import { CampoCategoriasDados } from '@/features/preenchimento/campos/campo-categorias-dados'
 import { CampoSubcontratantes } from '@/features/preenchimento/campos/campo-subcontratantes'
 import { avaliarRegisto } from '@/domain/rules/motor'
+import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
 
 const PASSOS = [
   textos.passos.identificacao,
@@ -72,6 +73,7 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
         categoriasEspeciais: { aplicavel: false },
         prazoConservacao: '',
         anotacoes: [],
+        estado: 'rascunho',
       },
     [registoInicial],
   )
@@ -116,6 +118,10 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
           passoAtual={passo}
           passosComErro={passosComErro}
           onMudarPasso={setPasso}
+        />
+        <AcoesEstado
+          estado={watch('estado')}
+          onMudar={(novo) => setValue('estado', novo, { shouldDirty: true })}
         />
         <p className="hidden border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground lg:block">
           {textos.formulario.notaRascunho}
@@ -475,12 +481,17 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
             {textos.formulario.botaoAnterior}
           </Button>
           {passo < PASSOS.length - 1 ? (
-            <Button type="button" onClick={() => setPasso((p) => Math.min(PASSOS.length - 1, p + 1))}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPasso((p) => Math.min(PASSOS.length - 1, p + 1))}
+            >
               {textos.formulario.botaoSeguinte}
             </Button>
-          ) : (
-            <Button type="submit">{textos.formulario.botaoGuardar}</Button>
-          )}
+          ) : null}
+          {/* Guardar está sempre disponível: quem edita um registo já
+              preenchido não deve ter de percorrer todos os passos. */}
+          <Button type="submit">{textos.formulario.botaoGuardar}</Button>
         </div>
       </div>
       </div>

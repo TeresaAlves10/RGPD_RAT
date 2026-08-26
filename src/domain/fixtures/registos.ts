@@ -26,6 +26,7 @@ export const registoResponsavelMinimo: RegistoResponsavel = {
   categoriasEspeciais: { aplicavel: false },
   prazoConservacao: '2 anos após o fim do processo de recrutamento.',
   anotacoes: [],
+  estado: 'rascunho',
 }
 
 export const registoResponsavelCompleto: RegistoResponsavel = {
@@ -84,6 +85,44 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
       resolvida: false,
     },
   ],
+  estado: 'pronto',
+  avaliacao: {
+    requisitosFuncionais: {
+      deverInformar: 'sim',
+      direitoAcesso: 'sim',
+      direitoRetificacao: 'sim',
+      direitoApagamento: 'parcial',
+      direitoPortabilidade: 'nao_aplicavel',
+      direitoLimitacao: 'parcial',
+      direitoNaoDecisoesAutomatizadas: 'nao_aplicavel',
+      direitoOposicao: 'sim',
+      detecaoNotificacaoViolacoes: 'sim',
+    },
+    controlosOperacionais: {
+      procedimentosAcessosDocumentados: 'sim',
+      procedimentosAcessosImplementados: 'sim',
+      acessosFormalmenteAutorizados: 'sim',
+      controlosAcessosPrivilegiados: 'parcial',
+      revisaoPeriodicaAcessos: 'nao',
+      remocaoAcessosASaida: 'sim',
+      notas: 'Revisão periódica de acessos por calendarizar com a equipa de sistemas.',
+    },
+    ferramentasSistemas: {
+      ferramentasAplicacoes: 'Sistema fictício de gestão de recursos humanos.',
+      numeroCamposComDadosPessoais: '24',
+      volumeDadosPessoais: 'Cerca de 400 colaboradores.',
+      numeroUtilizadoresComAcesso: '6',
+      suportesFisicos: 'Processos individuais em papel.',
+      localizacaoSuportesFisicos: 'Arquivo fechado à chave, piso 2.',
+    },
+    governoSubcontratacao: {
+      existeContrato: 'sim',
+      contratoComClausulasProtecaoDados: 'sim',
+      auditoriasAoSubcontratado: 'nao',
+      pedidoAutorizacaoCnpd: 'nao_aplicavel',
+    },
+    normativosAplicaveis: 'Código do Trabalho; legislação de segurança social.',
+  },
 }
 
 export const registoSubcontratadoMinimo: RegistoSubcontratado = {
@@ -102,6 +141,7 @@ export const registoSubcontratadoMinimo: RegistoSubcontratado = {
     },
   ],
   anotacoes: [],
+  estado: 'rascunho',
 }
 
 export const registoSubcontratadoCompleto: RegistoSubcontratado = {
@@ -137,10 +177,11 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
     },
   ],
   anotacoes: [],
+  estado: 'rascunho',
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -157,7 +198,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   metadados: {
     // falta "equipa", que é obrigatório
     dataCriacao: '2026-01-15T10:00:00.000Z',

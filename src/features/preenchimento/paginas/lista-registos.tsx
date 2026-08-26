@@ -13,6 +13,7 @@ import { BarraImportacao } from '@/features/preenchimento/barra-importacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import { registoSchema, type Registo } from '@/domain/schema/registo'
 import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
+import { EstadoRegistoBadge } from '@/components/estado-registo'
 
 interface EstadoRegisto {
   erros: number
@@ -29,6 +30,7 @@ export function ListaRegistos() {
 
   const [pesquisa, setPesquisa] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
+  const [filtroCompletude, setFiltroCompletude] = useState('')
   const [filtroQualidade, setFiltroQualidade] = useState('')
   const [filtroDirecao, setFiltroDirecao] = useState('')
 
@@ -78,11 +80,20 @@ export function ListaRegistos() {
       }
       if (filtroQualidade && registo.tipoRegisto !== filtroQualidade) return false
       if (filtroDirecao && registo.direcao !== filtroDirecao) return false
-      if (filtroEstado === 'completo' && estado.erros > 0) return false
-      if (filtroEstado === 'incompleto' && estado.erros === 0) return false
+      if (filtroEstado && registo.estado !== filtroEstado) return false
+      if (filtroCompletude === 'completo' && estado.erros > 0) return false
+      if (filtroCompletude === 'incompleto' && estado.erros === 0) return false
       return true
     })
-  }, [ficheiro.registos, estadoPorRegisto, pesquisa, filtroQualidade, filtroDirecao, filtroEstado])
+  }, [
+    ficheiro.registos,
+    estadoPorRegisto,
+    pesquisa,
+    filtroQualidade,
+    filtroDirecao,
+    filtroEstado,
+    filtroCompletude,
+  ])
 
   const resumo = useMemo(() => {
     let prontos = 0
@@ -106,7 +117,9 @@ export function ListaRegistos() {
     [ficheiro.registos, estadoPorRegisto],
   )
 
-  const temFiltros = Boolean(pesquisa || filtroEstado || filtroQualidade || filtroDirecao)
+  const temFiltros = Boolean(
+    pesquisa || filtroEstado || filtroCompletude || filtroQualidade || filtroDirecao,
+  )
 
   function nomeTipo(registo: Registo) {
     return registo.tipoRegisto === 'responsavel'
@@ -133,6 +146,7 @@ export function ListaRegistos() {
   function limparFiltros() {
     setPesquisa('')
     setFiltroEstado('')
+    setFiltroCompletude('')
     setFiltroQualidade('')
     setFiltroDirecao('')
   }
@@ -247,7 +261,7 @@ export function ListaRegistos() {
           ) : null}
 
           {/* Filtros */}
-          <div className="no-print grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="no-print grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Input
               type="search"
               aria-label={textos.lista.pesquisar}
@@ -256,11 +270,21 @@ export function ListaRegistos() {
               onChange={(e) => setPesquisa(e.target.value)}
             />
             <Select
-              aria-label={textos.lista.filtroTodosEstados}
+              aria-label={textos.estado.filtroTodos}
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
             >
-              <option value="">{textos.lista.filtroTodosEstados}</option>
+              <option value="">{textos.estado.filtroTodos}</option>
+              <option value="rascunho">{textos.estado.rascunho}</option>
+              <option value="pronto">{textos.estado.pronto}</option>
+              <option value="validado">{textos.estado.validado}</option>
+            </Select>
+            <Select
+              aria-label={textos.lista.filtroTodasCompletudes}
+              value={filtroCompletude}
+              onChange={(e) => setFiltroCompletude(e.target.value)}
+            >
+              <option value="">{textos.lista.filtroTodasCompletudes}</option>
               <option value="completo">{textos.lista.estadoCompleto}</option>
               <option value="incompleto">{textos.lista.estadoIncompleto}</option>
             </Select>
@@ -299,13 +323,14 @@ export function ListaRegistos() {
             </Card>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-              <table className="w-full min-w-[56rem] text-left text-sm">
+              <table className="w-full min-w-[64rem] text-left text-sm">
                 <thead className="border-b border-border bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaNome}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaTipo}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaDirecao}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaUnidade}</th>
+                    <th className="px-4 py-3 font-medium">{textos.estado.etiqueta}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaCamposEmFalta}</th>
                     <th className="no-print px-4 py-3" />
                   </tr>
@@ -320,6 +345,9 @@ export function ListaRegistos() {
                         <td className="px-4 py-3 text-muted-foreground">{registo.direcao}</td>
                         <td className="px-4 py-3 text-muted-foreground">
                           {registo.unidadeCoordenacao || '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <EstadoRegistoBadge estado={registo.estado} />
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1.5">

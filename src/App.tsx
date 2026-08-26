@@ -18,6 +18,7 @@ import { ListaRegistos } from '@/features/preenchimento/paginas/lista-registos'
 import { EscolhaTipoRegisto } from '@/features/preenchimento/paginas/escolha-tipo-registo'
 import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina-formulario-registo'
 import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
+import { PaginaAvaliacao } from '@/features/avaliacao/paginas/pagina-avaliacao'
 import { PaginaAjuda } from '@/features/ajuda/pagina-ajuda'
 
 function BarraEstado() {
@@ -58,6 +59,7 @@ function ConteudoApp() {
             <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
             <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
             <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
+          <Route path="/registos/:id/avaliacao" element={<PaginaAvaliacao />} />
             <Route path="/validacao" element={<ModoValidador />} />
             <Route path="/ajuda" element={<PaginaAjuda />} />
           </Routes>

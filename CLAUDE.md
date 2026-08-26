@@ -60,6 +60,19 @@ importa, corrige, reenvia
     acessos, revisões periódicas, auditorias a subcontratados, capacidade de
     detetar violações, etc. Nunca aparece misturado no mesmo ecrã do RAT.
 
+    *Implementado* em `src/domain/schema/avaliacao.ts` (campo opcional
+    `avaliacao` no registo) e no ecrã próprio `/registos/:id/avaliacao`.
+    Cobre as secções que o template Excel antigo misturava nas colunas do
+    RAT: direitos dos titulares, gestão de acessos, ferramentas e
+    suportes, contratos/auditorias a subcontratantes, e consentimento.
+    A ausência do módulo nunca torna um RAT inválido.
+
+- **Estado do registo, sem contas nem servidor.** Cada registo tem um
+  `estado`: `rascunho` → `pronto` → `validado`. É apenas um marcador que
+  viaja dentro do ficheiro exportado; não há submissão, aprovação nem
+  autenticação (ver regra 8 e §2.2). "Submeter" continua a ser exportar o
+  ficheiro e enviá-lo ao DPO, que o devolve com o estado `validado`.
+
 - **Dentro do módulo RAT, há dois tipos de registo**, correspondentes às duas
   qualidades em que a organização pode atuar (isto substitui a ideia de um
   único formulário universal — são dois formulários com secções distintas,
