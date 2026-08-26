@@ -21,6 +21,7 @@ import {
   rotulosCategoriasTitulares,
   rotulosCondicaoArt9,
 } from '@/io/excel/rotulos'
+import { textos } from '@/i18n/pt'
 
 export const NOME_FOLHA_REGISTOS = 'Registos'
 export const NOME_FOLHA_LISTAS = 'Listas'
@@ -32,6 +33,7 @@ const TAMANHO_FRAGMENTO_DADOS = 30000
 const CABECALHOS_REGISTOS = [
   'ID',
   'Tipo de registo',
+  'Estado',
   'Direção / Área / Serviço',
   'Unidade de Coordenação',
   'Nome do tratamento',
@@ -58,12 +60,14 @@ const CABECALHOS_REGISTOS = [
   'Medidas técnicas e organizativas',
   'AIPD realizada',
   'Observações',
+  'Avaliação de controlos preenchida',
 ] as const
 
 function linhaRegisto(registo: Registo): (string | number)[] {
   const comum = [
     registo.id,
     registo.tipoRegisto === 'responsavel' ? 'Responsável' : 'Subcontratado',
+    textos.estado[registo.estado],
     registo.direcao,
     registo.unidadeCoordenacao ?? '',
     registo.nomeTratamento,
@@ -118,6 +122,7 @@ function linhaRegisto(registo: Registo): (string | number)[] {
     rotuloMedidas(registo.medidasTecnicasOrganizativas),
     rotuloAipd(registo.aipdRealizada),
     registo.observacoes ?? '',
+    rotuloSimNao(Boolean(registo.avaliacao)),
   ]
 
   return [...comum, ...especifico, ...cauda]

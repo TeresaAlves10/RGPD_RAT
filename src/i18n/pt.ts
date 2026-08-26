@@ -92,6 +92,7 @@ export const textos = {
     subtitulo: (n: number) => `${n} registo${n === 1 ? '' : 's'} · artigo 30.º do RGPD`,
     pesquisar: 'Pesquisar por nome, unidade ou direção',
     filtroTodosEstados: 'Todos os estados',
+    filtroTodasCompletudes: 'Completos e incompletos',
     filtroTodasQualidades: 'Todas as qualidades',
     filtroTodasDirecoes: 'Todas as direções',
     estadoCompleto: 'Completo',
@@ -216,6 +217,22 @@ export const textos = {
     nao_aplicavel: 'Não aplicável',
   },
 
+  estado: {
+    etiqueta: 'Estado',
+    rascunho: 'Rascunho',
+    pronto: 'Pronto a enviar',
+    validado: 'Validado pelo DPO',
+    rascunhoDescricao: 'Ainda em preenchimento pela equipa.',
+    prontoDescricao: 'A equipa deu por concluído e pode exportar para o DPO.',
+    validadoDescricao: 'O DPO reviu e deu como validado.',
+    marcarPronto: 'Marcar como pronto a enviar',
+    marcarRascunho: 'Devolver a rascunho',
+    marcarValidado: 'Marcar como validado',
+    filtroTodos: 'Todos os estados',
+    aviso:
+      'O estado é um marcador dentro do ficheiro, não uma submissão: viaja no JSON/Excel exportado e não depende de servidor nem de contas.',
+  },
+
   passos: {
     identificacao: 'Identificação',
     finalidadeBase: 'Finalidade e base de licitude',
@@ -285,6 +302,83 @@ export const textos = {
     marcarPorResolver: 'Marcar como por resolver',
     campoGeral: 'Geral',
     resumoSessaoTitulo: 'Resumo da sessão',
+  },
+
+  avaliacao: {
+    tituloNav: 'Avaliação de controlos',
+    titulo: 'Avaliação de controlos',
+    descricao:
+      'Módulo opcional, à parte do RAT. O registo do art. 30.º fica completo sem isto — aqui avalia-se a maturidade dos controlos que o template Excel antigo misturava nas mesmas colunas.',
+    naoAtivado: 'Este registo ainda não tem avaliação de controlos.',
+    naoAtivadoDescricao:
+      'Ativa apenas se a tua organização quiser acompanhar controlos além do que o RGPD obriga a registar.',
+    ativar: 'Ativar avaliação para este registo',
+    desativar: 'Remover avaliação deste registo',
+    confirmarDesativar:
+      'Isto apaga as respostas de avaliação deste registo. O RAT em si não é afetado. Continuar?',
+    voltarAoRegisto: '← Voltar ao registo',
+    guardar: 'Guardar avaliação',
+    respostas: {
+      sim: 'Sim',
+      parcial: 'Parcialmente',
+      nao: 'Não',
+      nao_aplicavel: 'Não aplicável',
+      porResponder: 'Por responder',
+    },
+    seccoes: {
+      requisitosFuncionais: 'Direitos dos titulares',
+      requisitosFuncionaisNota:
+        'Capacidade de dar resposta a cada direito (arts. 15.º a 22.º) e ao dever de informar (arts. 13.º e 14.º).',
+      controlosOperacionais: 'Gestão de acessos',
+      controlosOperacionaisNota: 'Controlos de segurança do tratamento (art. 32.º).',
+      ferramentasSistemas: 'Ferramentas, sistemas e suportes',
+      ferramentasSistemasNota: 'Onde os dados vivem, e em que volume.',
+      governoSubcontratacao: 'Contratos e auditorias a subcontratantes',
+      governoSubcontratacaoNota: 'Relação contratual nos termos do art. 28.º, e CNPD.',
+      governoConsentimento: 'Consentimento',
+      governoConsentimentoNota: 'Só relevante quando a base de licitude é o consentimento.',
+      outros: 'Normativos e diagrama',
+    },
+    campos: {
+      deverInformar: 'Foi exercido o "dever de informar" antes do início do tratamento?',
+      direitoAcesso: 'Direito de acesso',
+      direitoRetificacao: 'Direito de retificação',
+      direitoApagamento: 'Direito ao apagamento ("esquecimento")',
+      direitoPortabilidade: 'Direito à portabilidade',
+      direitoLimitacao: 'Direito à limitação do tratamento',
+      direitoNaoDecisoesAutomatizadas:
+        'Direito a não ficar sujeito a decisões individuais automatizadas, incluindo definição de perfis',
+      direitoOposicao: 'Direito de oposição',
+      detecaoNotificacaoViolacoes: 'Capacidade de detetar e notificar violações de dados',
+      procedimentosAcessosDocumentados:
+        'Os procedimentos de gestão de acessos estão documentados?',
+      procedimentosAcessosImplementados:
+        'Os procedimentos de gestão de acessos estão implementados? (pedido, alteração, remoção)',
+      acessosFormalmenteAutorizados: 'Os acessos são formalmente solicitados e autorizados?',
+      controlosAcessosPrivilegiados:
+        'Existem controlos sobre utilizadores com acessos privilegiados ou genéricos?',
+      revisaoPeriodicaAcessos: 'É feita revisão periódica dos acessos dos utilizadores?',
+      remocaoAcessosASaida: 'Os acessos são removidos quando um colaborador sai?',
+      ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
+      numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
+      volumeDadosPessoais: 'Volume de dados pessoais',
+      numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso',
+      suportesFisicos: 'Suportes físicos com dados pessoais (papel, disco externo, …)',
+      localizacaoSuportesFisicos: 'Localização dos suportes físicos',
+      existeContrato: 'Existe contrato com a entidade subcontratante?',
+      contratoComClausulasProtecaoDados:
+        'O contrato tem cláusulas específicas de proteção de dados?',
+      auditoriasAoSubcontratado:
+        'São feitas auditorias para validar que o subcontratado cumpre as obrigações?',
+      pedidoAutorizacaoCnpd: 'Foi feito pedido de autorização/notificação à CNPD?',
+      mecanismosDemonstracaoConsentimento:
+        'Existem mecanismos para demonstrar, a qualquer momento, que o titular deu consentimento?',
+      consentimentoResponsabilidadeParental:
+        'Tratando-se de menores, o consentimento é obtido a quem tem a responsabilidade parental?',
+      normativosAplicaveis: 'Normativos legais ou regulamentares aplicáveis',
+      diagramaProcesso: 'Diagrama do processo (referência ou ligação)',
+      notas: 'Notas',
+    },
   },
 
   rascunho: {

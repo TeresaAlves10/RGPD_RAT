@@ -1,6 +1,7 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
 import type { Registo } from '@/domain/schema/registo'
+import type { AvaliacaoControlos } from '@/domain/schema/avaliacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import type { Ocorrencia } from '@/domain/rules/types'
 import { descarregarFicheiro } from '@/io/descarregar'
@@ -25,6 +26,41 @@ function campo(label: string, valor: string | undefined): Content[] {
   return [{ text: [{ text: `${label}: `, bold: true }, valor], margin: [0, 0, 0, 4] }]
 }
 
+/** Respostas preenchidas do módulo de avaliação, agrupadas por secção. */
+function linhasAvaliacao(avaliacao: AvaliacaoControlos): Content[] {
+  const rotulos = textos.avaliacao.campos as Record<string, string>
+  const respostas = textos.avaliacao.respostas as Record<string, string>
+
+  const grupos: [string, Record<string, unknown> | undefined][] = [
+    [textos.avaliacao.seccoes.requisitosFuncionais, avaliacao.requisitosFuncionais],
+    [textos.avaliacao.seccoes.controlosOperacionais, avaliacao.controlosOperacionais],
+    [textos.avaliacao.seccoes.ferramentasSistemas, avaliacao.ferramentasSistemas],
+    [textos.avaliacao.seccoes.governoSubcontratacao, avaliacao.governoSubcontratacao],
+    [textos.avaliacao.seccoes.governoConsentimento, avaliacao.governoConsentimento],
+  ]
+
+  const conteudo: Content[] = []
+
+  for (const [titulo, grupo] of grupos) {
+    if (!grupo) continue
+    const itens = Object.entries(grupo)
+      .filter(([, valor]) => typeof valor === 'string' && valor !== '')
+      .map(([chave, valor]) => {
+        const rotulo = rotulos[chave] ?? chave
+        const texto = respostas[valor as string] ?? String(valor)
+        return `${rotulo}: ${texto}`
+      })
+    if (itens.length === 0) continue
+    conteudo.push({ text: titulo, bold: true, margin: [0, 6, 0, 2] })
+    conteudo.push({ ul: itens })
+  }
+
+  conteudo.push(...campo(textos.avaliacao.campos.normativosAplicaveis, avaliacao.normativosAplicaveis))
+  conteudo.push(...campo(textos.avaliacao.campos.diagramaProcesso, avaliacao.diagramaProcesso))
+
+  return conteudo
+}
+
 function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
   const identificacao: Content[] = [
     { text: registo.nomeTratamento, style: 'tituloRegisto' },
@@ -32,6 +68,7 @@ function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
       text: registo.tipoRegisto === 'responsavel' ? textos.lista.tipoResponsavel : textos.lista.tipoSubcontratado,
       style: 'subtituloRegisto',
     },
+    ...campo(textos.estado.etiqueta, textos.estado[registo.estado]),
     ...campo(textos.campos.direcao, registo.direcao),
     ...campo(textos.campos.unidadeCoordenacao, registo.unidadeCoordenacao),
     ...campo(textos.campos.descricao, registo.descricao),
@@ -106,6 +143,20 @@ function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
     ...campo(textos.campos.observacoes, registo.observacoes),
   ]
 
+  // Módulo de avaliação de controlos — opcional e à parte do RAT
+  // (CLAUDE.md §3). Só entra no PDF quando a equipa o ativou, e sempre
+  // numa secção própria, nunca misturado com o registo do art. 30.º.
+  const avaliacao: Content[] = registo.avaliacao
+    ? [
+        {
+          text: textos.avaliacao.titulo,
+          style: 'subtituloRegisto',
+          margin: [0, 10, 0, 2],
+        },
+        ...linhasAvaliacao(registo.avaliacao),
+      ]
+    : []
+
   const sumarioValidacao: Content[] =
     ocorrencias.length > 0
       ? [
@@ -120,7 +171,7 @@ function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
       : []
 
   return {
-    stack: [...identificacao, ...especifico, ...cauda, ...sumarioValidacao],
+    stack: [...identificacao, ...especifico, ...cauda, ...avaliacao, ...sumarioValidacao],
     margin: [0, 0, 0, 16],
   }
 }

@@ -4,6 +4,7 @@ import {
   idsMecanismoTransferencia,
   idsMedidasTecnicasOrganizativas,
 } from '@/domain/schema/vocabularios'
+import { avaliacaoControlosSchema } from '@/domain/schema/avaliacao'
 
 /**
  * Peças de schema partilhadas pelos dois tipos de registo (responsável e
@@ -41,6 +42,15 @@ export const aipdSchema = z.enum(['sim', 'nao', 'nao_aplicavel'])
 export type Aipd = z.infer<typeof aipdSchema>
 
 /**
+ * Estado do registo dentro do ficheiro da equipa. É apenas um marcador
+ * local: viaja dentro do ficheiro exportado e não implica contas,
+ * servidor nem submissão (CLAUDE.md §2.2 e §2.8). A "submissão" continua
+ * a ser exportar o ficheiro e enviá-lo ao DPO.
+ */
+export const estadoRegistoSchema = z.enum(['rascunho', 'pronto', 'validado'])
+export type EstadoRegisto = z.infer<typeof estadoRegistoSchema>
+
+/**
  * Anotação do DPO sobre um campo de um registo (modo validador, CLAUDE.md
  * §11 fase 6). `campo: 'geral'` significa uma anotação sobre o registo
  * como um todo, não sobre um campo específico.
@@ -70,5 +80,11 @@ export const campoBaseRegistoSchema = z.object({
   aipdRealizada: aipdSchema,
   gestorProjeto: gestorProjetoSchema,
   anotacoes: z.array(anotacaoCampoSchema).optional(),
+  estado: estadoRegistoSchema,
+  /**
+   * Módulo de avaliação de controlos — opcional e à parte do RAT
+   * (CLAUDE.md §3). Ausente enquanto a equipa não o ativar.
+   */
+  avaliacao: avaliacaoControlosSchema.optional(),
 })
 export type CampoBaseRegisto = z.infer<typeof campoBaseRegistoSchema>
