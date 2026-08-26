@@ -1,13 +1,19 @@
 export const textos = {
   app: {
+    marca: 'RAT',
     titulo: 'Registo de Atividades de Tratamento (RGPD)',
     descricao: 'Aplicação de preenchimento de RAT nos termos do art. 30.º do RGPD.',
+    subtitulo: 'Registo de Atividades de Tratamento',
+    rascunhoGuardado: 'Guardado neste computador',
+    rodape:
+      'Nada do que escreves aqui sai deste computador. Só os ficheiros que exportares, e só quando os enviares.',
   },
 
   navegacao: {
     listaRegistos: 'Registos',
     novoRegisto: 'Novo registo',
     ajuda: 'Ajuda',
+    principal: 'Navegação principal',
   },
 
   ajuda: {
@@ -63,6 +69,7 @@ export const textos = {
     semRegistos: 'Ainda não existe nenhum registo neste ficheiro.',
     semRegistosSugestao: 'Cria o primeiro registo para começares.',
     botaoNovoRegisto: '+ Novo registo',
+    botaoPrimeiroRegisto: 'Criar o primeiro registo',
     botaoCarregarExemplo: 'Carregar exemplo',
     confirmarCarregarExemplo:
       'Isto substitui os registos e os dados da equipa atuais por um exemplo fictício, pronto a explorar. Continuar?',
@@ -82,23 +89,67 @@ export const textos = {
     metadadosTitulo: 'Dados da equipa',
     campoEquipa: 'Equipa / Direção responsável pelo ficheiro',
     campoContactoEquipa: 'Contacto (opcional)',
+    subtitulo: (n: number) => `${n} registo${n === 1 ? '' : 's'} · artigo 30.º do RGPD`,
+    pesquisar: 'Pesquisar por nome, unidade ou direção',
+    filtroTodosEstados: 'Todos os estados',
+    filtroTodasQualidades: 'Todas as qualidades',
+    filtroTodasDirecoes: 'Todas as direções',
+    estadoCompleto: 'Completo',
+    estadoIncompleto: 'Por completar',
+    colunaUnidade: 'Unidade de Coordenação',
+    colunaCamposEmFalta: 'Campos em falta',
+    semResultados: 'Nenhum registo corresponde aos filtros aplicados.',
+    limparFiltros: 'Limpar filtros',
+    resumoProntos: (n: number) => `${n} sem problemas`,
+    resumoAvisos: (n: number) => `${n} com avisos`,
+    resumoErros: (n: number) => `${n} por completar`,
+    atencaoTitulo: 'Precisa da tua atenção',
+    atencaoDescricao: 'Antes de exportares e enviares ao DPO.',
+    atencaoResolver: 'Resolver',
   },
 
   escolhaTipo: {
-    titulo: 'Que tipo de registo queres criar?',
+    titulo: 'Neste tratamento, quem decide o que se faz com os dados?',
     descricao:
-      'O RGPD pede conteúdo diferente consoante a qualidade em que a organização atua neste tratamento.',
-    responsavelTitulo: 'Responsável pelo Tratamento',
+      'A resposta muda o que o RGPD obriga a registar — por isso o formulário é diferente nos dois casos. Podes trocar mais tarde sem perder o que já preencheste.',
+    responsavelTitulo: 'Decidimos nós para que servem os dados e como são usados',
+    responsavelEtiqueta: 'Responsável pelo tratamento',
     responsavelDescricao:
-      'Art. 30.º/1 — a organização determina as finalidades e os meios do tratamento.',
-    subcontratadoTitulo: 'Subcontratado',
-    subcontratadoDescricao: 'Art. 30.º/2 — a organização trata dados por conta de outro responsável.',
+      'Ninguém de fora nos deu instruções: a finalidade e os meios do tratamento são escolha da organização.',
+    responsavelExemplos: [
+      'Recrutamento e gestão de colaboradores',
+      'Um portal ou serviço que a equipa criou e gere',
+      'Videovigilância das nossas instalações',
+    ],
+    responsavelMeta: '6 secções · art. 30.º/1',
+    subcontratadoTitulo: 'Tratamos dados por conta de outra entidade, seguindo as instruções dela',
+    subcontratadoEtiqueta: 'Subcontratado',
+    subcontratadoDescricao:
+      'Há um cliente, um parceiro ou outro serviço que decide a finalidade; nós executamos o que foi contratado.',
+    subcontratadoExemplos: [
+      'Alojar a base de dados de um cliente',
+      'Helpdesk contratado por outra entidade',
+      'Processar salários por conta de outro serviço',
+    ],
+    subcontratadoMeta: '4 secções · art. 30.º/2',
+    exemplosTitulo: 'Por exemplo',
     botaoContinuar: 'Continuar',
     botaoCancelar: 'Cancelar',
+    duvidaTitulo: 'Não tens a certeza?',
+    duvidaTexto:
+      'Faz esta pergunta: se amanhã decidissem usar estes dados para outra coisa, podiam fazê-lo sozinhos? Se sim, a equipa é responsável. Se tivessem de pedir autorização a quem vos entregou os dados, é subcontratado.',
+    duvidaNota:
+      'A mesma equipa pode ser as duas coisas em tratamentos diferentes — nesse caso cria um registo para cada.',
   },
 
   formulario: {
     ajudaLegal: (base: string) => `Fundamentação legal (${base})`,
+    ajudaVerTudo: 'Ver texto completo',
+    ajudaVerMenos: 'Ver menos',
+    passosAria: 'Secções do formulário',
+    seccoes: 'Secções',
+    porRever: 'Por rever',
+    notaRascunho: 'Podes sair a meio. Nada se perde e nada é enviado.',
     botaoAnterior: 'Anterior',
     botaoSeguinte: 'Seguinte',
     botaoGuardar: 'Guardar registo',
@@ -178,8 +229,9 @@ export const textos = {
   },
 
   importar: {
-    botaoImportar: 'Importar',
-    botaoImportarLegado: 'Importar (template antigo)',
+    titulo: 'Importar',
+    botaoImportar: 'JSON ou Excel',
+    botaoImportarLegado: 'Template antigo',
     aImportar: 'A importar…',
     confirmarSubstituicao:
       'Já existem registos neste ficheiro. Importar vai substituí-los por completo. Continuar?',

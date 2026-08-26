@@ -58,9 +58,11 @@ export function BarraImportacao() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2">
-        <input
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {textos.importar.titulo}
+      </span>
+      <input
           ref={inputNativoRef}
           type="file"
           accept=".json,.xlsx"
@@ -72,6 +74,7 @@ export function BarraImportacao() {
           }}
         />
         <Button
+          size="sm"
           variant="outline"
           disabled={aImportar !== null}
           onClick={() => inputNativoRef.current?.click()}
@@ -91,13 +94,13 @@ export function BarraImportacao() {
           }}
         />
         <Button
+          size="sm"
           variant="outline"
           disabled={aImportar !== null}
           onClick={() => inputLegadoRef.current?.click()}
         >
           {aImportar === 'legado' ? textos.importar.aImportar : textos.importar.botaoImportarLegado}
         </Button>
-      </div>
       {erro ? <p className="text-sm text-destructive">{erro}</p> : null}
 
       {relatorioLegado ? (

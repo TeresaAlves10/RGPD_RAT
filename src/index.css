@@ -1,89 +1,102 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/*
+  Paleta institucional: branco e azul.
+  Deliberadamente sem variante escura — a paleta pedida é branco/azul, e
+  trocá-la por um tema escuro consoante a definição do sistema operativo
+  daria a metade das pessoas uma interface diferente da desenhada.
+
+  Sem webfonts: a regra 1 do CLAUDE.md proíbe dependências de CDN, e o
+  teste de "zero rede" falha se o bundle referenciar fonts.googleapis.com.
+  Usa-se a pilha de sistema, que já dá bons resultados em PT-PT.
+*/
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 4%;
-  --border: 240 6% 90%;
-  --input: 240 6% 90%;
-  --ring: 240 5% 65%;
-  --primary: 240 6% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 5% 96%;
-  --secondary-foreground: 240 6% 10%;
-  --muted: 240 5% 96%;
-  --muted-foreground: 240 4% 46%;
-  --accent: 240 5% 96%;
-  --accent-foreground: 240 6% 10%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 98%;
+  /* Superfícies */
+  --background: 210 40% 98%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 4%;
+  --card-foreground: 222 47% 11%;
+
+  /* Texto */
+  --foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  /* Azul da marca (navy institucional) */
+  --primary: 210 62% 23%;
+  --primary-foreground: 0 0% 100%;
+  --primary-strong: 210 66% 16%;
+  --primary-soft: 210 90% 96%;
+  --primary-border: 210 55% 85%;
+
+  /* Barra lateral */
+  --sidebar: 210 62% 23%;
+  --sidebar-foreground: 210 40% 96%;
+  --sidebar-muted: 210 30% 72%;
+  --sidebar-active: 210 48% 33%;
+  --sidebar-border: 210 45% 30%;
+
+  /* Contornos e controlos */
+  --border: 214 32% 91%;
+  --input: 214 26% 84%;
+  --ring: 217 79% 45%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --accent: 214 95% 96%;
+  --accent-foreground: 217 82% 30%;
+
+  /* Estados */
+  --destructive: 0 65% 44%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-soft: 0 86% 97%;
+  --warning: 30 80% 32%;
+  --warning-foreground: 0 0% 100%;
+  --warning-soft: 45 93% 94%;
+  --warning-border: 40 70% 80%;
+
   --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
-    --ring: 240 4% 40%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 6% 10%;
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --card: 240 8% 8%;
-    --card-foreground: 0 0% 98%;
-  }
-}
-
-:root[data-theme='dark'] {
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-  --border: 240 4% 20%;
-  --input: 240 4% 20%;
-  --ring: 240 4% 40%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 6% 10%;
-  --secondary: 240 4% 16%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 4% 16%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 240 4% 16%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 0 0% 98%;
-  --card: 240 8% 8%;
-  --card-foreground: 0 0% 98%;
-}
-
 @theme inline {
-  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-strong: hsl(var(--primary-strong));
+  --color-primary-soft: hsl(var(--primary-soft));
+  --color-primary-border: hsl(var(--primary-border));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-muted: hsl(var(--sidebar-muted));
+  --color-sidebar-active: hsl(var(--sidebar-active));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-soft: hsl(var(--destructive-soft));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-warning-soft: hsl(var(--warning-soft));
+  --color-warning-border: hsl(var(--warning-border));
+
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -93,16 +106,34 @@
   * {
     border-color: hsl(var(--border));
   }
+
+  html {
+    color-scheme: light;
+  }
+
   body {
     margin: 0;
     background: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: hsl(var(--primary-soft));
+    color: hsl(var(--primary-strong));
+  }
+
+  /* Foco sempre visível, em azul, para navegação por teclado. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
 /* Impressão (CLAUDE.md §11 fase 7): esconde ações interativas, força
-   fundo claro e texto legível independentemente do tema. */
+   fundo claro e texto legível. */
 @media print {
   .no-print {
     display: none !important;

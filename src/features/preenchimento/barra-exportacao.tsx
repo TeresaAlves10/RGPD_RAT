@@ -36,18 +36,19 @@ export function BarraExportacao() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={aExportar !== null} onClick={() => exportar('json')}>
-          {aExportar === 'json' ? textos.exportar.aExportar : textos.exportar.botaoJson}
-        </Button>
-        <Button variant="outline" disabled={aExportar !== null} onClick={() => exportar('excel')}>
-          {aExportar === 'excel' ? textos.exportar.aExportar : textos.exportar.botaoExcel}
-        </Button>
-        <Button variant="outline" disabled={aExportar !== null} onClick={() => exportar('pdf')}>
-          {aExportar === 'pdf' ? textos.exportar.aExportar : textos.exportar.botaoPdf}
-        </Button>
-      </div>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {textos.exportar.titulo}
+      </span>
+      <Button size="sm" variant="outline" disabled={aExportar !== null} onClick={() => exportar('json')}>
+        {aExportar === 'json' ? textos.exportar.aExportar : 'JSON'}
+      </Button>
+      <Button size="sm" variant="outline" disabled={aExportar !== null} onClick={() => exportar('excel')}>
+        {aExportar === 'excel' ? textos.exportar.aExportar : 'Excel'}
+      </Button>
+      <Button size="sm" variant="outline" disabled={aExportar !== null} onClick={() => exportar('pdf')}>
+        {aExportar === 'pdf' ? textos.exportar.aExportar : 'PDF'}
+      </Button>
       {erro ? <p className="text-sm text-destructive">{textos.exportar.erro}</p> : null}
     </div>
   )

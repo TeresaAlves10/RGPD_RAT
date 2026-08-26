@@ -48,8 +48,9 @@ describe('wizard de preenchimento', () => {
     // Passo 6: Subcontratantes e observações -> guardar
     await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoGuardar }))
 
-    expect(await screen.findByText('Tratamento Fictício de Teste')).toBeInTheDocument()
-    expect(screen.getByText(textos.lista.tipoResponsavel)).toBeInTheDocument()
+    const linha = (await screen.findByText('Tratamento Fictício de Teste')).closest('tr')
+    expect(linha).not.toBeNull()
+    expect(within(linha as HTMLElement).getByText(textos.lista.tipoResponsavel)).toBeInTheDocument()
   })
 
   it('cria um registo de subcontratado de início a fim e mostra-o na lista', async () => {
@@ -87,8 +88,11 @@ describe('wizard de preenchimento', () => {
     await utilizador.click(await screen.findByLabelText('Cibersegurança'))
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
-    expect(await screen.findByText('Serviço Subcontratado Fictício')).toBeInTheDocument()
-    expect(screen.getByText(textos.lista.tipoSubcontratado)).toBeInTheDocument()
+    const linha = (await screen.findByText('Serviço Subcontratado Fictício')).closest('tr')
+    expect(linha).not.toBeNull()
+    expect(
+      within(linha as HTMLElement).getByText(textos.lista.tipoSubcontratado),
+    ).toBeInTheDocument()
   })
 
   it('permite remover um registo criado', async () => {
