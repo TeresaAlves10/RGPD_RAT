@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { HashRouter, Link, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { BarraLateral } from '@/components/layout/barra-lateral'
 import { textos } from '@/i18n/pt'
 import {
   FicheiroProvider,
@@ -19,39 +20,26 @@ import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina
 import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
 import { PaginaAjuda } from '@/features/ajuda/pagina-ajuda'
 
-function Cabecalho() {
+function BarraEstado() {
   return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex max-w-4xl items-center justify-between p-4">
-        <div>
-          <h1 className="text-base font-semibold">{textos.app.titulo}</h1>
-          <p className="text-xs text-muted-foreground">{textos.app.descricao}</p>
-        </div>
-        <div className="no-print flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/">{textos.navegacao.listaRegistos}</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/validacao">{textos.validador.tituloNav}</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/ajuda">{textos.navegacao.ajuda}</Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (window.confirm(textos.rascunho.confirmarLimpeza)) {
-                limparRascunho()
-                window.location.reload()
-              }
-            }}
-          >
-            {textos.rascunho.botaoLimpar}
-          </Button>
-        </div>
-      </div>
-    </header>
+    <div className="no-print flex h-14 items-center justify-end gap-4 border-b border-border bg-card px-6">
+      <span className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+        {textos.app.rascunhoGuardado}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          if (window.confirm(textos.rascunho.confirmarLimpeza)) {
+            limparRascunho()
+            window.location.reload()
+          }
+        }}
+      >
+        {textos.rascunho.botaoLimpar}
+      </Button>
+    </div>
   )
 }
 
@@ -60,16 +48,21 @@ function ConteudoApp() {
   useGuardarRascunhoAutomatico(ficheiro, true)
 
   return (
-    <div className="min-h-svh">
-      <Cabecalho />
-      <Routes>
-        <Route path="/" element={<ListaRegistos />} />
-        <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
-        <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
-        <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
-        <Route path="/validacao" element={<ModoValidador />} />
-        <Route path="/ajuda" element={<PaginaAjuda />} />
-      </Routes>
+    <div className="flex min-h-svh">
+      <BarraLateral />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <BarraEstado />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<ListaRegistos />} />
+            <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
+            <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
+            <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
+            <Route path="/validacao" element={<ModoValidador />} />
+            <Route path="/ajuda" element={<PaginaAjuda />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   )
 }

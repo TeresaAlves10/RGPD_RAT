@@ -1,13 +1,25 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 import { textos } from '@/i18n/pt'
 
 describe('App', () => {
-  it('mostra o título da aplicação', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+    window.location.hash = ''
+  })
+
+  it('abre na lista de registos', () => {
     render(<App />)
+    expect(screen.getByRole('heading', { name: textos.lista.titulo })).toBeInTheDocument()
+  })
+
+  it('mostra a navegação principal', () => {
+    render(<App />)
+    const navegacao = screen.getByRole('navigation', { name: textos.navegacao.principal })
+    expect(navegacao).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: textos.app.titulo }),
+      screen.getByRole('link', { name: textos.validador.tituloNav }),
     ).toBeInTheDocument()
   })
 })

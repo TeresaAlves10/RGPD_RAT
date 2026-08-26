@@ -1,8 +1,30 @@
+import type { ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
 import { WizardResponsavel } from '@/features/preenchimento/wizard-responsavel'
 import { WizardSubcontratado } from '@/features/preenchimento/wizard-subcontratado'
+import { textos } from '@/i18n/pt'
 import type { Registo } from '@/domain/schema/registo'
+
+interface MolduraProps {
+  etiqueta: string
+  titulo: string
+  children: ReactNode
+}
+
+function Moldura({ etiqueta, titulo, children }: MolduraProps) {
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 lg:p-8">
+      <div className="flex flex-col gap-1.5 border-b border-border pb-6">
+        <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+          {etiqueta}
+        </span>
+        <h1 className="text-2xl font-semibold tracking-tight">{titulo}</h1>
+      </div>
+      {children}
+    </div>
+  )
+}
 
 /** Página do wizard: cria um registo novo (via /registos/novo/:tipo) ou edita um existente (via /registos/:id/editar). */
 export function PaginaFormularioRegisto() {
@@ -15,6 +37,7 @@ export function PaginaFormularioRegisto() {
     : undefined
 
   const tipoRegisto = registoExistente?.tipoRegisto ?? tipo
+  const titulo = registoExistente?.nomeTratamento?.trim() || textos.navegacao.novoRegisto
 
   function aoGuardar(registo: Registo) {
     guardarRegisto(registo)
@@ -27,25 +50,29 @@ export function PaginaFormularioRegisto() {
 
   if (tipoRegisto === 'responsavel') {
     return (
-      <div className="mx-auto max-w-3xl p-6">
+      <Moldura etiqueta={textos.escolhaTipo.responsavelEtiqueta} titulo={titulo}>
         <WizardResponsavel
-          registoInicial={registoExistente?.tipoRegisto === 'responsavel' ? registoExistente : undefined}
+          registoInicial={
+            registoExistente?.tipoRegisto === 'responsavel' ? registoExistente : undefined
+          }
           onGuardar={aoGuardar}
           onCancelar={aoCancelar}
         />
-      </div>
+      </Moldura>
     )
   }
 
   if (tipoRegisto === 'subcontratado') {
     return (
-      <div className="mx-auto max-w-3xl p-6">
+      <Moldura etiqueta={textos.escolhaTipo.subcontratadoEtiqueta} titulo={titulo}>
         <WizardSubcontratado
-          registoInicial={registoExistente?.tipoRegisto === 'subcontratado' ? registoExistente : undefined}
+          registoInicial={
+            registoExistente?.tipoRegisto === 'subcontratado' ? registoExistente : undefined
+          }
           onGuardar={aoGuardar}
           onCancelar={aoCancelar}
         />
-      </div>
+      </Moldura>
     )
   }
 

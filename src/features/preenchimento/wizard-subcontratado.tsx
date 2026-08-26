@@ -86,15 +86,24 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
   }
 
   return (
-    <form onSubmit={handleSubmit(submeter)} className="flex flex-col gap-6">
-      <PassosWizard
-        idBase="wizard-subcontratado"
-        titulos={PASSOS}
-        passoAtual={passo}
-        passosComErro={passosComErro}
-        onMudarPasso={setPasso}
-      />
+    <form
+      onSubmit={handleSubmit(submeter)}
+      className="grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10"
+    >
+      <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
+        <PassosWizard
+          idBase="wizard-subcontratado"
+          titulos={PASSOS}
+          passoAtual={passo}
+          passosComErro={passosComErro}
+          onMudarPasso={setPasso}
+        />
+        <p className="hidden border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground lg:block">
+          {textos.formulario.notaRascunho}
+        </p>
+      </div>
 
+      <div className="flex min-w-0 flex-col gap-8">
       <p className="text-xs text-muted-foreground">{textos.formulario.obrigatorio}</p>
 
       {passo === 0 ? (
@@ -264,12 +273,15 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
       ) : null}
 
       {avisos.length > 0 ? (
-        <div className="rounded-md border border-border bg-muted/40 p-3">
-          <p className="text-sm font-medium">{textos.formulario.avisosTitulo}</p>
-          <p className="text-xs text-muted-foreground">{textos.formulario.avisosDescricao}</p>
-          <ul className="mt-2 flex flex-col gap-1 text-sm">
+        <div className="rounded-lg border border-warning-border bg-warning-soft p-4">
+          <p className="text-sm font-semibold text-warning">{textos.formulario.avisosTitulo}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{textos.formulario.avisosDescricao}</p>
+          <ul className="mt-3 flex flex-col gap-1.5 text-sm">
             {avisos.map((ocorrencia) => (
-              <li key={ocorrencia.regraId} className={ocorrencia.severidade === 'erro' ? 'text-destructive' : ''}>
+              <li
+                key={ocorrencia.regraId}
+                className={ocorrencia.severidade === 'erro' ? 'text-destructive' : 'text-foreground'}
+              >
                 {ocorrencia.mensagem}
               </li>
             ))}
@@ -277,8 +289,8 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
         </div>
       ) : null}
 
-      <div className="flex justify-between gap-2">
-        <Button type="button" variant="outline" onClick={onCancelar}>
+      <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-6">
+        <Button type="button" variant="ghost" onClick={onCancelar}>
           {textos.formulario.botaoCancelar}
         </Button>
         <div className="flex gap-2">
@@ -298,6 +310,7 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
             <Button type="submit">{textos.formulario.botaoGuardar}</Button>
           )}
         </div>
+      </div>
       </div>
     </form>
   )
