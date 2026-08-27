@@ -2,19 +2,29 @@ import { Button } from '@/components/ui/button'
 import { EstadoRegistoBadge } from '@/components/estado-registo'
 import { textos } from '@/i18n/pt'
 import type { EstadoRegisto } from '@/domain/schema/comum'
+import type { Ocorrencia } from '@/domain/rules/types'
 
 interface AcoesEstadoProps {
   estado: EstadoRegisto
   onMudar: (estado: EstadoRegisto) => void
-  /** O modo validador pode dar como validado; a equipa não. */
+  /** Erros por resolver: enquanto existirem, não se pode submeter. */
+  erros?: Ocorrencia[]
+  /** Só o modo validador pode validar ou devolver. */
   permiteValidar?: boolean
 }
 
 /**
- * Mudança do estado do registo. Não é uma submissão: o estado é só um
- * marcador guardado dentro do ficheiro (CLAUDE.md §2.2 — sem servidor).
+ * Circuito do registo: o GP preenche e submete, o validador corrige e
+ * valida (ou devolve).
+ *
+ * Não há servidor por trás disto (CLAUDE.md §2.2). O estado é um marcador
+ * dentro do ficheiro: "submeter" marca o registo, e o envio ao validador
+ * é a pessoa exportar o ficheiro e mandá-lo. Submeter é a única ação
+ * bloqueada por erros de preenchimento — guardar e exportar nunca são.
  */
-export function AcoesEstado({ estado, onMudar, permiteValidar }: AcoesEstadoProps) {
+export function AcoesEstado({ estado, onMudar, erros = [], permiteValidar }: AcoesEstadoProps) {
+  const podeSubmeter = erros.length === 0
+
   return (
     <div className="no-print flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-3">
@@ -24,23 +34,44 @@ export function AcoesEstado({ estado, onMudar, permiteValidar }: AcoesEstadoProp
 
       <p className="text-xs leading-relaxed text-muted-foreground">{textos.estado.aviso}</p>
 
-      <div className="flex flex-wrap gap-2">
-        {estado !== 'pronto' ? (
-          <Button type="button" size="sm" variant="outline" onClick={() => onMudar('pronto')}>
-            {textos.estado.marcarPronto}
+      <div className="flex flex-wrap items-center gap-2">
+        {estado === 'rascunho' || estado === 'devolvido' ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={!podeSubmeter}
+            title={podeSubmeter ? undefined : textos.estado.submeterBloqueado}
+            onClick={() => onMudar('submetido')}
+          >
+            {textos.estado.submeter}
           </Button>
         ) : null}
-        {estado !== 'rascunho' ? (
+
+        {estado === 'submetido' || estado === 'validado' ? (
           <Button type="button" size="sm" variant="ghost" onClick={() => onMudar('rascunho')}>
-            {textos.estado.marcarRascunho}
+            {textos.estado.reabrir}
           </Button>
         ) : null}
+
         {permiteValidar && estado !== 'validado' ? (
           <Button type="button" size="sm" variant="subtle" onClick={() => onMudar('validado')}>
-            {textos.estado.marcarValidado}
+            {textos.estado.validar}
+          </Button>
+        ) : null}
+
+        {permiteValidar && estado === 'submetido' ? (
+          <Button type="button" size="sm" variant="ghost" onClick={() => onMudar('devolvido')}>
+            {textos.estado.devolver}
           </Button>
         ) : null}
       </div>
+
+      {!podeSubmeter && (estado === 'rascunho' || estado === 'devolvido') ? (
+        <p className="text-xs text-muted-foreground">
+          {textos.estado.submeterBloqueado} ({erros.length}).
+        </p>
+      ) : null}
     </div>
   )
 }

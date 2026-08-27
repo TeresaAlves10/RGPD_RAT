@@ -9,8 +9,7 @@ import { criarFicheiroVazio } from '@/features/preenchimento/store/ficheiro-cont
 import { textos } from '@/i18n/pt'
 
 function ehPdfValido(buffer: Uint8Array): boolean {
-  const cabecalho = new TextDecoder().decode(buffer.slice(0, 5))
-  return cabecalho === '%PDF-'
+  return new TextDecoder().decode(buffer.slice(0, 5)) === '%PDF-'
 }
 
 describe('exportação PDF', () => {
@@ -27,26 +26,71 @@ describe('exportação PDF', () => {
   it(
     'gera um PDF válido mesmo sem registos (não bloqueia por erros de validação)',
     async () => {
-      const buffer = await gerarPdfBuffer(criarFicheiroVazio())
-      expect(ehPdfValido(buffer)).toBe(true)
+      expect(ehPdfValido(await gerarPdfBuffer(criarFicheiroVazio()))).toBe(true)
     },
     20000,
   )
+})
 
-  it('inclui a matriz de levantamento do responsável', () => {
-    const texto = JSON.stringify(gerarDocDefinition(ficheiroRatFixtureValido))
-    const matriz = registoResponsavelCompleto.matriz
-    expect(matriz?.caracterizacao?.operacoesTratamento).toBeTruthy()
-    expect(texto).toContain(matriz?.caracterizacao?.operacoesTratamento)
-    expect(texto).toContain(matriz?.normativosAplicaveis)
-    expect(texto).toContain(textos.matriz.campos.suportesFisicos)
+describe('conteúdo do PDF', () => {
+  const texto = JSON.stringify(gerarDocDefinition(ficheiroRatFixtureValido))
+
+  it('traz as sete secções do responsável', () => {
+    for (const seccao of [
+      textos.passos.caracterizacao,
+      textos.passos.ferramentas,
+      textos.passos.subcontratados,
+      textos.passos.baseLicitude,
+      textos.passos.requisitosFuncionais,
+      textos.passos.controlosOperacionais,
+      textos.passos.observacoesGerais,
+    ]) {
+      expect(texto).toContain(seccao)
+    }
   })
 
-  it('inclui os campos opcionais do subcontratante quando preenchidos', () => {
-    const texto = JSON.stringify(gerarDocDefinition(ficheiroRatFixtureValido))
-    expect(texto).toContain(registoSubcontratadoCompleto.responsaveis[0].nome)
-    // A ausência destes campos não invalida o registo, mas quando existem
-    // têm de sair no PDF que a equipa envia ao DPO.
-    expect(texto).toContain(textos.campos.aipdRealizada)
+  it('traz os valores preenchidos do responsável', () => {
+    expect(texto).toContain(registoResponsavelCompleto.finalidade)
+    expect(texto).toContain(registoResponsavelCompleto.suportesFisicos)
+    expect(texto).toContain(registoResponsavelCompleto.subcontratados?.[0].nome)
+  })
+
+  it('traz os campos do subcontratante', () => {
+    expect(texto).toContain(registoSubcontratadoCompleto.nomeResponsavelTratamento)
+    expect(texto).toContain(registoSubcontratadoCompleto.prazoConservacao)
+  })
+
+  it('mostra o estado e quem validou', () => {
+    expect(texto).toContain(textos.estado.validado)
+    expect(texto).toContain(registoSubcontratadoCompleto.validacao?.validadoPor)
+  })
+
+  it('inclui as anotações do validador, para a equipa as ver no PDF', () => {
+    expect(texto).toContain(registoResponsavelCompleto.anotacoes?.[0].texto)
+  })
+
+  it('não imprime linhas de campos vazios', () => {
+    const soMinimo = JSON.stringify(
+      gerarDocDefinition({
+        ...ficheiroRatFixtureValido,
+        registos: [ficheiroRatFixtureValido.registos[0]],
+      }),
+    )
+    // O registo mínimo não tem suportes físicos preenchidos: a linha
+    // "Rótulo: valor" não deve existir. O rótulo continua a aparecer na
+    // lista de verificações, que é onde faz falta.
+    expect(soMinimo).not.toContain(`${textos.campos.suportesFisicos}: `)
+    expect(soMinimo).toContain(`${textos.campos.suportesFisicos} — por preencher`)
+  })
+
+  it('lista as secções vazias fora do corpo do registo', () => {
+    const soMinimo = JSON.stringify(
+      gerarDocDefinition({
+        ...ficheiroRatFixtureValido,
+        registos: [ficheiroRatFixtureValido.registos[0]],
+      }),
+    )
+    // Sem nada preenchido, a secção "Ferramentas" não abre sequer.
+    expect(soMinimo).not.toContain(textos.passos.ferramentas)
   })
 })

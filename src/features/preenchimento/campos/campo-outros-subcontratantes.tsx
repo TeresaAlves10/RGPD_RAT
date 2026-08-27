@@ -2,23 +2,23 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { textos } from '@/i18n/pt'
-import type { SubcontratanteContratado } from '@/domain/schema/responsavel'
+import type { OutroSubcontratante } from '@/domain/schema/subcontratado'
 
-interface CampoSubcontratantesProps {
-  valor: SubcontratanteContratado[]
-  onChange: (valor: SubcontratanteContratado[]) => void
+interface CampoOutrosSubcontratantesProps {
+  valor: OutroSubcontratante[]
+  onChange: (valor: OutroSubcontratante[]) => void
 }
 
-export function CampoSubcontratantes({ valor, onChange }: CampoSubcontratantesProps) {
+export function CampoOutrosSubcontratantes({ valor, onChange }: CampoOutrosSubcontratantesProps) {
   function adicionar() {
-    onChange([...valor, { nome: '' }])
+    onChange([...valor, {}])
   }
 
   function remover(indice: number) {
     onChange(valor.filter((_, i) => i !== indice))
   }
 
-  function atualizar(indice: number, alteracoes: Partial<SubcontratanteContratado>) {
+  function atualizar(indice: number, alteracoes: Partial<OutroSubcontratante>) {
     onChange(valor.map((item, i) => (i === indice ? { ...item, ...alteracoes } : item)))
   }
 
@@ -27,16 +27,16 @@ export function CampoSubcontratantes({ valor, onChange }: CampoSubcontratantesPr
       {valor.map((item, indice) => (
         <div key={indice} className="flex flex-col gap-2 rounded-md border border-border p-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`subcontratante-nome-${indice}`}>{textos.campos['subcontratante.nome']}</Label>
+            <Label htmlFor={`subcontratante-nome-${indice}`}>{textos.campos['outroSubcontratante.nome']}</Label>
             <Input
               id={`subcontratante-nome-${indice}`}
-              value={item.nome}
+              value={item.nome ?? ''}
               onChange={(e) => atualizar(indice, { nome: e.target.value })}
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={`subcontratante-contacto-${indice}`}>
-              {textos.campos['subcontratante.contacto']}
+              {textos.campos['outroSubcontratante.contacto']}
             </Label>
             <Input
               id={`subcontratante-contacto-${indice}`}
@@ -46,7 +46,7 @@ export function CampoSubcontratantes({ valor, onChange }: CampoSubcontratantesPr
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={`subcontratante-data-${indice}`}>
-              {textos.campos['subcontratante.dataContrato']}
+              {textos.campos['outroSubcontratante.dataContrato']}
             </Label>
             <Input
               id={`subcontratante-data-${indice}`}

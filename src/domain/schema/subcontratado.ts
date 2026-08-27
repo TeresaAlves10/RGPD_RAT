@@ -1,50 +1,56 @@
 import { z } from 'zod'
-import { campoBaseRegistoSchema, categoriaDadosSchema } from '@/domain/schema/comum'
-import { categoriasEspeciaisSchema, subcontratanteContratadoSchema } from '@/domain/schema/responsavel'
+import {
+  campoBaseRegistoSchema,
+  categoriaDadosSchema,
+  categoriasEspeciaisSchema,
+  respostaSimNaoSchema,
+} from '@/domain/schema/comum'
 import { idsBaseLicitude, idsCategoriasTitulares } from '@/domain/schema/vocabularios'
 
 /**
- * RAT — Subcontratante (folha "Subcontratante" do Livro6.xlsx).
+ * RAT — a organização é SUBCONTRATANTE (art. 30.º/2 do RGPD): trata dados
+ * por conta de um responsável.
  *
- * Obrigatório é apenas o que o art. 30.º/2 exige: identificar cada
- * responsável por conta de quem a organização atua e as categorias de
- * tratamento efetuadas para cada um.
- *
- * Os restantes campos vêm da lista fornecida pelo utilizador para esta
- * folha e ficam OPCIONAIS por uma razão jurídica: base de licitude,
- * categorias de titulares e prazo de conservação são obrigações do
- * responsável pelo tratamento (art. 30.º/1), não do subcontratante. Estão
- * disponíveis para quem os queira registar, sem passarem a requisito.
+ * Segue a lista de campos indicada pelo utilizador para esta qualidade.
+ * Sobre `optional()`, ver a nota de obrigatoriedade em comum.ts.
  */
 
-export const responsavelPorContaSchema = z.object({
-  nome: z.string().min(1, 'Indica o nome do responsável pelo tratamento.'),
+/** Outro subcontratante contratado pela organização (art. 28.º/2 e /4). */
+export const outroSubcontratanteSchema = z.object({
+  nome: z.string().optional(),
   contacto: z.string().optional(),
-  categoriasTratamento: z
-    .string()
-    .min(1, 'Indica as categorias de tratamento efetuadas por conta deste responsável.'),
+  dataContrato: z.string().optional(),
 })
-export type ResponsavelPorConta = z.infer<typeof responsavelPorContaSchema>
+export type OutroSubcontratante = z.infer<typeof outroSubcontratanteSchema>
+
+/** Transferências para países terceiros ou organizações internacionais (art. 44.º). */
+export const transferenciasSchema = z.object({
+  existem: respostaSimNaoSchema.optional(),
+  identificar: z.string().optional(),
+})
+export type Transferencias = z.infer<typeof transferenciasSchema>
 
 export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
   tipoRegisto: z.literal('subcontratado'),
-  responsaveis: z
-    .array(responsavelPorContaSchema)
-    .min(1, 'Indica pelo menos um responsável por conta de quem a organização atua.'),
 
-  // Campos da folha "Subcontratante", opcionais (ver nota acima).
-  finalidades: z.string().optional(),
+  /** Por conta de quem a organização trata os dados. */
+  nomeResponsavelTratamento: z.string().optional(),
+  finalidade: z.string().optional(),
+  /** "identificar ou N/A", conforme a especificação. */
   responsavelConjunto: z.string().optional(),
-  representante: z.string().optional(),
-  baseLicitude: z.enum(idsBaseLicitude).optional(),
+  baseLegal: z.enum(idsBaseLicitude).optional(),
   recolhaDados: z.string().optional(),
   categoriasTitulares: z.array(z.enum(idsCategoriasTitulares)).optional(),
   categoriasTitularesOutra: z.string().optional(),
+  /** Categorias de dados e, dentro de cada uma, os tipos de dados. */
   categoriasDados: z.array(categoriaDadosSchema).optional(),
   categoriasEspeciais: categoriasEspeciaisSchema.optional(),
   destinatarios: z.string().optional(),
+  transferencias: transferenciasSchema.optional(),
   prazoConservacao: z.string().optional(),
-  criterioPrazoConservacao: z.string().optional(),
-  subcontratantesContratados: z.array(subcontratanteContratadoSchema).optional(),
+  // medidasTecnicasOrganizativas e aipdRealizada vêm de campoBaseRegisto.
+  outrosSubcontratantes: z.array(outroSubcontratanteSchema).optional(),
+  observacoes: z.string().optional(),
+  diagramaEcosistema: z.string().optional(),
 })
 export type RegistoSubcontratado = z.infer<typeof registoSubcontratadoSchema>

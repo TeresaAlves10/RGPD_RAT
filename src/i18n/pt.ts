@@ -20,16 +20,32 @@ export const textos = {
     titulo: 'Guia de utilização',
     seccoes: [
       {
-        titulo: '1. Preencher um registo',
+        titulo: '1. Quem faz o quê',
         paragrafos: [
-          'Em "Registos", clica em "+ Novo registo" e escolhe se a organização atua como Responsável pelo Tratamento (art. 30.º/1) ou como Subcontratado (art. 30.º/2) — os dois pedem campos diferentes.',
-          'O formulário está dividido em passos. Navega entre eles clicando nas abas ou com as setas do teclado quando uma aba está selecionada. Campos com * são obrigatórios.',
-          'Junto de alguns campos há um "?" com a fundamentação legal (artigo do RGPD relevante) — clica para abrir.',
-          'Avisos e erros adicionais (para além dos campos obrigatórios) aparecem no fundo do formulário; não impedem guardar o registo, mas convém rever antes de exportar.',
+          'O Gestor de Projeto (GP) cria o registo, preenche-o e submete-o para validação. O validador revê, corrige o que for preciso, e valida — ou devolve ao GP para correção.',
+          'Não há contas nem servidor: o estado do registo (Rascunho, Submetido, Devolvido, Validado) viaja dentro do ficheiro. "Submeter" é marcar o registo e enviar o ficheiro exportado ao validador; "validar" é o validador fazer o mesmo no sentido inverso.',
         ],
       },
       {
-        titulo: '2. Rascunho local',
+        titulo: '2. Preencher um registo',
+        paragrafos: [
+          'Em "Registos", clica em "+ Novo registo" e escolhe se a organização atua como Responsável pelo Tratamento (art. 30.º/1) ou como Subcontratante (art. 30.º/2) — os dois pedem campos diferentes.',
+          'O formulário do responsável está dividido nas sete secções do levantamento: Descrição do Processo / Caracterização, Ferramentas / Aplicações, Subcontratados, Base de Licitude, Requisitos Funcionais / Direitos dos Titulares, Controlos Operacionais e Observações Gerais.',
+          'Navega entre secções clicando nas abas ou com as setas do teclado. Campos com * são obrigatórios para submeter a validação — não para guardar.',
+          'Junto de vários campos há a fundamentação legal (artigo do RGPD relevante), sempre visível na coluna da direita.',
+          'Algumas perguntas só aparecem quando fazem sentido: as duas do consentimento só surgem se a base de licitude for o consentimento, e a identificação das categorias especiais só se tiveres respondido que existem.',
+        ],
+      },
+      {
+        titulo: '3. Submeter para validação',
+        paragrafos: [
+          'O painel do estado, à esquerda do formulário, mostra quantos campos obrigatórios faltam. Enquanto faltar algum, "Submeter para validação" fica indisponível.',
+          'Guardar e exportar nunca são bloqueados — só a submissão. Podes sair a meio do preenchimento sem perder nada.',
+          'Depois de submeter, exporta o ficheiro e envia-o ao validador.',
+        ],
+      },
+      {
+        titulo: '4. Rascunho local',
         paragrafos: [
           'O ficheiro em edição é guardado automaticamente no browser (localStorage) cerca de 1 segundo depois de cada alteração — nunca é enviado para nenhum servidor.',
           'Ao reabrir a aplicação com um rascunho guardado, é sempre pedida confirmação explícita antes de o carregar.',
@@ -37,28 +53,23 @@ export const textos = {
         ],
       },
       {
-        titulo: '3. Exportar e enviar ao DPO',
+        titulo: '5. Exportar e importar',
         paragrafos: [
-          'Em "Registos", os botões "Exportar JSON", "Exportar Excel" e "Exportar PDF" geram o ficheiro correspondente para download.',
-          'JSON é o formato canónico — usa-o para reimportar e continuar a editar mais tarde, ou para o DPO validar.',
-          'Excel inclui uma folha legível e uma folha com o JSON completo (oculta), para poderes voltar a importar sem perder nada.',
-          'PDF é só para apresentação/arquivo — não pode ser reimportado.',
-          'O download nunca é bloqueado por erros de validação por resolver.',
+          'Excel: uma folha por qualidade (Responsável e Subcontratante), com os campos na mesma ordem do formulário, mais uma folha "Listas" com os vocabulários e uma folha oculta com o ficheiro completo — é essa que permite voltar a importar sem perder nada.',
+          'PDF: para apresentação e arquivo, uma secção por registo, com as anotações do validador e o sumário de verificações. Não é reimportável.',
+          'JSON: o formato de troca entre a equipa e o validador. É o mais fiável para reimportar e continuar a editar.',
+          '"Importar" aceita um JSON ou Excel exportado por esta aplicação e substitui o ficheiro em edição (pede confirmação se já tiveres registos).',
+          '"Template antigo" lê o Excel anterior e mostra um relatório com os campos mapeados e os que ficam por preencher — o texto original desses fica guardado nas observações do registo.',
         ],
       },
       {
-        titulo: '4. Importar',
+        titulo: '6. Modo validador',
         paragrafos: [
-          '"Importar" aceita um JSON ou Excel exportado por esta aplicação, e substitui o ficheiro em edição (pede confirmação se já tiveres registos).',
-          '"Importar (template antigo)" lê o template Excel anterior e mostra um relatório com os campos mapeados diretamente e os que ficam "por preencher" (porque usam listas fechadas que o template antigo não tinha) — o texto original desses campos fica guardado nas observações do registo.',
-        ],
-      },
-      {
-        titulo: '5. Modo validador (DPO)',
-        paragrafos: [
-          'Em "Modo validador", importa um ou mais ficheiros recebidos das equipas de uma vez.',
-          'O resumo da sessão mostra, por ficheiro, o número de registos, erros e avisos. "Ver detalhe" abre os registos individuais, com as ocorrências do motor de regras e um espaço para anotar o que precisa de correção — geral ou associado a um campo específico das ocorrências.',
-          'Exporta o ficheiro anotado (JSON/Excel/PDF) e envia de volta à equipa — as anotações viajam dentro do ficheiro.',
+          'Importa um ou mais ficheiros recebidos das equipas de uma vez. O resumo mostra, por ficheiro, o número de registos, erros e avisos.',
+          '"Ver detalhe" abre os registos, com as verificações do motor de regras e espaço para anotar o que precisa de correção — geral ou associado a um campo.',
+          'Escreve o teu nome em "Validado por" antes de validares: fica registado no ficheiro com a data.',
+          'Em cada registo podes "Validar registo" ou "Devolver para correção". Para corrigires tu próprio os campos, usa "Corrigir no formulário" — carrega o ficheiro no formulário de preenchimento, onde tens o formulário completo.',
+          'No fim, exporta o ficheiro anotado e envia de volta à equipa — as anotações e o estado viajam dentro do ficheiro.',
         ],
       },
     ],
@@ -82,7 +93,7 @@ export const textos = {
     estadoSemProblemas: 'Sem problemas',
     estadoAvisos: (n: number) => `${n} aviso${n === 1 ? '' : 's'}`,
     estadoErros: (n: number) => `${n} erro${n === 1 ? '' : 's'}`,
-    estadoAnotacoes: (n: number) => `${n} anotação${n === 1 ? '' : 'ões'} do DPO`,
+    estadoAnotacoes: (n: number) => `${n} anotação${n === 1 ? '' : 'ões'} do validador`,
     botaoEditar: 'Editar',
     botaoRemover: 'Remover',
     confirmarRemocao: 'Tens a certeza que queres remover este registo? Esta ação não pode ser desfeita.',
@@ -105,7 +116,7 @@ export const textos = {
     resumoAvisos: (n: number) => `${n} com avisos`,
     resumoErros: (n: number) => `${n} por completar`,
     atencaoTitulo: 'Precisa da tua atenção',
-    atencaoDescricao: 'Antes de exportares e enviares ao DPO.',
+    atencaoDescricao: 'Tem de estar preenchido para submeteres o registo a validação.',
     atencaoResolver: 'Resolver',
   },
 
@@ -122,7 +133,7 @@ export const textos = {
       'Um portal ou serviço que a equipa criou e gere',
       'Videovigilância das nossas instalações',
     ],
-    responsavelMeta: '6 secções · art. 30.º/1',
+    responsavelMeta: '7 secções · art. 30.º/1',
     subcontratadoTitulo: 'Tratamos dados por conta de outra entidade, seguindo as instruções dela',
     subcontratadoEtiqueta: 'Subcontratado',
     subcontratadoDescricao:
@@ -132,7 +143,7 @@ export const textos = {
       'Helpdesk contratado por outra entidade',
       'Processar salários por conta de outro serviço',
     ],
-    subcontratadoMeta: '4 secções · art. 30.º/2',
+    subcontratadoMeta: '6 secções · art. 30.º/2',
     exemplosTitulo: 'Por exemplo',
     botaoContinuar: 'Continuar',
     botaoCancelar: 'Cancelar',
@@ -151,159 +162,187 @@ export const textos = {
     seccoes: 'Secções',
     porRever: 'Por rever',
     notaRascunho: 'Podes sair a meio. Nada se perde e nada é enviado.',
-    notaCamposDoResponsavel:
-      'Estes campos são obrigações do responsável pelo tratamento (art. 30.º/1), não do subcontratante. Ficam disponíveis para quem os queira registar, mas nenhum é obrigatório aqui.',
-    criterioNota:
-      'Se não houver prazo fixo, descreve o critério — o art. 30.º/1 f) admite indicá-lo em vez de uma data.',
+    notaConsentimento:
+      'Estas duas perguntas só se aplicam porque a base de licitude escolhida é o consentimento (art. 7.º e art. 8.º).',
+    notaSubcontratados:
+      'Acrescenta uma entrada por cada entidade subcontratada. Se não houver nenhuma, deixa a lista vazia.',
     botaoAnterior: 'Anterior',
     botaoSeguinte: 'Seguinte',
     botaoGuardar: 'Guardar registo',
     botaoCancelar: 'Cancelar',
-    obrigatorio: 'Campos assinalados com * são obrigatórios.',
+    obrigatorio: 'Campos assinalados com * são obrigatórios para submeter o registo a validação.',
     passo: (atual: number, total: number) => `Passo ${atual} de ${total}`,
     outroEspecificar: 'Outro (especificar)',
     adicionar: 'Adicionar',
     remover: 'Remover',
-    simNao: { sim: 'Sim', nao: 'Não' },
-    avisosTitulo: 'Avisos e verificações adicionais',
+    porResponder: 'Por responder',
+    avisosTitulo: 'Verificações',
     avisosDescricao:
-      'Estas verificações não impedem guardar o registo, mas convém rever antes de exportar.',
+      'Nada disto impede guardar ou exportar. Impede apenas submeter o registo a validação.',
   },
 
   campos: {
-    direcao: 'Direção / Área / Serviço',
+    // Comuns
+    direcao: 'Direção',
     unidadeCoordenacao: 'Unidade de Coordenação',
     nomeTratamento: 'Nome do tratamento / processo',
     descricao: 'Descrição do processo',
-    observacoes: 'Observações',
     'gestorProjeto.nome': 'Nome do Gestor de Projeto (GP)',
     'gestorProjeto.contacto': 'Contacto do GP',
     medidasTecnicasOrganizativas: 'Medidas técnicas e organizativas implementadas',
-    'transferenciasInternacionais.existem':
-      'Os dados pessoais são transferidos para países terceiros ou organizações internacionais?',
-    'transferenciasInternacionais.paisesOuOrganizacoes': 'País(es) ou organização(ões) de destino',
-    'transferenciasInternacionais.mecanismo': 'Mecanismo de garantia da transferência',
-    'transferenciasInternacionais.mecanismoOutro': 'Especifica o mecanismo',
-    aipdRealizada: 'Foi realizada AIPD para SI/BD?',
+    aipdRealizada: 'Foi realizada AIPD?',
+    observacoes: 'Observações',
 
-    finalidades: 'Finalidade(s) do tratamento de dados pessoais',
-    responsavelConjunto: 'Responsável conjunto pelo tratamento (identificar ou N/A)',
-    representante: 'Representante do responsável pelo tratamento (identificar ou N/A)',
-    baseLicitude: 'Base de licitude do tratamento',
-    recolhaDados: 'Como é efetuada a recolha dos dados',
-    categoriasTitulares: 'Categorias de titulares dos dados',
-    categoriasTitularesOutra: 'Especifica a categoria de titulares',
-    categoriasDados: 'Categorias e tipos de dados pessoais tratados',
-    'categoriasEspeciais.aplicavel': 'Existem categorias especiais de dados pessoais (art. 9.º)?',
-    'categoriasEspeciais.condicoesArt9': 'Condição do art. 9.º/2 aplicável',
-    'categoriasEspeciais.identificar': 'Identifica as categorias especiais de dados tratadas',
+    // 1. Descrição do Processo / Caracterização
+    finalidade: 'Qual a finalidade?',
+    operacoesTratamento: 'Quais as operações de tratamento?',
+    trataDadosPessoais: 'Dados pessoais?',
+    dadosNecessariosParaFinalidade: 'Todos os dados pessoais são necessários para a finalidade?',
+    'categoriasEspeciais.aplicavel': 'Categorias especiais de dados?',
+    'categoriasEspeciais.identificar': 'Identifica as categorias especiais de dados',
+    categoriasEspeciaisNecessarias:
+      'Todas as categorias especiais de dados são necessárias para a finalidade?',
+    categoriasTitulares: 'Qual a categoria de titular dos dados?',
+    categoriasTitularesOutra: 'Especifica a categoria de titular',
+    categoriasDados: 'Categorias e tipos de dados pessoais',
+    entidadesQueEnviamDados:
+      'Quem são as entidades que me enviam dados pessoais para além do titular dos dados pessoais?',
+    entidadesParaQuemEnvioDados:
+      'Quem são as entidades a quem envio dados pessoais para além do seu titular?',
+    suportesFisicos:
+      'Lista de suportes físicos existentes que contêm dados pessoais (e.g. papel, disco externo)',
+    localizacaoSuportesFisicos: 'Localização dos dados pessoais em suporte físico',
+
+    // 2. Ferramentas / Aplicações utilizadas
+    ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
+    numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
+    volumeDadosPessoais: 'Volume de dados pessoais',
+    numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso a dados pessoais',
+
+    // 3. Subcontratados
+    subcontratados: 'Entidades subcontratadas',
+    'subcontratado.nome': 'Nome da entidade subcontratada',
+    'subcontratado.operacoesTratamento': 'Quais as operações de tratamento?',
+    'subcontratado.existeContrato': 'Existe contrato com a entidade que fornece dados pessoais?',
+    'subcontratado.contratoComClausulasProtecaoDados':
+      'O contrato contém cláusulas específicas sobre a privacidade e proteção de dados pessoais?',
+    'subcontratado.transferenciasPaisesTerceiros':
+      'Os dados pessoais são transferidos para países terceiros fora da União Europeia?',
+    'subcontratado.auditoriasAoSubcontratado':
+      'São realizadas auditorias/inspeções para validar que o subcontratado cumpre com as obrigações previstas?',
+    'subcontratado.pedidoAutorizacaoCnpd': 'Foi efetuado pedido de autorização/notificação à CNPD?',
+
+    // 4. Base de Licitude
+    baseLicitude: 'Qual é a base de licitude?',
+    consentimentoMecanismosDemonstracao:
+      'Existem mecanismos para demonstrar a qualquer momento que o titular dos dados deu o seu consentimento?',
+    consentimentoResponsabilidadeParental:
+      'No caso de tratamentos de dados de menores de idade, o consentimento é obtido diretamente aos titulares da responsabilidade parental da criança?',
+    retencaoDefinidaPelaOrganizacao: (organizacao: string) =>
+      `Está definido um período de retenção dos dados pessoais pel${organizacao === 'a organização' ? '' : 'a '}${organizacao}?`,
+    retencaoPorNormativosLegais:
+      'Está estabelecido um período de retenção dos dados pessoais por normativos legais ou regulamentares?',
+
+    // 5. Requisitos Funcionais / Direitos dos Titulares
+    deverInformar: 'Foi exercido, antes do início do tratamento, o "dever de informar"?',
+    direitoAcesso: 'Capacidade de exercer o "Direito de acesso"',
+    direitoRetificacao: 'Capacidade de exercer o "Direito de retificação"',
+    direitoApagamento: 'Capacidade de exercer o "Direito ao apagamento (esquecimento)"',
+    direitoPortabilidade: 'Capacidade de exercer o "Direito à portabilidade"',
+    direitoLimitacao: 'Capacidade de exercer o "Direito à Limitação do Tratamento"',
+    direitoDecisoesAutomatizadas:
+      'Capacidade de exercer o "Direito a não ficar sujeito a decisões individuais automatizadas, incluindo definição de perfis"',
+    direitoOposicao: 'Capacidade de exercer o "Direito de Oposição"',
+    detecaoNotificacaoViolacoes: 'Capacidade de detetar e notificar data breaches?',
+
+    // 6. Controlos Operacionais
+    procedimentosAcessosDocumentados:
+      'Os procedimentos de gestão de acessos encontram-se documentados?',
+    procedimentosAcessosImplementados:
+      'Os procedimentos de gestão de acessos estão implementados / operacionalizados? (e.g. pedido, alteração, remoção)',
+    acessosFormalmenteAutorizados: 'Os acessos são formalmente solicitados e devidamente autorizados?',
+    controlosAcessosPrivilegiados:
+      'Existem controlos sobre os utilizadores com acessos privilegiados e/ou genéricos? (e.g. revisões periódicas sobre as ações realizadas pelo utilizador)',
+    revisaoPeriodicaAcessos: 'É realizada uma revisão periódica dos acessos dos utilizadores?',
+    remocaoAcessosASaida: 'É feita a remoção de acessos após a saída de um colaborador?',
+
+    // 7. Observações Gerais
+    normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
+    diagramaProcesso: 'Imagem / diagrama do processo (referência ou ligação)',
+
+    // Subcontratante
+    nomeResponsavelTratamento: 'Nome do Responsável pelo Tratamento',
+    finalidadeSubcontratado: 'Finalidade do tratamento de dados pessoais',
+    responsavelConjunto: 'Identificação do responsável conjunto pelo tratamento (identificar ou N/A)',
+    baseLegal: 'Base legal do tratamento (art. 6.º do RGPD)',
+    recolhaDados: 'Recolha dos dados (como é efetuada)',
     destinatarios: 'Destinatários ou categorias de destinatários',
+    'transferencias.existem':
+      'Transferências para países terceiros ou organizações internacionais (art. 44.º do RGPD)?',
+    'transferencias.identificar': 'Identifica o país ou países / organizações de destino',
     prazoConservacao: 'Prazo de conservação dos dados pessoais',
-    subcontratantesContratados: 'Subcontratantes contratados pela organização (art. 28.º)',
+    outrosSubcontratantes: 'Nome de outros subcontratantes (art. 28.º do RGPD)',
+    'outroSubcontratante.nome': 'Nome',
+    'outroSubcontratante.contacto': 'Contacto',
+    'outroSubcontratante.dataContrato': 'Data do contrato de subcontratação (AAAA-MM-DD)',
+    diagramaEcosistema: 'Imagem / diagrama / ecossistema (referência ou ligação)',
 
-    responsaveis: 'Responsáveis por conta de quem a organização atua',
-    'responsaveis.nome': 'Nome do responsável pelo tratamento',
-    'responsaveis.contacto': 'Contacto (opcional)',
-    'responsaveis.categoriasTratamento': 'Categorias de tratamento efetuadas por conta deste responsável',
-
-    'subcontratante.nome': 'Nome do subcontratante',
-    'subcontratante.contacto': 'Contacto (opcional)',
-    'subcontratante.dataContrato': 'Data do contrato (AAAA-MM-DD, opcional)',
-
+    // Sub-campos de listas
     'categoriaDados.categoria': 'Categoria de dados',
     'categoriaDados.categoriaOutra': 'Especifica a categoria',
     'categoriaDados.tipos': 'Tipos de dados (um por linha)',
   },
 
-  aipd: {
-    sim: 'Sim',
-    nao: 'Não',
-    nao_aplicavel: 'Não aplicável',
-  },
 
   estado: {
     etiqueta: 'Estado',
     rascunho: 'Rascunho',
-    pronto: 'Pronto a enviar',
-    validado: 'Validado pelo DPO',
-    rascunhoDescricao: 'Ainda em preenchimento pela equipa.',
-    prontoDescricao: 'A equipa deu por concluído e pode exportar para o DPO.',
-    validadoDescricao: 'O DPO reviu e deu como validado.',
-    marcarPronto: 'Marcar como pronto a enviar',
-    marcarRascunho: 'Devolver a rascunho',
-    marcarValidado: 'Marcar como validado',
+    submetido: 'Submetido para validação',
+    devolvido: 'Devolvido para correção',
+    validado: 'Validado',
+    rascunhoDescricao: 'Em preenchimento pelo Gestor de Projeto.',
+    submetidoDescricao: 'O GP deu por concluído e enviou para validação.',
+    devolvidoDescricao: 'O validador pediu correções ao GP antes de validar.',
+    validadoDescricao: 'O validador reviu e deu como validado.',
+    submeter: 'Submeter para validação',
+    submeterBloqueado: 'Preenche os campos obrigatórios para submeter',
+    devolver: 'Devolver para correção',
+    validar: 'Validar registo',
+    reabrir: 'Reabrir para edição',
+    campoValidadoPor: 'Validado por',
+    campoObservacoesValidacao: 'Observações do validador (opcional)',
+    validadoEm: (quem: string, data: string) => `Validado por ${quem} em ${data}`,
     filtroTodos: 'Todos os estados',
     aviso:
-      'O estado é um marcador dentro do ficheiro, não uma submissão: viaja no JSON/Excel exportado e não depende de servidor nem de contas.',
+      'O estado é um marcador dentro do ficheiro: viaja no Excel/JSON exportado e não depende de servidor nem de contas. "Submeter" é marcar o registo e enviar o ficheiro ao validador.',
   },
 
-  matriz: {
-    respostas: {
-      sim: 'Sim',
-      nao: 'Não',
-      nao_aplicavel: 'Não aplicável',
-      porResponder: 'Por responder',
-    },
-    campos: {
-      operacoesTratamento: 'Quais as operações de tratamento?',
-      temDadosPessoais: 'São tratados dados pessoais?',
-      dadosNecessariosParaFinalidade:
-        'Todos os dados pessoais são necessários para a finalidade?',
-      categoriasEspeciaisNecessarias:
-        'Todas as categorias especiais de dados são necessárias para a finalidade?',
-      entidadesQueEnviamDados:
-        'Que entidades nos enviam dados pessoais, além do próprio titular?',
-      entidadesParaQuemEnvioDados:
-        'A que entidades enviamos dados pessoais, além do próprio titular?',
-      suportesFisicos: 'Suportes físicos com dados pessoais (papel, disco externo, …)',
-      localizacaoSuportesFisicos: 'Localização dos dados pessoais em suporte físico',
-      ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
-      numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
-      volumeDadosPessoais: 'Volume de dados pessoais',
-      numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso a dados pessoais',
-      subcontratadoNome: 'Nome da entidade subcontratada',
-      subcontratadoOperacoes: 'Quais as operações de tratamento (subcontratado)?',
-      existeContrato: 'Existe contrato com a entidade?',
-      contratoComClausulasProtecaoDados:
-        'O contrato tem cláusulas específicas sobre privacidade e proteção de dados?',
-      transferenciasPaisesTerceiros:
-        'Os dados são transferidos para países terceiros fora da UE?',
-      auditoriasAoSubcontratado:
-        'São feitas auditorias/inspeções para validar que o subcontratado cumpre as obrigações?',
-      pedidoAutorizacaoCnpd: 'Foi efetuado pedido de autorização/notificação à CNPD?',
-      mecanismosDemonstracaoConsentimento:
-        'Consentimento: existem mecanismos para demonstrar, a qualquer momento, que o titular consentiu?',
-      consentimentoResponsabilidadeParental:
-        'Menores: o consentimento é obtido a quem tem a responsabilidade parental?',
-      retencaoDefinidaPelaOrganizacao:
-        'Está definido um período de retenção dos dados pela organização?',
-      retencaoPorNormativosLegais:
-        'Está estabelecido um período de retenção por normativos legais ou regulamentares?',
-      criterioPrazoConservacao: 'Critério de determinação do prazo de conservação',
-      normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
-      diagramaProcesso: 'Imagem / diagrama do processo (referência ou ligação)',
-      comentarios: 'Comentários',
-    },
-    adicionarSubcontratado: 'Adicionar subcontratado',
-    semSubcontratados: 'Nenhum subcontratado registado.',
+
+  respostas: {
+    porResponder: 'Por responder',
+    sim: 'Sim',
+    parcial: 'Parcialmente',
+    nao: 'Não',
+    nao_aplicavel: 'Não aplicável',
   },
 
   passos: {
-    identificacao: 'Identificação',
-    finalidadeBase: 'Finalidade e base de licitude',
-    titularesDados: 'Titulares e dados',
-    destinatariosTransferencias: 'Destinatários e transferências',
-    conservacaoSeguranca: 'Conservação e segurança',
-    subcontratantesObservacoes: 'Subcontratantes e observações',
-    responsaveisPorConta: 'Responsáveis por conta de quem se atua',
-    transferencias: 'Transferências internacionais',
-    segurancaObservacoes: 'Segurança e observações',
-    caracterizacao: 'Caracterização',
-    ferramentas: 'Ferramentas e aplicações',
+    // Responsável — as sete secções da especificação.
+    caracterizacao: 'Descrição do Processo / Caracterização',
+    ferramentas: 'Ferramentas / Aplicações utilizadas',
     subcontratados: 'Subcontratados',
-    requisitosFuncionais: 'Requisitos funcionais',
-    controlosOperacionais: 'Controlos operacionais',
-    observacoesGerais: 'Observações gerais',
+    baseLicitude: 'Base de Licitude',
+    requisitosFuncionais: 'Requisitos Funcionais / Direitos dos Titulares',
+    controlosOperacionais: 'Controlos Operacionais',
+    observacoesGerais: 'Observações Gerais',
+
+    // Subcontratante
+    identificacaoSubcontratado: 'Identificação',
+    tratamentoSubcontratado: 'Tratamento e base legal',
+    dadosSubcontratado: 'Titulares e dados',
+    destinatariosSubcontratado: 'Destinatários e transferências',
+    segurancaSubcontratado: 'Conservação e segurança',
+    observacoesSubcontratado: 'Observações Gerais',
   },
 
   importar: {
@@ -336,7 +375,7 @@ export const textos = {
 
   validador: {
     tituloNav: 'Modo validador',
-    titulo: 'Modo validador (DPO)',
+    titulo: 'Modo validador',
     descricao:
       'Importa um ou mais ficheiros exportados pelas equipas, revê os avisos/erros, anota o que precisa de correção e exporta de volta.',
     botaoImportar: 'Importar ficheiros',
@@ -363,84 +402,12 @@ export const textos = {
     marcarPorResolver: 'Marcar como por resolver',
     campoGeral: 'Geral',
     resumoSessaoTitulo: 'Resumo da sessão',
+    botaoCorrigir: 'Corrigir no formulário',
+    confirmarCorrigir:
+      'Isto carrega este ficheiro no formulário de preenchimento, substituindo o que lá estiver. As correções que fizeres ficam nesse ficheiro — volta aqui depois para validar e exportar. Continuar?',
+    estadoTitulo: 'Decisão do validador',
   },
 
-  avaliacao: {
-    tituloNav: 'Avaliação de controlos',
-    titulo: 'Avaliação de controlos',
-    descricao:
-      'Módulo opcional, à parte do RAT. O registo do art. 30.º fica completo sem isto — aqui avalia-se a maturidade dos controlos que o template Excel antigo misturava nas mesmas colunas.',
-    naoAtivado: 'Este registo ainda não tem avaliação de controlos.',
-    naoAtivadoDescricao:
-      'Ativa apenas se a tua organização quiser acompanhar controlos além do que o RGPD obriga a registar.',
-    ativar: 'Ativar avaliação para este registo',
-    desativar: 'Remover avaliação deste registo',
-    confirmarDesativar:
-      'Isto apaga as respostas de avaliação deste registo. O RAT em si não é afetado. Continuar?',
-    voltarAoRegisto: '← Voltar ao registo',
-    guardar: 'Guardar avaliação',
-    respostas: {
-      sim: 'Sim',
-      parcial: 'Parcialmente',
-      nao: 'Não',
-      nao_aplicavel: 'Não aplicável',
-      porResponder: 'Por responder',
-    },
-    seccoes: {
-      requisitosFuncionais: 'Direitos dos titulares',
-      requisitosFuncionaisNota:
-        'Capacidade de dar resposta a cada direito (arts. 15.º a 22.º) e ao dever de informar (arts. 13.º e 14.º).',
-      controlosOperacionais: 'Gestão de acessos',
-      controlosOperacionaisNota: 'Controlos de segurança do tratamento (art. 32.º).',
-      ferramentasSistemas: 'Ferramentas, sistemas e suportes',
-      ferramentasSistemasNota: 'Onde os dados vivem, e em que volume.',
-      governoSubcontratacao: 'Contratos e auditorias a subcontratantes',
-      governoSubcontratacaoNota: 'Relação contratual nos termos do art. 28.º, e CNPD.',
-      governoConsentimento: 'Consentimento',
-      governoConsentimentoNota: 'Só relevante quando a base de licitude é o consentimento.',
-      outros: 'Normativos e diagrama',
-    },
-    campos: {
-      deverInformar: 'Foi exercido o "dever de informar" antes do início do tratamento?',
-      direitoAcesso: 'Direito de acesso',
-      direitoRetificacao: 'Direito de retificação',
-      direitoApagamento: 'Direito ao apagamento ("esquecimento")',
-      direitoPortabilidade: 'Direito à portabilidade',
-      direitoLimitacao: 'Direito à limitação do tratamento',
-      direitoNaoDecisoesAutomatizadas:
-        'Direito a não ficar sujeito a decisões individuais automatizadas, incluindo definição de perfis',
-      direitoOposicao: 'Direito de oposição',
-      detecaoNotificacaoViolacoes: 'Capacidade de detetar e notificar violações de dados',
-      procedimentosAcessosDocumentados:
-        'Os procedimentos de gestão de acessos estão documentados?',
-      procedimentosAcessosImplementados:
-        'Os procedimentos de gestão de acessos estão implementados? (pedido, alteração, remoção)',
-      acessosFormalmenteAutorizados: 'Os acessos são formalmente solicitados e autorizados?',
-      controlosAcessosPrivilegiados:
-        'Existem controlos sobre utilizadores com acessos privilegiados ou genéricos?',
-      revisaoPeriodicaAcessos: 'É feita revisão periódica dos acessos dos utilizadores?',
-      remocaoAcessosASaida: 'Os acessos são removidos quando um colaborador sai?',
-      ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
-      numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
-      volumeDadosPessoais: 'Volume de dados pessoais',
-      numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso',
-      suportesFisicos: 'Suportes físicos com dados pessoais (papel, disco externo, …)',
-      localizacaoSuportesFisicos: 'Localização dos suportes físicos',
-      existeContrato: 'Existe contrato com a entidade subcontratante?',
-      contratoComClausulasProtecaoDados:
-        'O contrato tem cláusulas específicas de proteção de dados?',
-      auditoriasAoSubcontratado:
-        'São feitas auditorias para validar que o subcontratado cumpre as obrigações?',
-      pedidoAutorizacaoCnpd: 'Foi feito pedido de autorização/notificação à CNPD?',
-      mecanismosDemonstracaoConsentimento:
-        'Existem mecanismos para demonstrar, a qualquer momento, que o titular deu consentimento?',
-      consentimentoResponsabilidadeParental:
-        'Tratando-se de menores, o consentimento é obtido a quem tem a responsabilidade parental?',
-      normativosAplicaveis: 'Normativos legais ou regulamentares aplicáveis',
-      diagramaProcesso: 'Diagrama do processo (referência ou ligação)',
-      notas: 'Notas',
-    },
-  },
 
   rascunho: {
     tituloDialogo: 'Rascunho encontrado',

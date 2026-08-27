@@ -1,11 +1,16 @@
 import { useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { textos } from '@/i18n/pt'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
-import type { AnotacaoCampo } from '@/domain/schema/comum'
+import type { AnotacaoCampo, EstadoRegisto } from '@/domain/schema/comum'
+import type { Registo } from '@/domain/schema/registo'
+import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
 import { exportarJson } from '@/io/json/exportar'
 import { CartaoRegisto } from '@/features/validacao/cartao-registo'
 
@@ -31,6 +36,9 @@ export function ModoValidador() {
   const [aImportar, setAImportar] = useState(false)
   const [errosImportacao, setErrosImportacao] = useState<string[]>([])
   const [aExportar, setAExportar] = useState<string | null>(null)
+  const [nomeValidador, setNomeValidador] = useState('')
+  const navigate = useNavigate()
+  const { definirFicheiro } = useFicheiro()
 
   const resumo = useMemo(
     () =>
@@ -70,7 +78,8 @@ export function ModoValidador() {
     setAImportar(false)
   }
 
-  function atualizarRegisto(entradaId: string, registoId: string, atualizar: (a: AnotacaoCampo[]) => AnotacaoCampo[]) {
+  /** Aplica uma alteração a um registo de um dos ficheiros da sessão. */
+  function alterarRegisto(entradaId: string, registoId: string, alterar: (r: Registo) => Registo) {
     setSessao((atual) =>
       atual.map((entrada) => {
         if (entrada.id !== entradaId) return entrada
@@ -79,14 +88,39 @@ export function ModoValidador() {
           ficheiro: {
             ...entrada.ficheiro,
             registos: entrada.ficheiro.registos.map((registo) =>
-              registo.id === registoId
-                ? { ...registo, anotacoes: atualizar(registo.anotacoes ?? []) }
-                : registo,
+              registo.id === registoId ? alterar(registo) : registo,
             ),
           },
         }
       }),
     )
+  }
+
+  function atualizarRegisto(
+    entradaId: string,
+    registoId: string,
+    atualizar: (a: AnotacaoCampo[]) => AnotacaoCampo[],
+  ) {
+    alterarRegisto(entradaId, registoId, (registo) => ({
+      ...registo,
+      anotacoes: atualizar(registo.anotacoes ?? []),
+    }))
+  }
+
+  /**
+   * Muda o estado do registo no circuito de validação. Ao validar,
+   * regista-se quem validou e quando, para essa informação viajar dentro
+   * do ficheiro devolvido à equipa.
+   */
+  function mudarEstado(entradaId: string, registoId: string, estado: EstadoRegisto) {
+    alterarRegisto(entradaId, registoId, (registo) => ({
+      ...registo,
+      estado,
+      validacao:
+        estado === 'validado'
+          ? { validadoPor: nomeValidador.trim() || undefined, data: new Date().toISOString() }
+          : undefined,
+    }))
   }
 
   async function exportar(entrada: EntradaSessao, formato: 'json' | 'excel' | 'pdf') {
@@ -163,6 +197,27 @@ export function ModoValidador() {
             >
               {textos.exportar.botaoPdf}
             </Button>
+            {/* Corrigir usa o formulário completo, que trabalha sobre o
+                ficheiro em edição — por isso carrega-se lá o ficheiro
+                inteiro em vez de editar a cópia da sessão. */}
+            <Button
+              variant="subtle"
+              onClick={() => {
+                if (!window.confirm(textos.validador.confirmarCorrigir)) return
+                definirFicheiro(entradaSelecionada.ficheiro)
+                navigate('/')
+              }}
+            >
+              {textos.validador.botaoCorrigir}
+            </Button>
+          </div>
+          <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4">
+            <Label htmlFor="nomeValidador">{textos.estado.campoValidadoPor}</Label>
+            <Input
+              id="nomeValidador"
+              value={nomeValidador}
+              onChange={(e) => setNomeValidador(e.target.value)}
+            />
           </div>
           {entradaSelecionada.ficheiro.registos.map((registo) => (
             <CartaoRegisto
@@ -177,6 +232,7 @@ export function ModoValidador() {
                   atuais.map((a) => (a.id === anotacaoId ? { ...a, resolvida: !a.resolvida } : a)),
                 )
               }
+              onMudarEstado={(estado) => mudarEstado(entradaSelecionada.id, registo.id, estado)}
             />
           ))}
         </div>

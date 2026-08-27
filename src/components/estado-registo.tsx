@@ -2,9 +2,10 @@ import { Badge } from '@/components/ui/badge'
 import { textos } from '@/i18n/pt'
 import type { EstadoRegisto } from '@/domain/schema/comum'
 
-const VARIANTE: Record<EstadoRegisto, 'outline' | 'warning' | 'secondary'> = {
+const VARIANTE: Record<EstadoRegisto, 'outline' | 'warning' | 'secondary' | 'destructive'> = {
   rascunho: 'outline',
-  pronto: 'warning',
+  submetido: 'warning',
+  devolvido: 'destructive',
   validado: 'secondary',
 }
 

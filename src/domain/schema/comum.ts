@@ -1,26 +1,52 @@
 import { z } from 'zod'
 import {
   idsCategoriasDados,
-  idsMecanismoTransferencia,
   idsMedidasTecnicasOrganizativas,
 } from '@/domain/schema/vocabularios'
-import { avaliacaoControlosSchema } from '@/domain/schema/avaliacao'
 
 /**
- * Peças de schema partilhadas pelos dois tipos de registo (responsável e
- * subcontratado). Ver CLAUDE.md §3: campos comuns a ambas as qualidades.
+ * Peças partilhadas pelos dois tipos de registo.
+ *
+ * Regra geral de obrigatoriedade: o utilizador indicou os dois conjuntos
+ * de campos como "obrigatórios". Aqui só são obrigatórios no schema os
+ * campos sem os quais um registo não consegue sequer existir na lista
+ * (id, tipo, direção, nome do tratamento, GP). Todos os outros são
+ * `optional()` no schema e obrigatórios no catálogo de regras
+ * (src/domain/rules/catalog.ts).
+ *
+ * Isto não é um abrandamento do requisito: é o que permite (a) guardar um
+ * rascunho a meio, (b) exportar sempre — o download nunca é bloqueado por
+ * erros (CLAUDE.md §7) — e (c) impedir a submissão para validação
+ * enquanto faltar um campo obrigatório, que é onde o requisito ganha
+ * dentes. Ver `podeSubmeter()` em src/domain/rules/motor.ts.
  */
+
+/** Resposta a uma pergunta factual (existe / não existe / não se aplica). */
+export const respostaSimNaoSchema = z.enum(['sim', 'nao', 'nao_aplicavel'])
+export type RespostaSimNao = z.infer<typeof respostaSimNaoSchema>
+
+/**
+ * Resposta a uma pergunta de capacidade ou controlo. Tem "parcial" porque
+ * um controlo raramente está totalmente implementado ou totalmente
+ * ausente, e essa nuance é precisamente o que interessa ao validador.
+ */
+export const respostaControloSchema = z.enum(['sim', 'parcial', 'nao', 'nao_aplicavel'])
+export type RespostaControlo = z.infer<typeof respostaControloSchema>
 
 export const gestorProjetoSchema = z.object({
   nome: z.string().min(1, 'Indica o nome do gestor de projeto (GP).'),
-  contacto: z.string().min(1, 'Indica o contacto do gestor de projeto (GP).'),
+  contacto: z.string().optional(),
 })
 export type GestorProjeto = z.infer<typeof gestorProjetoSchema>
 
+/**
+ * Taxonomia de dois níveis pedida pela especificação: "Categorias de
+ * Dados Pessoais" e, para cada uma, "Tipos de Dados Pessoais".
+ */
 export const categoriaDadosSchema = z.object({
   categoria: z.enum(idsCategoriasDados),
   categoriaOutra: z.string().optional(),
-  tipos: z.array(z.string().min(1)).min(1, 'Indica pelo menos um tipo de dados.'),
+  tipos: z.array(z.string().min(1)),
 })
 export type CategoriaDados = z.infer<typeof categoriaDadosSchema>
 
@@ -30,30 +56,26 @@ export const medidaTecnicaOrganizativaSchema = z.object({
 })
 export type MedidaTecnicaOrganizativa = z.infer<typeof medidaTecnicaOrganizativaSchema>
 
-export const transferenciaInternacionalSchema = z.object({
-  existem: z.boolean(),
-  paisesOuOrganizacoes: z.array(z.string().min(1)).optional(),
-  mecanismo: z.enum(idsMecanismoTransferencia).optional(),
-  mecanismoOutro: z.string().optional(),
+/** Categorias especiais de dados (art. 9.º): se existem, têm de ser identificadas. */
+export const categoriasEspeciaisSchema = z.object({
+  aplicavel: respostaSimNaoSchema.optional(),
+  identificar: z.string().optional(),
 })
-export type TransferenciaInternacional = z.infer<typeof transferenciaInternacionalSchema>
-
-export const aipdSchema = z.enum(['sim', 'nao', 'nao_aplicavel'])
-export type Aipd = z.infer<typeof aipdSchema>
+export type CategoriasEspeciais = z.infer<typeof categoriasEspeciaisSchema>
 
 /**
- * Estado do registo dentro do ficheiro da equipa. É apenas um marcador
- * local: viaja dentro do ficheiro exportado e não implica contas,
- * servidor nem submissão (CLAUDE.md §2.2 e §2.8). A "submissão" continua
- * a ser exportar o ficheiro e enviá-lo ao DPO.
+ * Estado do registo no circuito GP -> validador. É apenas um marcador que
+ * viaja dentro do ficheiro exportado: não há contas, servidor nem
+ * submissão em rede (CLAUDE.md §2). "Submeter" é marcar o registo e
+ * enviar o ficheiro; "devolvido" é o caminho de volta quando o validador
+ * quer que o GP corrija em vez de corrigir ele próprio.
  */
-export const estadoRegistoSchema = z.enum(['rascunho', 'pronto', 'validado'])
+export const estadoRegistoSchema = z.enum(['rascunho', 'submetido', 'devolvido', 'validado'])
 export type EstadoRegisto = z.infer<typeof estadoRegistoSchema>
 
 /**
- * Anotação do DPO sobre um campo de um registo (modo validador, CLAUDE.md
- * §11 fase 6). `campo: 'geral'` significa uma anotação sobre o registo
- * como um todo, não sobre um campo específico.
+ * Anotação do validador sobre um campo. `campo: 'geral'` é uma anotação
+ * sobre o registo como um todo.
  */
 export const anotacaoCampoSchema = z.object({
   id: z.uuid(),
@@ -65,26 +87,26 @@ export const anotacaoCampoSchema = z.object({
 })
 export type AnotacaoCampo = z.infer<typeof anotacaoCampoSchema>
 
-/** Campos comuns aos dois tipos de registo. */
+/** Quem validou e quando — preenchido quando o registo passa a `validado`. */
+export const validacaoSchema = z.object({
+  validadoPor: z.string().optional(),
+  data: z.iso.datetime(),
+  observacoes: z.string().optional(),
+})
+export type Validacao = z.infer<typeof validacaoSchema>
+
+/** Campos comuns às duas qualidades. */
 export const campoBaseRegistoSchema = z.object({
   id: z.uuid(),
-  direcao: z.string().min(1, 'Indica a Direção/Área/Serviço.'),
+  estado: estadoRegistoSchema,
+  direcao: z.string().min(1, 'Indica a Direção.'),
   unidadeCoordenacao: z.string().optional(),
   nomeTratamento: z.string().min(1, 'Indica o nome do tratamento/processo.'),
   descricao: z.string().optional(),
-  observacoes: z.string().optional(),
-  medidasTecnicasOrganizativas: z
-    .array(medidaTecnicaOrganizativaSchema)
-    .min(1, 'Indica pelo menos uma medida técnica ou organizativa.'),
-  transferenciasInternacionais: transferenciaInternacionalSchema,
-  aipdRealizada: aipdSchema,
   gestorProjeto: gestorProjetoSchema,
+  medidasTecnicasOrganizativas: z.array(medidaTecnicaOrganizativaSchema).optional(),
+  aipdRealizada: respostaSimNaoSchema.optional(),
   anotacoes: z.array(anotacaoCampoSchema).optional(),
-  estado: estadoRegistoSchema,
-  /**
-   * Módulo de avaliação de controlos — opcional e à parte do RAT
-   * (CLAUDE.md §3). Ausente enquanto a equipa não o ativar.
-   */
-  avaliacao: avaliacaoControlosSchema.optional(),
+  validacao: validacaoSchema.optional(),
 })
 export type CampoBaseRegisto = z.infer<typeof campoBaseRegistoSchema>

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from '@/App'
@@ -25,8 +25,11 @@ describe('importação nativa (JSON)', () => {
     await utilizador.upload(input, ficheiroJson)
 
     expect(await screen.findByDisplayValue(ficheiroRatFixtureValido.metadados.equipa)).toBeInTheDocument()
+    // Escopado à tabela: um registo por completar aparece também no bloco
+    // "Precisa da tua atenção", e o nome ficaria duplicado no ecrã.
+    const tabela = within(await screen.findByRole('table'))
     for (const registo of ficheiroRatFixtureValido.registos) {
-      expect(screen.getByText(registo.nomeTratamento)).toBeInTheDocument()
+      expect(tabela.getByText(registo.nomeTratamento)).toBeInTheDocument()
     }
   })
 
