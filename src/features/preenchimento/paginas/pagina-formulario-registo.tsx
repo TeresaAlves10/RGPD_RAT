@@ -47,11 +47,11 @@ export function PaginaFormularioRegisto() {
 
   function aoGuardar(registo: Registo) {
     guardarRegisto(registo)
-    navigate('/')
+    navigate('/registos')
   }
 
   function aoCancelar() {
-    navigate('/')
+    navigate('/registos')
   }
 
   if (tipoRegisto === 'responsavel') {

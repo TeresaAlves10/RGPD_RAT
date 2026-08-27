@@ -9,7 +9,30 @@ export const textos = {
       'Nada do que escreves aqui sai deste computador. Só os ficheiros que exportares, e só quando os enviares.',
   },
 
+  inicio: {
+    etiqueta: 'Artigo 30.º do RGPD',
+    titulo: 'Registo de Atividades de Tratamento, mantido e validado num só sítio',
+    subtitulo:
+      'Substitui a folha de cálculo por um registo estruturado, com validação das regras de negócio, circuito de submissão e validação, e exportação para Excel e PDF.',
+    botaoEntrar: 'Aceder aos registos',
+    botaoNovoRegisto: 'Criar um registo',
+    destaquesTitulo: 'O que a aplicação faz',
+    matrizTitulo: 'Matriz completa',
+    matrizTexto:
+      'Todos os campos da matriz RAT organizados por secções: descrição do processo, ferramentas, subcontratados, base de licitude, requisitos funcionais e controlos operacionais.',
+    circuitoTitulo: 'Circuito de validação',
+    circuitoTexto:
+      'O Gestor de Projeto submete o registo; o validador corrige qualquer campo e valida, ou devolve para correção.',
+    importarTitulo: 'Importar e exportar',
+    importarTexto:
+      'Importa a matriz que já existe em Excel e exporta a lista consolidada em Excel e PDF, pronta a arquivar ou a enviar.',
+    privacidadeTitulo: 'Os dados não saem do teu computador',
+    privacidadeTexto:
+      'Não há servidor nem base de dados: o preenchimento acontece no browser e só sai deste computador nos ficheiros que exportares, quando os enviares. É por isso que não há contas nem palavras-passe.',
+  },
+
   navegacao: {
+    inicio: 'Início',
     listaRegistos: 'Registos',
     novoRegisto: 'Novo registo',
     ajuda: 'Ajuda',

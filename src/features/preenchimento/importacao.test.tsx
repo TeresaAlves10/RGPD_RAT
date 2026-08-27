@@ -9,7 +9,7 @@ import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
 describe('importação nativa (JSON)', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    window.location.hash = ''
+    window.location.hash = '#/registos'
   })
 
   it('importa um ficheiro JSON válido e mostra os registos na lista', async () => {

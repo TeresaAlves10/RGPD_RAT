@@ -14,6 +14,7 @@ import {
   type RascunhoGuardado,
 } from '@/features/preenchimento/store/rascunho-local'
 import { RascunhoDialog } from '@/features/preenchimento/rascunho-dialog'
+import { PaginaInicial } from '@/features/inicio/pagina-inicial'
 import { ListaRegistos } from '@/features/preenchimento/paginas/lista-registos'
 import { EscolhaTipoRegisto } from '@/features/preenchimento/paginas/escolha-tipo-registo'
 import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina-formulario-registo'
@@ -54,7 +55,8 @@ function ConteudoApp() {
         <BarraEstado />
         <main className="flex-1">
           <Routes>
-            <Route path="/" element={<ListaRegistos />} />
+            <Route path="/" element={<PaginaInicial />} />
+            <Route path="/registos" element={<ListaRegistos />} />
             <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
             <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
             <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
