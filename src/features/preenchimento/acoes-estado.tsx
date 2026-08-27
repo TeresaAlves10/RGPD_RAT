@@ -35,19 +35,9 @@ export function AcoesEstado({ estado, onMudar, erros = [], permiteValidar }: Aco
       <p className="text-xs leading-relaxed text-muted-foreground">{textos.estado.aviso}</p>
 
       <div className="flex flex-wrap items-center gap-2">
-        {estado === 'rascunho' || estado === 'devolvido' ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={!podeSubmeter}
-            title={podeSubmeter ? undefined : textos.estado.submeterBloqueado}
-            onClick={() => onMudar('submetido')}
-          >
-            {textos.estado.submeter}
-          </Button>
-        ) : null}
-
+        {/* Submeter vive na barra de ações do formulário, no fim das
+            Observações Gerais — não aqui, para não haver dois botões
+            iguais no mesmo ecrã. */}
         {estado === 'submetido' || estado === 'validado' ? (
           <Button type="button" size="sm" variant="ghost" onClick={() => onMudar('rascunho')}>
             {textos.estado.reabrir}
