@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { textos } from '@/i18n/pt'
@@ -65,6 +65,8 @@ const ITENS: ItemNavegacao[] = [
 ]
 
 export function BarraLateral() {
+  const [logoFalhou, setLogoFalhou] = useState(false)
+
   return (
     <aside className="no-print flex w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <Link
@@ -72,9 +74,15 @@ export function BarraLateral() {
         className="flex flex-col gap-2 border-b border-sidebar-border px-5 py-5"
       >
         {/* O logótipo é servido do próprio bundle (public/), nunca de uma
-            CDN. Enquanto não existir, mostra-se só o nome. */}
-        {LOGO ? (
-          <img src={LOGO} alt={NOME_ORGANIZACAO} className="h-8 w-auto self-start" />
+            CDN. Se o ficheiro não estiver lá, cai-se no nome em texto em
+            vez de mostrar uma imagem partida. */}
+        {LOGO && !logoFalhou ? (
+          <img
+            src={LOGO}
+            alt={NOME_ORGANIZACAO}
+            className="h-9 w-auto self-start rounded bg-white p-1.5"
+            onError={() => setLogoFalhou(true)}
+          />
         ) : (
           <span className="text-[0.95rem] font-semibold">{NOME_ORGANIZACAO}</span>
         )}

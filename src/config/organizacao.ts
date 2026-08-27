@@ -13,12 +13,16 @@ export const NOME_ORGANIZACAO = 'SPMS'
 /**
  * Logótipo da organização, mostrado na barra lateral.
  *
- * Para o ativar: coloca o ficheiro em `public/logo.svg` (ou .png) e muda
- * este valor para `'logo.svg'`. Fica junto do bundle, servido pela
- * própria aplicação — nunca de uma CDN (CLAUDE.md §2.1). Enquanto for
- * `undefined`, a barra lateral mostra apenas o nome da organização.
+ * Basta colocar o ficheiro em `public/logo.svg` — fica junto do bundle,
+ * servido pela própria aplicação, nunca de uma CDN (CLAUDE.md §2.1).
+ * Enquanto o ficheiro não existir, a barra lateral mostra o nome da
+ * organização em texto: a `<img>` falha a carregar e o componente troca
+ * para o nome, sem ícone de imagem partida.
+ *
+ * Para usar outro nome ou formato (`logo.png`, por exemplo), muda aqui.
+ * Para não ter logótipo nenhum, põe `undefined`.
  */
-export const LOGO: string | undefined = undefined
+export const LOGO: string | undefined = 'logo.svg'
 
 /** Direção por omissão de um registo novo. */
 export const DIRECAO_POR_OMISSAO = 'Direção de Arquitetura, Negócio e Análise de Dados (DANAD)'
