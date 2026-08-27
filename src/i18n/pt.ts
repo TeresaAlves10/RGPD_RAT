@@ -433,9 +433,10 @@ export const textos = {
     marcarPorResolver: 'Marcar como por resolver',
     campoGeral: 'Geral',
     resumoSessaoTitulo: 'Resumo da sessão',
+    ficheiroAtual: 'Este browser',
     submetidosTitulo: 'Registos submetidos para validação',
     submetidosDescricao:
-      'De todos os ficheiros importados nesta sessão. "Rever" abre o formulário completo, onde podes alterar qualquer campo antes de validar.',
+      'Inclui os registos submetidos neste browser e os de todos os ficheiros importados nesta sessão. "Rever" abre o formulário completo, onde podes alterar qualquer campo antes de validar.',
     botaoRever: 'Rever',
     botaoEditar: 'Editar campos',
     botaoVoltarRegistos: '← Voltar aos registos',
