@@ -121,37 +121,17 @@ export const textos = {
   },
 
   escolhaTipo: {
-    titulo: 'Neste tratamento, quem decide o que se faz com os dados?',
+    titulo: 'Em que qualidade atua a organização neste tratamento?',
     descricao:
-      'A resposta muda o que o RGPD obriga a registar — por isso o formulário é diferente nos dois casos. Podes trocar mais tarde sem perder o que já preencheste.',
-    responsavelTitulo: 'Decidimos nós para que servem os dados e como são usados',
-    responsavelEtiqueta: 'Responsável pelo tratamento',
+      'A resposta muda o que o RGPD obriga a registar — por isso o formulário é diferente nos dois casos.',
+    responsavelEtiqueta: 'Responsável pelo Tratamento',
     responsavelDescricao:
-      'Ninguém de fora nos deu instruções: a finalidade e os meios do tratamento são escolha da organização.',
-    responsavelExemplos: [
-      'Recrutamento e gestão de colaboradores',
-      'Um portal ou serviço que a equipa criou e gere',
-      'Videovigilância das nossas instalações',
-    ],
-    responsavelMeta: '7 secções · art. 30.º/1',
-    subcontratadoTitulo: 'Tratamos dados por conta de outra entidade, seguindo as instruções dela',
-    subcontratadoEtiqueta: 'Subcontratado',
+      'Entidade que determina as finalidades e os meios do tratamento dos dados pessoais.',
+    subcontratadoEtiqueta: 'Subcontratante',
     subcontratadoDescricao:
-      'Há um cliente, um parceiro ou outro serviço que decide a finalidade; nós executamos o que foi contratado.',
-    subcontratadoExemplos: [
-      'Alojar a base de dados de um cliente',
-      'Helpdesk contratado por outra entidade',
-      'Processar salários por conta de outro serviço',
-    ],
-    subcontratadoMeta: '6 secções · art. 30.º/2',
-    exemplosTitulo: 'Por exemplo',
+      'Entidade que trata os dados pessoais por conta e sob as instruções do Responsável pelo Tratamento.',
     botaoContinuar: 'Continuar',
     botaoCancelar: 'Cancelar',
-    duvidaTitulo: 'Não tens a certeza?',
-    duvidaTexto:
-      'Faz esta pergunta: se amanhã decidissem usar estes dados para outra coisa, podiam fazê-lo sozinhos? Se sim, a equipa é responsável. Se tivessem de pedir autorização a quem vos entregou os dados, é subcontratado.',
-    duvidaNota:
-      'A mesma equipa pode ser as duas coisas em tratamentos diferentes — nesse caso cria um registo para cada.',
   },
 
   formulario: {
@@ -183,28 +163,29 @@ export const textos = {
 
   campos: {
     // Comuns
-    direcao: 'Direção',
-    unidadeCoordenacao: 'Unidade de Coordenação',
-    nomeTratamento: 'Nome do tratamento / processo',
-    descricao: 'Descrição do processo',
+    numero: 'ID',
+    direcao: 'Nome da Direção',
+    unidadeCoordenacao: 'Nome da Unidade de Coordenação',
+    nomeTratamento: 'Nome Tratamento / Processo',
+    descricao: 'Descrição do Processo',
     'gestorProjeto.nome': 'Nome do Gestor de Projeto (GP)',
     'gestorProjeto.contacto': 'Contacto do GP',
-    medidasTecnicasOrganizativas: 'Medidas técnicas e organizativas implementadas',
+    medidasTecnicasOrganizativas: 'Medidas Técnicas e Organizativas implementadas',
+    normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
+    anexos: 'Documentos importantes',
     aipdRealizada: 'Foi realizada AIPD?',
     observacoes: 'Observações',
 
     // 1. Descrição do Processo / Caracterização
     finalidade: 'Qual a finalidade?',
     operacoesTratamento: 'Quais as operações de tratamento?',
-    trataDadosPessoais: 'Dados pessoais?',
+    dadosPessoais: 'Dados pessoais',
     dadosNecessariosParaFinalidade: 'Todos os dados pessoais são necessários para a finalidade?',
-    'categoriasEspeciais.aplicavel': 'Categorias especiais de dados?',
-    'categoriasEspeciais.identificar': 'Identifica as categorias especiais de dados',
+    categoriasDados: 'Categorias de dados',
+    categoriasEspeciais: 'São tratadas categorias especiais?',
     categoriasEspeciaisNecessarias:
       'Todas as categorias especiais de dados são necessárias para a finalidade?',
     categoriasTitulares: 'Qual a categoria de titular dos dados?',
-    categoriasTitularesOutra: 'Especifica a categoria de titular',
-    categoriasDados: 'Categorias e tipos de dados pessoais',
     entidadesQueEnviamDados:
       'Quem são as entidades que me enviam dados pessoais para além do titular dos dados pessoais?',
     entidadesParaQuemEnvioDados:
@@ -214,32 +195,36 @@ export const textos = {
     localizacaoSuportesFisicos: 'Localização dos dados pessoais em suporte físico',
 
     // 2. Ferramentas / Aplicações utilizadas
-    ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
+    ferramentasAplicacoes: 'Ferramentas / Aplicações utilizadas',
     numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
     volumeDadosPessoais: 'Volume de dados pessoais',
     numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso a dados pessoais',
 
     // 3. Subcontratados
-    subcontratados: 'Entidades subcontratadas',
-    'subcontratado.nome': 'Nome da entidade subcontratada',
-    'subcontratado.operacoesTratamento': 'Quais as operações de tratamento?',
-    'subcontratado.existeContrato': 'Existe contrato com a entidade que fornece dados pessoais?',
-    'subcontratado.contratoComClausulasProtecaoDados':
+    entidadesSubcontratadas: 'Entidades Subcontratadas',
+    operacoesTratamentoSubcontratadas: 'Quais as operações de tratamento?',
+    existeContrato: 'Existe contrato com a entidade que fornece dados pessoais?',
+    contratoComClausulasProtecaoDados:
       'O contrato contém cláusulas específicas sobre a privacidade e proteção de dados pessoais?',
-    'subcontratado.transferenciasPaisesTerceiros':
+    anexosContrato: 'Anexar contrato ou cláusulas',
+    transferenciasPaisesTerceiros:
       'Os dados pessoais são transferidos para países terceiros fora da União Europeia?',
-    'subcontratado.auditoriasAoSubcontratado':
+    paisesTerceiros: 'Para que país ou países?',
+    auditoriasAoSubcontratado:
       'São realizadas auditorias/inspeções para validar que o subcontratado cumpre com as obrigações previstas?',
-    'subcontratado.pedidoAutorizacaoCnpd': 'Foi efetuado pedido de autorização/notificação à CNPD?',
+    pedidoAutorizacaoCnpd: 'Foi efetuado pedido de autorização/notificação à CNPD?',
 
     // 4. Base de Licitude
     baseLicitude: 'Qual é a base de licitude?',
+    baseLegal: 'Qual é a base legal do tratamento?',
     consentimentoMecanismosDemonstracao:
       'Existem mecanismos para demonstrar a qualquer momento que o titular dos dados deu o seu consentimento?',
     consentimentoResponsabilidadeParental:
       'No caso de tratamentos de dados de menores de idade, o consentimento é obtido diretamente aos titulares da responsabilidade parental da criança?',
     retencaoDefinidaPelaOrganizacao: (organizacao: string) =>
-      `Está definido um período de retenção dos dados pessoais pel${organizacao === 'a organização' ? '' : 'a '}${organizacao}?`,
+      `Está definido um período de retenção dos dados pessoais pela ${organizacao}?`,
+    criterioRetencao: (organizacao: string) =>
+      `Está definido algum critério de retenção dos dados pessoais pela ${organizacao}?`,
     retencaoPorNormativosLegais:
       'Está estabelecido um período de retenção dos dados pessoais por normativos legais ou regulamentares?',
 
@@ -266,31 +251,12 @@ export const textos = {
     revisaoPeriodicaAcessos: 'É realizada uma revisão periódica dos acessos dos utilizadores?',
     remocaoAcessosASaida: 'É feita a remoção de acessos após a saída de um colaborador?',
 
-    // 7. Observações Gerais
-    normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
-    diagramaProcesso: 'Imagem / diagrama do processo (referência ou ligação)',
-
     // Subcontratante
     nomeResponsavelTratamento: 'Nome do Responsável pelo Tratamento',
-    finalidadeSubcontratado: 'Finalidade do tratamento de dados pessoais',
     responsavelConjunto: 'Identificação do responsável conjunto pelo tratamento (identificar ou N/A)',
-    baseLegal: 'Base legal do tratamento (art. 6.º do RGPD)',
     recolhaDados: 'Recolha dos dados (como é efetuada)',
     destinatarios: 'Destinatários ou categorias de destinatários',
-    'transferencias.existem':
-      'Transferências para países terceiros ou organizações internacionais (art. 44.º do RGPD)?',
-    'transferencias.identificar': 'Identifica o país ou países / organizações de destino',
     prazoConservacao: 'Prazo de conservação dos dados pessoais',
-    outrosSubcontratantes: 'Nome de outros subcontratantes (art. 28.º do RGPD)',
-    'outroSubcontratante.nome': 'Nome',
-    'outroSubcontratante.contacto': 'Contacto',
-    'outroSubcontratante.dataContrato': 'Data do contrato de subcontratação (AAAA-MM-DD)',
-    diagramaEcosistema: 'Imagem / diagrama / ecossistema (referência ou ligação)',
-
-    // Sub-campos de listas
-    'categoriaDados.categoria': 'Categoria de dados',
-    'categoriaDados.categoriaOutra': 'Especifica a categoria',
-    'categoriaDados.tipos': 'Tipos de dados (um por linha)',
   },
 
 
@@ -321,9 +287,42 @@ export const textos = {
   respostas: {
     porResponder: 'Por responder',
     sim: 'Sim',
-    parcial: 'Parcialmente',
     nao: 'Não',
     nao_aplicavel: 'Não aplicável',
+    nao_sei: 'Não sei',
+  },
+
+  escala: {
+    porResponder: 'Por responder',
+    baixo: 'Baixo (dezenas)',
+    medio: 'Médio (centenas)',
+    elevado: 'Elevado (milhares)',
+  },
+
+  totais: {
+    titulo: 'Totais',
+    total: 'RAT no ficheiro',
+    totalDescricao: 'Registos de atividades de tratamento.',
+    submetidos: 'Submetidos',
+    submetidosDescricao: 'Enviados pelo GP para validação.',
+    emValidacao: 'Em validação',
+    emValidacaoDescricao: 'Submetidos ou devolvidos para correção.',
+    validados: 'Validados',
+    validadosDescricao: 'Revistos e dados como válidos.',
+    comAipd: 'Com AIPD',
+    comAipdDescricao: 'Com avaliação de impacto realizada.',
+    nota: 'Contagens sobre o ficheiro aberto neste computador. Nada é guardado num servidor.',
+  },
+
+  anexos: {
+    adicionar: 'Anexar ficheiro',
+    descarregar: 'Descarregar',
+    nota: (porFicheiro: string, total: string) =>
+      `Aceita imagem, PDF, Word e texto. Máximo ${porFicheiro} por ficheiro e ${total} por registo — os anexos viajam dentro do ficheiro exportado, por isso convém mantê-los pequenos.`,
+    erroFicheiroGrande: (nome: string) => `"${nome}" é demasiado grande e não foi anexado.`,
+    erroTotalGrande: 'Foi atingido o limite de anexos deste registo.',
+    semAnexos: 'Sem anexos.',
+    contagem: (n: number) => `${n} anexo${n === 1 ? '' : 's'}`,
   },
 
   passos: {
@@ -335,14 +334,6 @@ export const textos = {
     requisitosFuncionais: 'Requisitos Funcionais / Direitos dos Titulares',
     controlosOperacionais: 'Controlos Operacionais',
     observacoesGerais: 'Observações Gerais',
-
-    // Subcontratante
-    identificacaoSubcontratado: 'Identificação',
-    tratamentoSubcontratado: 'Tratamento e base legal',
-    dadosSubcontratado: 'Titulares e dados',
-    destinatariosSubcontratado: 'Destinatários e transferências',
-    segurancaSubcontratado: 'Conservação e segurança',
-    observacoesSubcontratado: 'Observações Gerais',
   },
 
   importar: {
@@ -402,9 +393,12 @@ export const textos = {
     marcarPorResolver: 'Marcar como por resolver',
     campoGeral: 'Geral',
     resumoSessaoTitulo: 'Resumo da sessão',
-    botaoCorrigir: 'Corrigir no formulário',
-    confirmarCorrigir:
-      'Isto carrega este ficheiro no formulário de preenchimento, substituindo o que lá estiver. As correções que fizeres ficam nesse ficheiro — volta aqui depois para validar e exportar. Continuar?',
+    submetidosTitulo: 'Registos submetidos para validação',
+    submetidosDescricao:
+      'De todos os ficheiros importados nesta sessão. "Rever" abre o formulário completo, onde podes alterar qualquer campo antes de validar.',
+    botaoRever: 'Rever',
+    botaoEditar: 'Editar campos',
+    botaoVoltarRegistos: '← Voltar aos registos',
     estadoTitulo: 'Decisão do validador',
   },
 

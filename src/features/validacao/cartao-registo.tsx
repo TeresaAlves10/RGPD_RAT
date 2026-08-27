@@ -15,6 +15,7 @@ interface CartaoRegistoProps {
   onAdicionarAnotacao: (anotacao: AnotacaoCampo) => void
   onAlternarResolvida: (anotacaoId: string) => void
   onMudarEstado: (estado: EstadoRegisto) => void
+  onEditar: () => void
 }
 
 function novaAnotacao(campo: string, texto: string): AnotacaoCampo {
@@ -33,6 +34,7 @@ export function CartaoRegisto({
   onAdicionarAnotacao,
   onAlternarResolvida,
   onMudarEstado,
+  onEditar,
 }: CartaoRegistoProps) {
   const [campoEmAnotacao, setCampoEmAnotacao] = useState<string | null>(null)
   const [textoAnotacao, setTextoAnotacao] = useState('')
@@ -52,7 +54,9 @@ export function CartaoRegisto({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{registo.nomeTratamento}</CardTitle>
+        <CardTitle>
+          {registo.numero}. {registo.nomeTratamento}
+        </CardTitle>
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-sm text-muted-foreground">{registo.direcao}</p>
           <EstadoRegistoBadge estado={registo.estado} />
@@ -128,6 +132,9 @@ export function CartaoRegisto({
         <div className="flex flex-col gap-2 border-t border-border pt-4">
           <p className="text-sm font-medium">{textos.validador.estadoTitulo}</p>
           <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={onEditar}>
+              {textos.validador.botaoEditar}
+            </Button>
             {registo.estado !== 'validado' ? (
               <Button size="sm" variant="subtle" onClick={() => onMudarEstado('validado')}>
                 {textos.estado.validar}

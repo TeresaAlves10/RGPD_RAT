@@ -21,11 +21,6 @@ const responsavel = (alteracoes: Partial<RegistoResponsavel>): RegistoResponsave
   ...alteracoes,
 })
 
-const subcontratado = (alteracoes: Partial<RegistoSubcontratado>): RegistoSubcontratado => ({
-  ...registoSubcontratadoCompleto,
-  ...alteracoes,
-})
-
 describe('catálogo de regras', () => {
   it('não tem ids duplicados', () => {
     const ids = catalogoRegras.map((r) => r.id)
@@ -48,147 +43,102 @@ describe('campos obrigatórios do responsável', () => {
 
   it('negativo: um registo mínimo acusa os campos por preencher', () => {
     const ids = violadas(registoResponsavelMinimo)
-    expect(ids).toContain('resp.obrigatorio.finalidade')
-    expect(ids).toContain('resp.obrigatorio.operacoesTratamento')
-    expect(ids).toContain('resp.obrigatorio.ferramentasAplicacoes')
-    expect(ids).toContain('resp.obrigatorio.direitoAcesso')
-    expect(ids).toContain('resp.obrigatorio.revisaoPeriodicaAcessos')
+    expect(ids).toContain('comum.obrigatorio.finalidade')
+    expect(ids).toContain('comum.obrigatorio.operacoesTratamento')
+    expect(ids).toContain('comum.obrigatorio.ferramentasAplicacoes')
+    expect(ids).toContain('comum.obrigatorio.direitoAcesso')
+    expect(ids).toContain('comum.obrigatorio.revisaoPeriodicaAcessos')
     expect(ids).toContain('comum.obrigatorio.unidadeCoordenacao')
+    expect(ids).toContain('resp.obrigatorio.baseLicitude')
     expect(podeSubmeter(registoResponsavelMinimo)).toBe(false)
   })
 
   it('negativo: apagar um único campo obrigatório acusa só esse campo', () => {
     const ids = violadas(responsavel({ suportesFisicos: '   ' }))
-    expect(ids).toContain('resp.obrigatorio.suportesFisicos')
-    expect(ids).not.toContain('resp.obrigatorio.localizacaoSuportesFisicos')
-  })
-})
-
-describe('tipos de dados dentro de cada categoria', () => {
-  it('positivo: cada categoria escolhida indica os seus tipos', () => {
-    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.categoriaDadosSemTipos')
-    expect(violadas(registoSubcontratadoCompleto)).not.toContain('comum.categoriaDadosSemTipos')
-  })
-
-  it('negativo: categoria escolhida sem nenhum tipo indicado', () => {
-    const ids = violadas(
-      responsavel({ categoriasDados: [{ categoria: 'identificacao_civil', tipos: [] }] }),
-    )
-    expect(ids).toContain('comum.categoriaDadosSemTipos')
-  })
-
-  it('negativo: categoria "Outro" por especificar', () => {
-    const ids = violadas(
-      responsavel({ categoriasDados: [{ categoria: 'outro', tipos: ['Algo'] }] }),
-    )
-    expect(ids).toContain('comum.categoriaDadosOutraPorEspecificar')
-  })
-
-  it('positivo: categoria "Outro" especificada', () => {
-    const ids = violadas(
-      responsavel({
-        categoriasDados: [
-          { categoria: 'outro', categoriaOutra: 'Dados de geolocalização', tipos: ['Coordenadas'] },
-        ],
-      }),
-    )
-    expect(ids).not.toContain('comum.categoriaDadosOutraPorEspecificar')
+    expect(ids).toContain('comum.obrigatorio.suportesFisicos')
+    expect(ids).not.toContain('comum.obrigatorio.localizacaoSuportesFisicos')
   })
 })
 
 describe('categorias especiais de dados (art. 9.º)', () => {
-  it('positivo: identificadas quando existem', () => {
+  it('positivo: com categorias especiais, a necessidade está respondida', () => {
     expect(violadas(registoResponsavelCompleto)).not.toContain(
-      'resp.categoriasEspeciaisPorIdentificar',
+      'comum.categoriasEspeciaisNecessidadePorResponder',
     )
   })
 
-  it('negativo: assinaladas mas não identificadas', () => {
+  it('negativo: com categorias especiais e sem dizer se são necessárias', () => {
     const ids = violadas(
-      responsavel({ categoriasEspeciais: { aplicavel: 'sim', identificar: '' } }),
+      responsavel({ categoriasEspeciais: 'sim', categoriasEspeciaisNecessarias: undefined }),
     )
-    expect(ids).toContain('resp.categoriasEspeciaisPorIdentificar')
+    expect(ids).toContain('comum.categoriasEspeciaisNecessidadePorResponder')
   })
 
   it('não se aplica quando não há categorias especiais', () => {
     const ids = violadas(
-      responsavel({
-        categoriasEspeciais: { aplicavel: 'nao' },
-        categoriasEspeciaisNecessarias: undefined,
-      }),
+      responsavel({ categoriasEspeciais: 'nao', categoriasEspeciaisNecessarias: undefined }),
     )
-    expect(ids).not.toContain('resp.categoriasEspeciaisPorIdentificar')
-    expect(ids).not.toContain('resp.categoriasEspeciaisNecessidadePorResponder')
+    expect(ids).not.toContain('comum.categoriasEspeciaisNecessidadePorResponder')
   })
 })
 
-describe('consentimento (arts. 7.º e 8.º)', () => {
-  it('positivo: com consentimento e mecanismos de demonstração', () => {
-    const ids = violadas(
-      responsavel({
-        baseLicitude: 'consentimento',
-        consentimentoMecanismosDemonstracao: 'sim',
-        consentimentoResponsabilidadeParental: 'nao_aplicavel',
-      }),
+describe('transferências para países terceiros (art. 44.º)', () => {
+  it('positivo: identificadas quando existem', () => {
+    expect(violadas(registoSubcontratadoCompleto)).not.toContain(
+      'comum.paisesTerceirosPorIdentificar',
     )
-    expect(ids).not.toContain('resp.consentimentoDemonstracaoPorResponder')
-    expect(ids).not.toContain('resp.consentimentoSemDemonstracao')
   })
 
-  it('negativo: com consentimento e sem forma de o demonstrar', () => {
+  it('negativo: assinaladas mas sem país identificado', () => {
     const ids = violadas(
-      responsavel({
-        baseLicitude: 'consentimento',
-        consentimentoMecanismosDemonstracao: 'nao',
-        consentimentoResponsabilidadeParental: 'nao_aplicavel',
-      }),
+      responsavel({ transferenciasPaisesTerceiros: 'sim', paisesTerceiros: undefined }),
     )
-    expect(ids).toContain('resp.consentimentoSemDemonstracao')
+    expect(ids).toContain('comum.paisesTerceirosPorIdentificar')
   })
 
-  it('as perguntas de consentimento não se aplicam a outra base de licitude', () => {
-    const ids = violadas(responsavel({ baseLicitude: 'obrigacao_juridica' }))
-    expect(ids).not.toContain('resp.consentimentoDemonstracaoPorResponder')
-    expect(ids).not.toContain('resp.consentimentoParentalPorResponder')
+  it('não se aplica quando não há transferências', () => {
+    const ids = violadas(responsavel({ transferenciasPaisesTerceiros: 'nao' }))
+    expect(ids).not.toContain('comum.paisesTerceirosPorIdentificar')
   })
 })
 
-describe('subcontratados (art. 28.º)', () => {
-  it('positivo: com contrato e cláusulas de proteção de dados', () => {
+describe('subcontratação (art. 28.º)', () => {
+  it('positivo: com contrato e com cláusulas de proteção de dados', () => {
     const ids = violadas(registoResponsavelCompleto)
-    expect(ids).not.toContain('resp.subcontratadoSemContrato')
-    expect(ids).not.toContain('resp.subcontratadoSemClausulas')
+    expect(ids).not.toContain('comum.subcontratadoSemContrato')
+    expect(ids).not.toContain('comum.subcontratadoSemClausulas')
   })
 
-  it('negativo: subcontratado sem contrato e sem cláusulas', () => {
+  it('negativo: sem contrato e sem cláusulas', () => {
     const ids = violadas(
-      responsavel({
-        subcontratados: [
-          { nome: 'Fornecedor Fictício', existeContrato: 'nao', contratoComClausulasProtecaoDados: 'nao' },
-        ],
-      }),
+      responsavel({ existeContrato: 'nao', contratoComClausulasProtecaoDados: 'nao' }),
     )
-    expect(ids).toContain('resp.subcontratadoSemContrato')
-    expect(ids).toContain('resp.subcontratadoSemClausulas')
+    expect(ids).toContain('comum.subcontratadoSemContrato')
+    expect(ids).toContain('comum.subcontratadoSemClausulas')
+  })
+})
+
+describe('segurança dos acessos (art. 32.º)', () => {
+  it('positivo: acessos removidos à saída', () => {
+    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.acessosSemRemocaoASaida')
   })
 
-  it('negativo: subcontratado sem nome', () => {
-    expect(violadas(responsavel({ subcontratados: [{ operacoesTratamento: 'Alojamento.' }] }))).toContain(
-      'resp.subcontratadoSemNome',
+  it('negativo: acessos por remover à saída', () => {
+    expect(violadas(responsavel({ remocaoAcessosASaida: 'nao' }))).toContain(
+      'comum.acessosSemRemocaoASaida',
     )
   })
 })
 
-describe('período de retenção (art. 30.º/1 f))', () => {
-  it('positivo: retenção definida internamente', () => {
-    expect(violadas(registoResponsavelCompleto)).not.toContain('resp.semPeriodoDeRetencao')
+describe('minimização dos dados (art. 5.º/1 c))', () => {
+  it('positivo: todos os dados são necessários', () => {
+    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.dadosDesnecessarios')
   })
 
-  it('negativo: sem retenção definida nem por normativo', () => {
-    const ids = violadas(
-      responsavel({ retencaoDefinidaPelaOrganizacao: 'nao', retencaoPorNormativosLegais: 'nao' }),
+  it('negativo: nem todos os dados são necessários', () => {
+    expect(violadas(responsavel({ dadosNecessariosParaFinalidade: 'nao' }))).toContain(
+      'comum.dadosDesnecessarios',
     )
-    expect(ids).toContain('resp.semPeriodoDeRetencao')
   })
 })
 
@@ -203,23 +153,35 @@ describe('campos obrigatórios do subcontratante', () => {
     expect(ids).toContain('sub.obrigatorio.nomeResponsavelTratamento')
     expect(ids).toContain('sub.obrigatorio.baseLegal')
     expect(ids).toContain('sub.obrigatorio.prazoConservacao')
+    expect(ids).toContain('sub.obrigatorio.destinatarios')
     expect(podeSubmeter(registoSubcontratadoMinimo)).toBe(false)
   })
 
-  it('as regras do responsável não se aplicam ao subcontratante', () => {
+  it('as regras próprias do responsável não se aplicam ao subcontratante', () => {
     const ids = violadas(registoSubcontratadoMinimo)
     expect(ids.filter((id) => id.startsWith('resp.'))).toHaveLength(0)
   })
+
+  it('as regras comuns aplicam-se às duas qualidades', () => {
+    // O utilizador pediu que a lista do responsável se replicasse aqui.
+    const ids = violadas(registoSubcontratadoMinimo)
+    expect(ids).toContain('comum.obrigatorio.direitoAcesso')
+    expect(ids).toContain('comum.obrigatorio.ferramentasAplicacoes')
+  })
 })
 
-describe('transferências para países terceiros (art. 44.º)', () => {
-  it('positivo: identificadas quando existem', () => {
-    expect(violadas(registoSubcontratadoCompleto)).not.toContain('sub.transferenciasPorIdentificar')
+describe('numeração automática', () => {
+  it('positivo: a fixture não tem números repetidos', () => {
+    const ids = avaliarFicheiro(ficheiroRatFixtureValido).map((o) => o.regraId)
+    expect(ids).not.toContain('ficheiro.numerosDuplicados')
   })
 
-  it('negativo: assinaladas mas não identificadas', () => {
-    const ids = violadas(subcontratado({ transferencias: { existem: 'sim' } }))
-    expect(ids).toContain('sub.transferenciasPorIdentificar')
+  it('negativo: dois registos com o mesmo ID', () => {
+    const duplicado = {
+      ...ficheiroRatFixtureValido,
+      registos: [registoResponsavelCompleto, { ...registoSubcontratadoCompleto, numero: registoResponsavelCompleto.numero }],
+    }
+    expect(avaliarFicheiro(duplicado).map((o) => o.regraId)).toContain('ficheiro.numerosDuplicados')
   })
 })
 

@@ -9,8 +9,8 @@ interface CampoSimNaoProps {
   label: string
   valor: Valor
   onChange: (valor: Valor) => void
-  /** Acrescenta "Parcialmente" — perguntas de capacidade/controlo. */
-  comParcial?: boolean
+  /** Acrescenta "Não sei" — só a pergunta sobre a CNPD o usa. */
+  comNaoSei?: boolean
   obrigatorio?: boolean
 }
 
@@ -23,7 +23,7 @@ export function CampoSimNao({
   label,
   valor,
   onChange,
-  comParcial,
+  comNaoSei,
   obrigatorio,
 }: CampoSimNaoProps) {
   return (
@@ -43,9 +43,9 @@ export function CampoSimNao({
       <Select id={id} value={valor ?? ''} onChange={(e) => onChange(e.target.value || undefined)}>
         <option value="">{textos.respostas.porResponder}</option>
         <option value="sim">{textos.respostas.sim}</option>
-        {comParcial ? <option value="parcial">{textos.respostas.parcial}</option> : null}
         <option value="nao">{textos.respostas.nao}</option>
         <option value="nao_aplicavel">{textos.respostas.nao_aplicavel}</option>
+        {comNaoSei ? <option value="nao_sei">{textos.respostas.nao_sei}</option> : null}
       </Select>
     </div>
   )

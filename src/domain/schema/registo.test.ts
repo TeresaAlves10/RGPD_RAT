@@ -52,14 +52,32 @@ describe('schema do registo', () => {
     expect(registoSchema.safeParse(registoSubcontratadoMinimo).success).toBe(true)
   })
 
-  it('só reconhece campos do seu tipo — os do outro tipo são descartados', () => {
-    const comCampoDoOutroTipo = {
+  /**
+   * A maior parte dos campos é comum às duas qualidades — o utilizador
+   * pediu que a lista do responsável se replicasse no subcontratante. Só
+   * os campos genuinamente próprios de cada uma é que não atravessam.
+   */
+  it('só reconhece os campos próprios da sua qualidade', () => {
+    const subcontratadoComCampoDoResponsavel = registoSchema.parse({
       ...registoSubcontratadoMinimo,
-      // "operacoesTratamento" é do responsável, não do subcontratante.
-      operacoesTratamento: 'Não deve sobreviver ao parse.',
-    }
-    const resultado = registoSchema.parse(comCampoDoOutroTipo)
-    expect(resultado).not.toHaveProperty('operacoesTratamento')
+      baseLicitude: 'Não deve sobreviver ao parse.',
+      entidadesParaQuemEnvioDados: 'Também não.',
+    })
+    expect(subcontratadoComCampoDoResponsavel).not.toHaveProperty('baseLicitude')
+    expect(subcontratadoComCampoDoResponsavel).not.toHaveProperty('entidadesParaQuemEnvioDados')
+
+    const responsavelComCampoDoSubcontratante = registoSchema.parse({
+      ...registoResponsavelMinimo,
+      nomeResponsavelTratamento: 'Não deve sobreviver ao parse.',
+      prazoConservacao: 'Também não.',
+    })
+    expect(responsavelComCampoDoSubcontratante).not.toHaveProperty('nomeResponsavelTratamento')
+    expect(responsavelComCampoDoSubcontratante).not.toHaveProperty('prazoConservacao')
+  })
+
+  it('exige numeração automática em todos os registos', () => {
+    const { numero: _semNumero, ...semNumero } = registoResponsavelMinimo
+    expect(registoSchema.safeParse(semNumero).success).toBe(false)
   })
 
   it('valida o ficheiro completo e rejeita a fixture inválida', () => {

@@ -75,20 +75,29 @@ describe('Excel — folhas legíveis', () => {
     expect(texto).toContain(registoResponsavelCompleto.finalidade)
     expect(texto).toContain(registoResponsavelCompleto.operacoesTratamento)
     expect(texto).toContain(registoResponsavelCompleto.ferramentasAplicacoes)
-    expect(texto).toContain(registoResponsavelCompleto.subcontratados?.[0].nome)
+    expect(texto).toContain(registoResponsavelCompleto.entidadesSubcontratadas)
+    expect(texto).toContain(registoResponsavelCompleto.baseLicitude)
     expect(texto).toContain(registoResponsavelCompleto.normativosAplicaveis)
-    // Respostas fechadas saem legíveis, não como ids.
-    expect(texto).toContain('Parcialmente')
   })
 
-  it('a folha do subcontratante traz a lista de campos da sua qualidade', async () => {
+  it('traduz os valores fechados para texto legível, não ids', async () => {
+    const workbook = await abrir(await gerarExcel(ficheiroRatFixtureValido))
+    const texto = textoDaFolha(workbook.getWorksheet(NOME_FOLHA_RESPONSAVEL))
+
+    // Escalas de grandeza e unidades saem por extenso.
+    expect(texto).toContain('Médio (centenas)')
+    expect(texto).toContain('URN — Unidade de Registos Nacionais')
+    expect(texto).not.toContain('medio |')
+  })
+
+  it('a folha do subcontratante traz os campos próprios da sua qualidade', async () => {
     const workbook = await abrir(await gerarExcel(ficheiroRatFixtureValido))
     const texto = textoDaFolha(workbook.getWorksheet(NOME_FOLHA_SUBCONTRATANTE))
 
     expect(texto).toContain(registoSubcontratadoCompleto.nomeResponsavelTratamento)
     expect(texto).toContain(registoSubcontratadoCompleto.prazoConservacao)
-    expect(texto).toContain(registoSubcontratadoCompleto.transferencias?.identificar)
-    expect(texto).toContain(registoSubcontratadoCompleto.outrosSubcontratantes?.[0].nome)
+    expect(texto).toContain(registoSubcontratadoCompleto.destinatarios)
+    expect(texto).toContain(registoSubcontratadoCompleto.paisesTerceiros)
   })
 
   it('não mistura as qualidades entre folhas', async () => {
