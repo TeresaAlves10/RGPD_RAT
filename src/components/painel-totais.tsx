@@ -27,11 +27,18 @@ export function PainelTotais({ registos }: PainelTotaisProps) {
       descricao: textos.totais.totalDescricao,
     },
     {
-      rotulo: textos.totais.submetidos,
-      valor: registos.filter((r) => r.estado === 'submetido').length,
-      descricao: textos.totais.submetidosDescricao,
+      rotulo: textos.totais.responsavel,
+      valor: registos.filter((r) => r.tipoRegisto === 'responsavel').length,
+      descricao: textos.totais.responsavelDescricao,
     },
     {
+      rotulo: textos.totais.subcontratante,
+      valor: registos.filter((r) => r.tipoRegisto === 'subcontratado').length,
+      descricao: textos.totais.subcontratanteDescricao,
+    },
+    {
+      // "Em validação" é tudo o que já saiu das mãos do GP e ainda não
+      // está validado: submetido, ou devolvido para correção.
       rotulo: textos.totais.emValidacao,
       valor: registos.filter((r) => r.estado === 'submetido' || r.estado === 'devolvido').length,
       descricao: textos.totais.emValidacaoDescricao,
@@ -49,7 +56,7 @@ export function PainelTotais({ registos }: PainelTotaisProps) {
   ]
 
   return (
-    <section aria-label={textos.totais.titulo} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <section aria-label={textos.totais.titulo} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {totais.map((total) => (
         <div
           key={total.rotulo}

@@ -309,10 +309,12 @@ export const textos = {
 
   totais: {
     titulo: 'Totais',
-    total: 'RAT no ficheiro',
-    totalDescricao: 'Registos de atividades de tratamento.',
-    submetidos: 'Submetidos',
-    submetidosDescricao: 'Enviados pelo GP para validação.',
+    total: 'Total de registos',
+    totalDescricao: 'RAT no ficheiro aberto.',
+    responsavel: 'Como Responsável',
+    responsavelDescricao: 'Registos do art. 30.º/1.',
+    subcontratante: 'Como Subcontratante',
+    subcontratanteDescricao: 'Registos do art. 30.º/2.',
     emValidacao: 'Em validação',
     emValidacaoDescricao: 'Submetidos ou devolvidos para correção.',
     validados: 'Validados',
