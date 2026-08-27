@@ -34,6 +34,20 @@ export type RespostaCnpd = z.infer<typeof respostaCnpdSchema>
 export const escalaGrandezaSchema = z.enum(['baixo', 'medio', 'elevado'])
 export type EscalaGrandeza = z.infer<typeof escalaGrandezaSchema>
 
+/**
+ * Contagem da secção "Ferramentas": a ordem de grandeza e, opcionalmente,
+ * o número ou a nota exata.
+ *
+ * A escala sozinha envelhece bem mas perde precisão; o número sozinho
+ * envelhece no dia seguinte. Guardam-se os dois, e a escala é o que
+ * conta para a validação.
+ */
+export const contagemSchema = z.object({
+  escala: escalaGrandezaSchema.optional(),
+  valor: z.string().optional(),
+})
+export type Contagem = z.infer<typeof contagemSchema>
+
 export const gestorProjetoSchema = z.object({
   nome: z.string().min(1, 'Indica o nome do gestor de projeto (GP).'),
   contacto: z.string().optional(),

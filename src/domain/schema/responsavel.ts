@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
   campoBaseRegistoSchema,
-  escalaGrandezaSchema,
+  contagemSchema,
   respostaCnpdSchema,
   respostaSimNaoSchema,
 } from '@/domain/schema/comum'
@@ -46,9 +46,9 @@ export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
 
   // ── 2. Ferramentas / Aplicações utilizadas ─────────────────────────
   ferramentasAplicacoes: z.string().optional(),
-  numeroCamposComDadosPessoais: escalaGrandezaSchema.optional(),
-  volumeDadosPessoais: escalaGrandezaSchema.optional(),
-  numeroUtilizadoresComAcesso: escalaGrandezaSchema.optional(),
+  numeroCamposComDadosPessoais: contagemSchema.optional(),
+  volumeDadosPessoais: contagemSchema.optional(),
+  numeroUtilizadoresComAcesso: contagemSchema.optional(),
 
   // ── 3. Subcontratados ──────────────────────────────────────────────
   entidadesSubcontratadas: z.string().optional(),
@@ -79,7 +79,6 @@ export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
   direitoLimitacao: z.string().optional(),
   direitoDecisoesAutomatizadas: z.string().optional(),
   direitoOposicao: z.string().optional(),
-  detecaoNotificacaoViolacoes: z.string().optional(),
 
   // ── 6. Controlos Operacionais ──────────────────────────────────────
   procedimentosAcessosDocumentados: respostaSimNaoSchema.optional(),
@@ -88,6 +87,8 @@ export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
   controlosAcessosPrivilegiados: respostaSimNaoSchema.optional(),
   revisaoPeriodicaAcessos: respostaSimNaoSchema.optional(),
   remocaoAcessosASaida: respostaSimNaoSchema.optional(),
+  /** Movida dos direitos dos titulares para aqui, a pedido do utilizador. */
+  detecaoNotificacaoViolacoes: z.string().optional(),
 
   // ── 7. Observações Gerais ──────────────────────────────────────────
   // medidasTecnicasOrganizativas, normativosAplicaveis, anexos,

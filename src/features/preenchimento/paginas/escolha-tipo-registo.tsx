@@ -5,18 +5,30 @@ import { textos } from '@/i18n/pt'
 
 interface CartaoConceitoProps {
   conceito: string
-  explicacao: string
+  definicao: string
+  baseLegal: string
   destaque?: boolean
   onEscolher: () => void
 }
 
-/** Um conceito e a sua explicação breve — sem exemplos nem perguntas. */
-function CartaoConceito({ conceito, explicacao, destaque, onEscolher }: CartaoConceitoProps) {
+/** O conceito, a definição do RGPD e o artigo de onde vem. */
+function CartaoConceito({
+  conceito,
+  definicao,
+  baseLegal,
+  destaque,
+  onEscolher,
+}: CartaoConceitoProps) {
   return (
     <Card className="flex flex-col transition-colors hover:border-primary-border">
-      <CardContent className="flex flex-1 flex-col gap-5 p-6">
-        <h2 className="text-lg font-semibold leading-snug">{conceito}</h2>
-        <p className="flex-1 text-sm leading-relaxed text-muted-foreground">{explicacao}</p>
+      <CardContent className="flex flex-1 flex-col gap-4 p-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold leading-snug">{conceito}</h2>
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            RGPD · {baseLegal}
+          </span>
+        </div>
+        <p className="flex-1 text-sm leading-relaxed text-muted-foreground">{definicao}</p>
         <Button
           className="self-start"
           variant={destaque ? 'default' : 'outline'}
@@ -42,13 +54,15 @@ export function EscolhaTipoRegisto() {
       <div className="grid gap-5 md:grid-cols-2">
         <CartaoConceito
           conceito={textos.escolhaTipo.responsavelEtiqueta}
-          explicacao={textos.escolhaTipo.responsavelDescricao}
+          definicao={textos.escolhaTipo.responsavelDescricao}
+          baseLegal={textos.escolhaTipo.responsavelBaseLegal}
           destaque
           onEscolher={() => navigate('/registos/novo/responsavel')}
         />
         <CartaoConceito
           conceito={textos.escolhaTipo.subcontratadoEtiqueta}
-          explicacao={textos.escolhaTipo.subcontratadoDescricao}
+          definicao={textos.escolhaTipo.subcontratadoDescricao}
+          baseLegal={textos.escolhaTipo.subcontratadoBaseLegal}
           onEscolher={() => navigate('/registos/novo/subcontratado')}
         />
       </div>

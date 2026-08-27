@@ -98,7 +98,7 @@ export const textos = {
     botaoRemover: 'Remover',
     confirmarRemocao: 'Tens a certeza que queres remover este registo? Esta ação não pode ser desfeita.',
     metadadosTitulo: 'Dados da equipa',
-    campoEquipa: 'Equipa / Direção responsável pelo ficheiro',
+    campoEquipa: 'Direção responsável pelo ficheiro',
     campoContactoEquipa: 'Contacto (opcional)',
     subtitulo: (n: number) => `${n} registo${n === 1 ? '' : 's'} · artigo 30.º do RGPD`,
     pesquisar: 'Pesquisar por nome, unidade ou direção',
@@ -126,10 +126,15 @@ export const textos = {
       'A resposta muda o que o RGPD obriga a registar — por isso o formulário é diferente nos dois casos.',
     responsavelEtiqueta: 'Responsável pelo Tratamento',
     responsavelDescricao:
-      'Entidade que determina as finalidades e os meios do tratamento dos dados pessoais.',
+      'A pessoa singular ou coletiva, a autoridade pública, o serviço ou outro organismo que, individualmente ou em conjunto com outras, determina as finalidades e os meios de tratamento dos dados pessoais.',
+    responsavelBaseLegal: 'Artigo 4.º, n.º 7',
     subcontratadoEtiqueta: 'Subcontratante',
     subcontratadoDescricao:
-      'Entidade que trata os dados pessoais por conta e sob as instruções do Responsável pelo Tratamento.',
+      'A pessoa singular ou coletiva, a autoridade pública, o serviço ou outro organismo que trate os dados pessoais por conta do responsável pelo tratamento.',
+    subcontratadoBaseLegal: 'Artigo 4.º, n.º 8',
+    colunaConceito: 'Conceito',
+    colunaDefinicao: 'Definição',
+    colunaRgpd: 'RGPD',
     botaoContinuar: 'Continuar',
     botaoCancelar: 'Cancelar',
   },
@@ -297,6 +302,9 @@ export const textos = {
     baixo: 'Baixo (dezenas)',
     medio: 'Médio (centenas)',
     elevado: 'Elevado (milhares)',
+    /** Campo livre ao lado da escala, para o número ou a nota exata. */
+    valorRotulo: 'Número ou nota (opcional)',
+    valorPlaceholder: 'ex.: 24',
   },
 
   totais: {

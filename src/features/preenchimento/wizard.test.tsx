@@ -164,4 +164,57 @@ describe('wizard de preenchimento', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
     expect(screen.getByText(textos.lista.semRegistos)).toBeInTheDocument()
   })
+
+  it('mostra as definições do RGPD e o artigo de cada conceito', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+
+    await utilizador.click(await screen.findByRole('button', { name: textos.lista.botaoNovoRegisto }))
+
+    expect(await screen.findByText(textos.escolhaTipo.responsavelDescricao)).toBeInTheDocument()
+    expect(screen.getByText(textos.escolhaTipo.subcontratadoDescricao)).toBeInTheDocument()
+    expect(screen.getByText(/Artigo 4\.º, n\.º 7/)).toBeInTheDocument()
+    expect(screen.getByText(/Artigo 4\.º, n\.º 8/)).toBeInTheDocument()
+  })
+
+  it('deixa registar a ordem de grandeza e o número exato nas contagens', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+
+    await utilizador.click(await screen.findByRole('button', { name: textos.lista.botaoNovoRegisto }))
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
+    )
+    await utilizador.click(await screen.findByRole('tab', { name: /Ferramentas/ }))
+
+    await utilizador.selectOptions(
+      await screen.findByLabelText(textos.campos.volumeDadosPessoais),
+      'medio',
+    )
+    const valor = screen.getByLabelText(
+      `${textos.campos.volumeDadosPessoais} — ${textos.escala.valorRotulo}`,
+    )
+    await utilizador.type(valor, '240 processos')
+    expect(valor).toHaveValue('240 processos')
+  })
+
+  it('coloca a pergunta das violações de dados nos Controlos Operacionais', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+
+    await utilizador.click(await screen.findByRole('button', { name: textos.lista.botaoNovoRegisto }))
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
+    )
+
+    await utilizador.click(await screen.findByRole('tab', { name: /Requisitos Funcionais/ }))
+    expect(
+      screen.queryByLabelText(textos.campos.detecaoNotificacaoViolacoes),
+    ).not.toBeInTheDocument()
+
+    await utilizador.click(screen.getByRole('tab', { name: /Controlos Operacionais/ }))
+    expect(
+      await screen.findByLabelText(textos.campos.detecaoNotificacaoViolacoes),
+    ).toBeInTheDocument()
+  })
 })

@@ -5,6 +5,7 @@ import { migradorV2ParaV3 } from '@/domain/migrations/v2-para-v3'
 import { migradorV3ParaV4 } from '@/domain/migrations/v3-para-v4'
 import { migradorV4ParaV5 } from '@/domain/migrations/v4-para-v5'
 import { migradorV5ParaV6 } from '@/domain/migrations/v5-para-v6'
+import { migradorV6ParaV7 } from '@/domain/migrations/v6-para-v7'
 import type { Migrador } from '@/domain/migrations/types'
 
 export type { Migrador } from '@/domain/migrations/types'
@@ -16,6 +17,7 @@ export const migradores: Migrador[] = [
   migradorV3ParaV4,
   migradorV4ParaV5,
   migradorV5ParaV6,
+  migradorV6ParaV7,
 ]
 
 export class ErroVersaoDesconhecida extends Error {

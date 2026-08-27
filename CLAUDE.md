@@ -183,7 +183,10 @@ enumeráveis:
 - `respostaCnpd` — acrescenta "não sei", porque quem preenche pode
   genuinamente não saber, e isso é diferente de "não";
 - `escalaGrandeza` — Baixo (dezenas) / Médio (centenas) / Elevado
-  (milhares), em vez de números exatos que envelhecem no dia seguinte;
+  (milhares). Vem acompanhada de um campo livre para o número ou a nota
+  exata (`contagemSchema`): a escala sozinha perde precisão, o número
+  sozinho envelhece no dia seguinte, por isso guardam-se os dois e é a
+  escala que conta para a validação;
 - Unidade de Coordenação, que vem da configuração da organização.
 
 As orientações fornecidas pelo utilizador estão em

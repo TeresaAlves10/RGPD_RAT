@@ -89,7 +89,6 @@ const CAMPOS_POR_PASSO: (keyof RegistoSubcontratado)[][] = [
     'direitoLimitacao',
     'direitoDecisoesAutomatizadas',
     'direitoOposicao',
-    'detecaoNotificacaoViolacoes',
   ],
   [
     'procedimentosAcessosDocumentados',
@@ -98,6 +97,7 @@ const CAMPOS_POR_PASSO: (keyof RegistoSubcontratado)[][] = [
     'controlosAcessosPrivilegiados',
     'revisaoPeriodicaAcessos',
     'remocaoAcessosASaida',
+    'detecaoNotificacaoViolacoes',
   ],
   ['medidasTecnicasOrganizativas', 'normativosAplicaveis', 'anexos', 'aipdRealizada', 'gestorProjeto', 'observacoes'],
 ]
@@ -111,7 +111,6 @@ const DIREITOS = [
   'direitoLimitacao',
   'direitoDecisoesAutomatizadas',
   'direitoOposicao',
-  'detecaoNotificacaoViolacoes',
 ] as const
 
 const CONTROLOS = [
@@ -567,6 +566,18 @@ export function WizardSubcontratado({
                 )}
               />
             ))}
+            {/* Movida dos direitos dos titulares para aqui, a pedido do
+                utilizador. Mantém-se em texto livre, como os direitos. */}
+            <Campo
+              id="detecaoNotificacaoViolacoes"
+              label={textos.campos.detecaoNotificacaoViolacoes}
+              obrigatorio
+            >
+              <Textarea
+                id="detecaoNotificacaoViolacoes"
+                {...register('detecaoNotificacaoViolacoes')}
+              />
+            </Campo>
           </div>
         ) : null}
 
@@ -606,6 +617,7 @@ export function WizardSubcontratado({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  destaque
                 />
               )}
             />
