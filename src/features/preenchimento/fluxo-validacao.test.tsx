@@ -30,7 +30,7 @@ async function importarFixture(utilizador: ReturnType<typeof userEvent.setup>) {
 describe('circuito GP -> validador', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    window.location.hash = ''
+    window.location.hash = '#/registos'
   })
 
   it('não deixa submeter um registo com campos obrigatórios por preencher', async () => {

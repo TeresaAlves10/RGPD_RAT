@@ -1,15 +1,18 @@
 Logótipo da organização
 =======================
 
-Coloca aqui o ficheiro do logótipo com o nome `logo.svg`. Aparece na
-barra lateral, no lugar do nome em texto, sem ser preciso mexer em código.
+O logótipo em uso está em `public/logo.jpg`, apontado por `LOGO` em
+`src/config/organizacao.ts`.
 
-  public/logo.svg
+Para o substituir, troca o ficheiro mantendo o nome, ou muda o nome em
+`LOGO`.
 
 Notas:
 
-- SVG é o formato preferido (fica nítido em qualquer ecrã). Para usar
-  PNG, muda `LOGO` em `src/config/organizacao.ts` para 'logo.png'.
+- SVG ou PNG com fundo transparente ficam melhor do que JPEG: o JPEG traz
+  fundo branco, e por isso a barra lateral desenha uma caixa branca por
+  baixo. Se houver versão SVG do logótipo institucional, substitui — fica
+  nítido em qualquer ecrã e dispensa a caixa.
 - O ficheiro é servido pela própria aplicação, a partir do bundle — nunca
   de uma CDN, para não quebrar a garantia de "zero rede em runtime"
   (ver CLAUDE.md §2.1 e o teste em src/test/zero-rede.test.ts).

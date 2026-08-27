@@ -67,7 +67,7 @@ export function EscolhaTipoRegisto() {
         />
       </div>
 
-      <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>
+      <Button variant="ghost" className="self-start" onClick={() => navigate('/registos')}>
         {textos.escolhaTipo.botaoCancelar}
       </Button>
     </div>

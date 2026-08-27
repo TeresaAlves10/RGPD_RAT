@@ -22,6 +22,17 @@ const traco = {
 const ITENS: ItemNavegacao[] = [
   {
     para: '/',
+    texto: textos.navegacao.inicio,
+    exato: true,
+    icone: (
+      <svg viewBox="0 0 24 24" {...traco} aria-hidden="true">
+        <path d="m4 10 8-6 8 6v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+        <path d="M9.5 20v-6h5v6" />
+      </svg>
+    ),
+  },
+  {
+    para: '/registos',
     texto: textos.navegacao.listaRegistos,
     exato: true,
     icone: (
@@ -80,7 +91,7 @@ export function BarraLateral() {
           <img
             src={LOGO}
             alt={NOME_ORGANIZACAO}
-            className="h-9 w-auto self-start rounded bg-white p-1.5"
+            className="w-full max-w-[11rem] rounded-md bg-white p-2"
             onError={() => setLogoFalhou(true)}
           />
         ) : (

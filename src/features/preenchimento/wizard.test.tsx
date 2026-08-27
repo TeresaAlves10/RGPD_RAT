@@ -18,7 +18,7 @@ async function identificar(utilizador: ReturnType<typeof userEvent.setup>, nome:
 describe('wizard de preenchimento', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    window.location.hash = ''
+    window.location.hash = '#/registos'
   })
 
   it('mostra as sete secções da especificação no formulário do responsável', async () => {

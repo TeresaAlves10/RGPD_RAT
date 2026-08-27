@@ -6,7 +6,7 @@ import { textos } from '@/i18n/pt'
 describe('App', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    window.location.hash = ''
+    window.location.hash = '#/registos'
   })
 
   it('abre na lista de registos', () => {
