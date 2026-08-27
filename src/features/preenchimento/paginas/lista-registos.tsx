@@ -231,39 +231,6 @@ export function ListaRegistos() {
             </div>
           </div>
 
-          {/* O que falta, em concreto */}
-          {precisamAtencao.length > 0 ? (
-            <Card className="border-warning-border bg-warning-soft">
-              <CardContent className="flex flex-col gap-3 p-5">
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-sm font-semibold text-warning">{textos.lista.atencaoTitulo}</p>
-                  <p className="text-xs text-muted-foreground">{textos.lista.atencaoDescricao}</p>
-                </div>
-                <ul className="flex flex-col divide-y divide-warning-border/60">
-                  {precisamAtencao.map(({ registo, estado }) => (
-                    <li
-                      key={registo.id}
-                      className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
-                    >
-                      <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-sm font-medium">{registo.nomeTratamento}</span>
-                        <span className="text-sm text-muted-foreground">{estado.mensagens[0]}</span>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="subtle"
-                        className="no-print"
-                        onClick={() => navigate(`/registos/${registo.id}/editar`)}
-                      >
-                        {textos.lista.atencaoResolver}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ) : null}
-
           {/* Filtros */}
           <div className="no-print grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Input
@@ -410,6 +377,41 @@ export function ListaRegistos() {
             >
               {textos.lista.limparFiltros}
             </button>
+          ) : null}
+
+          {/* O que falta, em concreto — ao fundo da página, depois da
+              tabela: é a lista completa, não um resumo, por isso não devia
+              ser a primeira coisa a competir com ela pela atenção. */}
+          {precisamAtencao.length > 0 ? (
+            <Card className="border-warning-border bg-warning-soft">
+              <CardContent className="flex flex-col gap-3 p-5">
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-sm font-semibold text-warning">{textos.lista.atencaoTitulo}</p>
+                  <p className="text-xs text-muted-foreground">{textos.lista.atencaoDescricao}</p>
+                </div>
+                <ul className="flex flex-col divide-y divide-warning-border/60">
+                  {precisamAtencao.map(({ registo, estado }) => (
+                    <li
+                      key={registo.id}
+                      className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex min-w-0 flex-col gap-0.5">
+                        <span className="truncate text-sm font-medium">{registo.nomeTratamento}</span>
+                        <span className="text-sm text-muted-foreground">{estado.mensagens[0]}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="subtle"
+                        className="no-print"
+                        onClick={() => navigate(`/registos/${registo.id}/editar`)}
+                      >
+                        {textos.lista.atencaoResolver}
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           ) : null}
         </>
       ) : (

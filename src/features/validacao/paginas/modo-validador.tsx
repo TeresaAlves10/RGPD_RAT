@@ -15,12 +15,21 @@ import { PainelTotais } from '@/components/painel-totais'
 import { EstadoRegistoBadge } from '@/components/estado-registo'
 import { exportarJson } from '@/io/json/exportar'
 import { CartaoRegisto } from '@/features/validacao/cartao-registo'
+import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
 
 interface EntradaSessao {
   id: string
   nomeFicheiro: string
   ficheiro: FicheiroRat
 }
+
+/**
+ * Id fixo do ficheiro que está a ser editado neste mesmo browser (o de
+ * `useFicheiro()`). Sem servidor, é o único jeito de um registo "chegar"
+ * ao validador sem passar por exportar/importar: se é o mesmo browser,
+ * já está em memória — só falta mostrá-lo aqui.
+ */
+const ID_FICHEIRO_ATUAL = 'ficheiro-atual'
 
 async function interpretarFicheiroImportado(ficheiroSelecionado: File): Promise<FicheiroRat> {
   if (ficheiroSelecionado.name.toLowerCase().endsWith('.json')) {
@@ -32,6 +41,7 @@ async function interpretarFicheiroImportado(ficheiroSelecionado: File): Promise<
 }
 
 export function ModoValidador() {
+  const { ficheiro, guardarRegisto: guardarNoFicheiroAtual } = useFicheiro()
   const inputRef = useRef<HTMLInputElement>(null)
   const [sessao, setSessao] = useState<EntradaSessao[]>([])
   const [entradaSelecionadaId, setEntradaSelecionadaId] = useState<string | null>(null)
@@ -41,6 +51,18 @@ export function ModoValidador() {
   const [nomeValidador, setNomeValidador] = useState('')
   /** Registo aberto no formulário completo, para o validador corrigir. */
   const [registoEmEdicao, setRegistoEmEdicao] = useState<string | null>(null)
+
+  /**
+   * O ficheiro que está a ser editado neste browser (o mesmo do ecrã
+   * "Registos") entra sempre na sessão do validador — sem isso, um registo
+   * marcado "submetido" só apareceria aqui depois de exportar e reimportar,
+   * o que não faz sentido quando é a mesma pessoa no mesmo browser.
+   */
+  const entradaAtual = useMemo<EntradaSessao>(
+    () => ({ id: ID_FICHEIRO_ATUAL, nomeFicheiro: textos.validador.ficheiroAtual, ficheiro }),
+    [ficheiro],
+  )
+  const todasEntradas = useMemo(() => [entradaAtual, ...sessao], [entradaAtual, sessao])
 
   const resumo = useMemo(
     () =>
@@ -56,7 +78,7 @@ export function ModoValidador() {
     [sessao],
   )
 
-  const entradaSelecionada = sessao.find((e) => e.id === entradaSelecionadaId) ?? null
+  const entradaSelecionada = todasEntradas.find((e) => e.id === entradaSelecionadaId) ?? null
   const ocorrenciasSelecionada = useMemo(
     () => (entradaSelecionada ? avaliarFicheiro(entradaSelecionada.ficheiro) : []),
     [entradaSelecionada],
@@ -80,8 +102,18 @@ export function ModoValidador() {
     setAImportar(false)
   }
 
-  /** Aplica uma alteração a um registo de um dos ficheiros da sessão. */
+  /**
+   * Aplica uma alteração a um registo de um dos ficheiros da sessão. Para o
+   * ficheiro deste browser, escreve de volta no ficheiro-context partilhado
+   * com o ecrã "Registos" — não numa cópia local — para as duas vistas
+   * nunca desalinharem.
+   */
   function alterarRegisto(entradaId: string, registoId: string, alterar: (r: Registo) => Registo) {
+    if (entradaId === ID_FICHEIRO_ATUAL) {
+      const registo = ficheiro.registos.find((r) => r.id === registoId)
+      if (registo) guardarNoFicheiroAtual(alterar(registo))
+      return
+    }
     setSessao((atual) =>
       atual.map((entrada) => {
         if (entrada.id !== entradaId) return entrada
@@ -135,12 +167,12 @@ export function ModoValidador() {
    */
   const submetidos = useMemo(
     () =>
-      sessao.flatMap((entrada) =>
+      todasEntradas.flatMap((entrada) =>
         entrada.ficheiro.registos
           .filter((registo) => registo.estado === 'submetido')
           .map((registo) => ({ entrada, registo })),
       ),
-    [sessao],
+    [todasEntradas],
   )
 
   async function exportar(entrada: EntradaSessao, formato: 'json' | 'excel' | 'pdf') {
@@ -280,9 +312,7 @@ export function ModoValidador() {
         </div>
       ) : (
         <>
-          {sessao.length > 0 ? (
-            <PainelTotais registos={sessao.flatMap((e) => e.ficheiro.registos)} />
-          ) : null}
+          <PainelTotais registos={todasEntradas.flatMap((e) => e.ficheiro.registos)} />
 
           {submetidos.length > 0 ? (
             <section className="flex flex-col gap-3">

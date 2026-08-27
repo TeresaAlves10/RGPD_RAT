@@ -119,6 +119,29 @@ describe('circuito GP -> validador', () => {
     ).toBeInTheDocument()
   })
 
+  it('um registo submetido aparece no Modo Validador sem exportar/importar, no mesmo browser', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+    await importarFixture(utilizador)
+
+    window.location.hash = '#/validacao'
+    expect(await screen.findByText(textos.validador.submetidosTitulo)).toBeInTheDocument()
+    expect(
+      screen.getByText(new RegExp(registoResponsavelCompleto.nomeTratamento)),
+    ).toBeInTheDocument()
+
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.estado.validar }))[0],
+    )
+
+    // A validação escreveu no mesmo ficheiro do ecrã "Registos" — volta lá
+    // e o estado já está atualizado, sem reimportar nada.
+    window.location.hash = '#/registos'
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText(registoResponsavelCompleto.nomeTratamento).closest('tr')
+    expect(within(linha as HTMLElement).getByText(textos.estado.validado)).toBeInTheDocument()
+  })
+
   it('conta os registos por qualidade, estado e AIPD', async () => {
     const utilizador = userEvent.setup()
     render(<App />)

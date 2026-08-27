@@ -14,6 +14,7 @@ import { CampoSimNao } from '@/features/preenchimento/campos/campo-sim-nao'
 import { CampoAnexos } from '@/features/preenchimento/campos/campo-anexos'
 import { avaliarRegisto } from '@/domain/rules/motor'
 import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
+import { campoPertenceAoPasso } from '@/features/preenchimento/campos-por-passo'
 
 /**
  * Formulário do subcontratante (art. 30.º/2).
@@ -95,6 +96,12 @@ export function WizardSubcontratado({
   const registoAtual = watch()
   const ocorrencias = useMemo(() => avaliarRegisto(registoAtual), [registoAtual])
   const erros = useMemo(() => ocorrencias.filter((o) => o.severidade === 'erro'), [ocorrencias])
+  // As verificações mostradas são só as da secção aberta — a lista completa
+  // do registo, todas juntas, era ruído a mais para navegar.
+  const ocorrenciasDoPasso = useMemo(
+    () => ocorrencias.filter((o) => campoPertenceAoPasso(o.campo, CAMPOS_POR_PASSO[passo])),
+    [ocorrencias, passo],
+  )
   const temTransferencias = watch('transferenciasPaisesTerceiros') === 'sim'
   const temOutrosSubcontratantes = watch('existemOutrosSubcontratantes') === 'sim'
 
@@ -355,12 +362,12 @@ export function WizardSubcontratado({
           </div>
         ) : null}
 
-        {ocorrencias.length > 0 ? (
+        {ocorrenciasDoPasso.length > 0 ? (
           <div className="rounded-lg border border-warning-border bg-warning-soft p-4">
             <p className="text-sm font-semibold text-warning">{textos.formulario.avisosTitulo}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">{textos.formulario.avisosDescricao}</p>
             <ul className="mt-3 flex flex-col gap-1.5 text-sm">
-              {ocorrencias.map((ocorrencia) => (
+              {ocorrenciasDoPasso.map((ocorrencia) => (
                 <li
                   key={ocorrencia.regraId}
                   className={ocorrencia.severidade === 'erro' ? 'text-destructive' : 'text-foreground'}
