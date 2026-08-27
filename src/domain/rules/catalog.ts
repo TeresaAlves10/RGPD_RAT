@@ -124,6 +124,30 @@ const regrasComuns: RegraRegisto[] = [
     mensagem: `${c.aipdRealizada} — por responder.`,
   },
   {
+    id: 'comum.categoriaDadosSemTipos',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'categoriasDados',
+    descricao:
+      'Cada categoria de dados escolhida tem de indicar os tipos de dados tratados.',
+    verificar: (registo) =>
+      (registo.categoriasDados ?? []).every((cat) => cat.tipos.some((t) => t.trim() !== '')),
+    mensagem:
+      'Há uma categoria de dados sem tipos indicados — indica que tipos de dados são tratados em cada categoria.',
+  },
+  {
+    id: 'comum.categoriaDadosOutraPorEspecificar',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'categoriasDados',
+    descricao: 'Uma categoria de dados "Outro" tem de ser especificada.',
+    verificar: (registo) =>
+      (registo.categoriasDados ?? []).every(
+        (cat) => cat.categoria !== 'outro' || preenchido(cat.categoriaOutra),
+      ),
+    mensagem: 'Especifica a categoria de dados assinalada como "Outro".',
+  },
+  {
     id: 'comum.medidaOutraPorEspecificar',
     escopo: 'registo',
     severidade: 'erro',

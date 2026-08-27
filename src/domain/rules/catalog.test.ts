@@ -64,6 +64,38 @@ describe('campos obrigatórios do responsável', () => {
   })
 })
 
+describe('tipos de dados dentro de cada categoria', () => {
+  it('positivo: cada categoria escolhida indica os seus tipos', () => {
+    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.categoriaDadosSemTipos')
+    expect(violadas(registoSubcontratadoCompleto)).not.toContain('comum.categoriaDadosSemTipos')
+  })
+
+  it('negativo: categoria escolhida sem nenhum tipo indicado', () => {
+    const ids = violadas(
+      responsavel({ categoriasDados: [{ categoria: 'identificacao_civil', tipos: [] }] }),
+    )
+    expect(ids).toContain('comum.categoriaDadosSemTipos')
+  })
+
+  it('negativo: categoria "Outro" por especificar', () => {
+    const ids = violadas(
+      responsavel({ categoriasDados: [{ categoria: 'outro', tipos: ['Algo'] }] }),
+    )
+    expect(ids).toContain('comum.categoriaDadosOutraPorEspecificar')
+  })
+
+  it('positivo: categoria "Outro" especificada', () => {
+    const ids = violadas(
+      responsavel({
+        categoriasDados: [
+          { categoria: 'outro', categoriaOutra: 'Dados de geolocalização', tipos: ['Coordenadas'] },
+        ],
+      }),
+    )
+    expect(ids).not.toContain('comum.categoriaDadosOutraPorEspecificar')
+  })
+})
+
 describe('categorias especiais de dados (art. 9.º)', () => {
   it('positivo: identificadas quando existem', () => {
     expect(violadas(registoResponsavelCompleto)).not.toContain(
