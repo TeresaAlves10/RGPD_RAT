@@ -1,11 +1,20 @@
 import { z } from 'zod'
-import { campoBaseRegistoSchema } from '@/domain/schema/comum'
+import { campoBaseRegistoSchema, categoriaDadosSchema } from '@/domain/schema/comum'
+import { categoriasEspeciaisSchema, subcontratanteContratadoSchema } from '@/domain/schema/responsavel'
+import { idsBaseLicitude, idsCategoriasTitulares } from '@/domain/schema/vocabularios'
 
 /**
- * RAT — Subcontratado (art. 30.º/2 do RGPD).
- * Não inclui base de licitude, categorias de titulares/dados, nem prazo de
- * conservação — esses campos são do responsável pelo tratamento, não do
- * subcontratado (ver CLAUDE.md §3).
+ * RAT — Subcontratante (folha "Subcontratante" do Livro6.xlsx).
+ *
+ * Obrigatório é apenas o que o art. 30.º/2 exige: identificar cada
+ * responsável por conta de quem a organização atua e as categorias de
+ * tratamento efetuadas para cada um.
+ *
+ * Os restantes campos vêm da lista fornecida pelo utilizador para esta
+ * folha e ficam OPCIONAIS por uma razão jurídica: base de licitude,
+ * categorias de titulares e prazo de conservação são obrigações do
+ * responsável pelo tratamento (art. 30.º/1), não do subcontratante. Estão
+ * disponíveis para quem os queira registar, sem passarem a requisito.
  */
 
 export const responsavelPorContaSchema = z.object({
@@ -22,5 +31,20 @@ export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
   responsaveis: z
     .array(responsavelPorContaSchema)
     .min(1, 'Indica pelo menos um responsável por conta de quem a organização atua.'),
+
+  // Campos da folha "Subcontratante", opcionais (ver nota acima).
+  finalidades: z.string().optional(),
+  responsavelConjunto: z.string().optional(),
+  representante: z.string().optional(),
+  baseLicitude: z.enum(idsBaseLicitude).optional(),
+  recolhaDados: z.string().optional(),
+  categoriasTitulares: z.array(z.enum(idsCategoriasTitulares)).optional(),
+  categoriasTitularesOutra: z.string().optional(),
+  categoriasDados: z.array(categoriaDadosSchema).optional(),
+  categoriasEspeciais: categoriasEspeciaisSchema.optional(),
+  destinatarios: z.string().optional(),
+  prazoConservacao: z.string().optional(),
+  criterioPrazoConservacao: z.string().optional(),
+  subcontratantesContratados: z.array(subcontratanteContratadoSchema).optional(),
 })
 export type RegistoSubcontratado = z.infer<typeof registoSubcontratadoSchema>

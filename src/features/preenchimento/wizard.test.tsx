@@ -31,22 +31,18 @@ describe('wizard de preenchimento', () => {
     await utilizador.type(screen.getByLabelText(textos.campos.recolhaDados), 'Formulário eletrónico fictício.')
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    // Passo 3: Titulares e dados
+    // Titulares e dados
+    await utilizador.click(screen.getByRole('tab', { name: /Titulares e dados/ }))
     await utilizador.click(await screen.findByLabelText('Colaboradores'))
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.adicionar }))
     await utilizador.type(screen.getByLabelText(textos.campos['categoriaDados.tipos']), 'Nome')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    // Passo 4: Destinatários e transferências (nada obrigatório)
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoSeguinte }))
-
-    // Passo 5: Conservação e segurança
+    // Conservação e segurança
+    await utilizador.click(screen.getByRole('tab', { name: /Conservação e segurança/ }))
     await utilizador.type(await screen.findByLabelText(textos.campos.prazoConservacao), '5 anos, fictício.')
     await utilizador.click(screen.getByLabelText('Passwords'))
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    // Passo 6: Subcontratantes e observações -> guardar
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoGuardar }))
+    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
     const linha = (await screen.findByText('Tratamento Fictício de Teste')).closest('tr')
     expect(linha).not.toBeNull()
@@ -79,12 +75,9 @@ describe('wizard de preenchimento', () => {
       screen.getByLabelText(textos.campos['responsaveis.categoriasTratamento']),
       'Armazenamento fictício de dados de teste.',
     )
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    // Passo 3: Transferências (nada obrigatório)
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoSeguinte }))
-
-    // Passo 4: Segurança e observações -> guardar
+    // Segurança e observações
+    await utilizador.click(screen.getByRole('tab', { name: /Segurança e observações/ }))
     await utilizador.click(await screen.findByLabelText('Cibersegurança'))
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
@@ -111,19 +104,17 @@ describe('wizard de preenchimento', () => {
 
     await utilizador.type(await screen.findByLabelText(textos.campos.finalidades), 'Finalidade fictícia.')
     await utilizador.type(screen.getByLabelText(textos.campos.recolhaDados), 'Formulário fictício.')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
+    await utilizador.click(screen.getByRole('tab', { name: /Titulares e dados/ }))
     await utilizador.click(await screen.findByLabelText('Colaboradores'))
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.adicionar }))
     await utilizador.type(screen.getByLabelText(textos.campos['categoriaDados.tipos']), 'Nome')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoSeguinte }))
-
+    await utilizador.click(screen.getByRole('tab', { name: /Conservação e segurança/ }))
     await utilizador.type(await screen.findByLabelText(textos.campos.prazoConservacao), '5 anos, fictício.')
     await utilizador.click(screen.getByLabelText('Passwords'))
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.botaoGuardar }))
+
+    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
     expect(await screen.findByText('Registo a Remover')).toBeInTheDocument()
 

@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import App from '@/App'
 import { textos } from '@/i18n/pt'
 import { serializarJson } from '@/io/json/exportar'
-import { ficheiroRatFixtureValido, registoResponsavelMinimo } from '@/domain/fixtures/registos'
+import {
+  ficheiroRatFixtureValido,
+  registoResponsavelMinimo,
+  registoSubcontratadoMinimo,
+} from '@/domain/fixtures/registos'
 
 /** Importa a fixture para a app, para termos registos com que trabalhar. */
 async function importarFixture(utilizador: ReturnType<typeof userEvent.setup>) {
@@ -30,7 +34,7 @@ describe('módulo de avaliação de controlos', () => {
     await importarFixture(utilizador)
 
     // O registo mínimo não traz avaliação.
-    window.location.hash = `#/registos/${registoResponsavelMinimo.id}/avaliacao`
+    window.location.hash = `#/registos/${registoSubcontratadoMinimo.id}/avaliacao`
     expect(await screen.findByText(textos.avaliacao.naoAtivado)).toBeInTheDocument()
 
     await utilizador.click(screen.getByRole('button', { name: textos.avaliacao.ativar }))
@@ -46,7 +50,7 @@ describe('módulo de avaliação de controlos', () => {
     render(<App />)
     await importarFixture(utilizador)
 
-    window.location.hash = `#/registos/${registoResponsavelMinimo.id}/avaliacao`
+    window.location.hash = `#/registos/${registoSubcontratadoMinimo.id}/avaliacao`
     await utilizador.click(await screen.findByRole('button', { name: textos.avaliacao.ativar }))
 
     await utilizador.selectOptions(
@@ -62,12 +66,12 @@ describe('módulo de avaliação de controlos', () => {
     ).toBeInTheDocument()
   })
 
-  it('mantém a avaliação fora do formulário do RAT', async () => {
+  it('mantém a avaliação fora do formulário do RAT do subcontratante', async () => {
     const utilizador = userEvent.setup()
     render(<App />)
     await importarFixture(utilizador)
 
-    window.location.hash = `#/registos/${registoResponsavelMinimo.id}/editar`
+    window.location.hash = `#/registos/${registoSubcontratadoMinimo.id}/editar`
     await screen.findByLabelText(textos.campos.nomeTratamento)
 
     // Nenhuma pergunta de controlo aparece no ecrã do RAT (CLAUDE.md §3).
@@ -77,6 +81,28 @@ describe('módulo de avaliação de controlos', () => {
     expect(
       screen.queryByText(textos.avaliacao.seccoes.controlosOperacionais),
     ).not.toBeInTheDocument()
+  })
+
+  it('não oferece o módulo à parte no formulário do responsável', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+    await importarFixture(utilizador)
+
+    window.location.hash = `#/registos/${registoResponsavelMinimo.id}/editar`
+    await screen.findByLabelText(textos.campos.nomeTratamento)
+
+    // No responsável, as perguntas de controlo são passos do próprio
+    // formulário (a matriz de levantamento), por isso não há módulo à parte.
+    expect(screen.queryByRole('button', { name: textos.avaliacao.ativar })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: textos.avaliacao.tituloNav }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('tab', { name: /Requisitos funcionais/ }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('tab', { name: /Controlos operacionais/ }),
+    ).toBeInTheDocument()
   })
 })
 

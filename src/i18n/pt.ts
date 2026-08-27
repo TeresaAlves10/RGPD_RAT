@@ -151,6 +151,10 @@ export const textos = {
     seccoes: 'Secções',
     porRever: 'Por rever',
     notaRascunho: 'Podes sair a meio. Nada se perde e nada é enviado.',
+    notaCamposDoResponsavel:
+      'Estes campos são obrigações do responsável pelo tratamento (art. 30.º/1), não do subcontratante. Ficam disponíveis para quem os queira registar, mas nenhum é obrigatório aqui.',
+    criterioNota:
+      'Se não houver prazo fixo, descreve o critério — o art. 30.º/1 f) admite indicá-lo em vez de uma data.',
     botaoAnterior: 'Anterior',
     botaoSeguinte: 'Seguinte',
     botaoGuardar: 'Guardar registo',
@@ -233,6 +237,57 @@ export const textos = {
       'O estado é um marcador dentro do ficheiro, não uma submissão: viaja no JSON/Excel exportado e não depende de servidor nem de contas.',
   },
 
+  matriz: {
+    respostas: {
+      sim: 'Sim',
+      nao: 'Não',
+      nao_aplicavel: 'Não aplicável',
+      porResponder: 'Por responder',
+    },
+    campos: {
+      operacoesTratamento: 'Quais as operações de tratamento?',
+      temDadosPessoais: 'São tratados dados pessoais?',
+      dadosNecessariosParaFinalidade:
+        'Todos os dados pessoais são necessários para a finalidade?',
+      categoriasEspeciaisNecessarias:
+        'Todas as categorias especiais de dados são necessárias para a finalidade?',
+      entidadesQueEnviamDados:
+        'Que entidades nos enviam dados pessoais, além do próprio titular?',
+      entidadesParaQuemEnvioDados:
+        'A que entidades enviamos dados pessoais, além do próprio titular?',
+      suportesFisicos: 'Suportes físicos com dados pessoais (papel, disco externo, …)',
+      localizacaoSuportesFisicos: 'Localização dos dados pessoais em suporte físico',
+      ferramentasAplicacoes: 'Ferramentas / aplicações utilizadas',
+      numeroCamposComDadosPessoais: 'N.º de campos que contêm dados pessoais',
+      volumeDadosPessoais: 'Volume de dados pessoais',
+      numeroUtilizadoresComAcesso: 'N.º de utilizadores com acesso a dados pessoais',
+      subcontratadoNome: 'Nome da entidade subcontratada',
+      subcontratadoOperacoes: 'Quais as operações de tratamento (subcontratado)?',
+      existeContrato: 'Existe contrato com a entidade?',
+      contratoComClausulasProtecaoDados:
+        'O contrato tem cláusulas específicas sobre privacidade e proteção de dados?',
+      transferenciasPaisesTerceiros:
+        'Os dados são transferidos para países terceiros fora da UE?',
+      auditoriasAoSubcontratado:
+        'São feitas auditorias/inspeções para validar que o subcontratado cumpre as obrigações?',
+      pedidoAutorizacaoCnpd: 'Foi efetuado pedido de autorização/notificação à CNPD?',
+      mecanismosDemonstracaoConsentimento:
+        'Consentimento: existem mecanismos para demonstrar, a qualquer momento, que o titular consentiu?',
+      consentimentoResponsabilidadeParental:
+        'Menores: o consentimento é obtido a quem tem a responsabilidade parental?',
+      retencaoDefinidaPelaOrganizacao:
+        'Está definido um período de retenção dos dados pela organização?',
+      retencaoPorNormativosLegais:
+        'Está estabelecido um período de retenção por normativos legais ou regulamentares?',
+      criterioPrazoConservacao: 'Critério de determinação do prazo de conservação',
+      normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
+      diagramaProcesso: 'Imagem / diagrama do processo (referência ou ligação)',
+      comentarios: 'Comentários',
+    },
+    adicionarSubcontratado: 'Adicionar subcontratado',
+    semSubcontratados: 'Nenhum subcontratado registado.',
+  },
+
   passos: {
     identificacao: 'Identificação',
     finalidadeBase: 'Finalidade e base de licitude',
@@ -243,6 +298,12 @@ export const textos = {
     responsaveisPorConta: 'Responsáveis por conta de quem se atua',
     transferencias: 'Transferências internacionais',
     segurancaObservacoes: 'Segurança e observações',
+    caracterizacao: 'Caracterização',
+    ferramentas: 'Ferramentas e aplicações',
+    subcontratados: 'Subcontratados',
+    requisitosFuncionais: 'Requisitos funcionais',
+    controlosOperacionais: 'Controlos operacionais',
+    observacoesGerais: 'Observações gerais',
   },
 
   importar: {

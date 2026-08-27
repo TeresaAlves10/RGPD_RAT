@@ -27,16 +27,27 @@ describe('registoSchema', () => {
     expect(registoSchema.safeParse(registoSubcontratadoCompleto).success).toBe(true)
   })
 
-  it('ignora campos exclusivos do responsável presentes num registo de subcontratado', () => {
-    // baseLicitude não faz parte do schema do subcontratado: campos extra
-    // são ignorados por omissão pelo Zod, o resultado continua válido, mas
-    // confirmamos que o tipoRegisto correto é o determinante.
-    const comCampoDeMais = { ...registoSubcontratadoMinimo, baseLicitude: 'consentimento' }
-    const resultado = registoSchema.safeParse(comCampoDeMais)
-    expect(resultado.success).toBe(true)
-    if (resultado.success) {
-      expect('baseLicitude' in resultado.data).toBe(false)
+  it('aceita e preserva os campos opcionais da folha "Subcontratante"', () => {
+    // A lista fornecida para esta folha inclui base de licitude e prazo de
+    // conservação. Juridicamente são obrigações do responsável (art. 30.º/1),
+    // por isso ficam opcionais aqui — mas quem os preencher não os perde.
+    const comCamposDaFolha = {
+      ...registoSubcontratadoMinimo,
+      baseLicitude: 'consentimento',
+      prazoConservacao: '3 anos após o fim do contrato.',
     }
+    const resultado = registoSchema.safeParse(comCamposDaFolha)
+    expect(resultado.success).toBe(true)
+    if (resultado.success && resultado.data.tipoRegisto === 'subcontratado') {
+      expect(resultado.data.baseLicitude).toBe('consentimento')
+      expect(resultado.data.prazoConservacao).toBe('3 anos após o fim do contrato.')
+    }
+  })
+
+  it('continua a exigir apenas os responsáveis num registo de subcontratado', () => {
+    // Sem base de licitude nem prazo, o registo do art. 30.º/2 é válido.
+    const semCamposDoResponsavel = { ...registoSubcontratadoMinimo }
+    expect(registoSchema.safeParse(semCamposDoResponsavel).success).toBe(true)
   })
 
   it('rejeita um id que não é um uuid válido', () => {

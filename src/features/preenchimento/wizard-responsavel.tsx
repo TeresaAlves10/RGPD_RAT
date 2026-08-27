@@ -20,25 +20,37 @@ import { SeletorMultiplo } from '@/features/preenchimento/campos/seletor-multipl
 import { CampoMedidas } from '@/features/preenchimento/campos/campo-medidas'
 import { CampoCategoriasDados } from '@/features/preenchimento/campos/campo-categorias-dados'
 import { CampoSubcontratantes } from '@/features/preenchimento/campos/campo-subcontratantes'
+import { CampoSimNao } from '@/features/preenchimento/campos/campo-sim-nao'
+import { CampoSubcontratadosMatriz } from '@/features/preenchimento/campos/campo-subcontratados-matriz'
 import { avaliarRegisto } from '@/domain/rules/motor'
 import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
 
 const PASSOS = [
   textos.passos.identificacao,
   textos.passos.finalidadeBase,
+  textos.passos.caracterizacao,
   textos.passos.titularesDados,
   textos.passos.destinatariosTransferencias,
+  textos.passos.ferramentas,
+  textos.passos.subcontratados,
   textos.passos.conservacaoSeguranca,
-  textos.passos.subcontratantesObservacoes,
+  textos.passos.requisitosFuncionais,
+  textos.passos.controlosOperacionais,
+  textos.passos.observacoesGerais,
 ] as const
 
 const CAMPOS_POR_PASSO: (keyof RegistoResponsavel)[][] = [
   ['direcao', 'unidadeCoordenacao', 'nomeTratamento', 'descricao', 'gestorProjeto'],
   ['finalidades', 'responsavelConjunto', 'representante', 'baseLicitude', 'recolhaDados'],
+  ['matriz'],
   ['categoriasTitulares', 'categoriasDados', 'categoriasEspeciais'],
   ['destinatarios', 'transferenciasInternacionais'],
-  ['prazoConservacao', 'medidasTecnicasOrganizativas'],
-  ['subcontratantesContratados', 'aipdRealizada', 'observacoes'],
+  ['matriz'],
+  ['matriz', 'subcontratantesContratados'],
+  ['prazoConservacao', 'criterioPrazoConservacao', 'medidasTecnicasOrganizativas'],
+  ['avaliacao'],
+  ['avaliacao'],
+  ['aipdRealizada', 'observacoes', 'matriz'],
 ]
 
 function novoIdentificador(): string {
@@ -231,10 +243,71 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
 
       {passo === 2 ? (
         <div
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-5"
           role="tabpanel"
           id={idPainelPasso('wizard-responsavel', 2)}
           aria-labelledby="wizard-responsavel-tab-2"
+        >
+          <Campo id="matriz.caracterizacao.operacoesTratamento" label={textos.matriz.campos.operacoesTratamento}>
+            <Textarea id="matriz.caracterizacao.operacoesTratamento" {...register('matriz.caracterizacao.operacoesTratamento')} />
+          </Campo>
+          <Controller
+            name="matriz.caracterizacao.temDadosPessoais"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="matriz-temDadosPessoais"
+                label={textos.matriz.campos.temDadosPessoais}
+                valor={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            name="matriz.caracterizacao.dadosNecessariosParaFinalidade"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="matriz-dadosNecessariosParaFinalidade"
+                label={textos.matriz.campos.dadosNecessariosParaFinalidade}
+                valor={field.value}
+                onChange={field.onChange} comParcial
+              />
+            )}
+          />
+          <Controller
+            name="matriz.caracterizacao.categoriasEspeciaisNecessarias"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="matriz-categoriasEspeciaisNecessarias"
+                label={textos.matriz.campos.categoriasEspeciaisNecessarias}
+                valor={field.value}
+                onChange={field.onChange} comParcial
+              />
+            )}
+          />
+          <Campo id="matriz.caracterizacao.entidadesQueEnviamDados" label={textos.matriz.campos.entidadesQueEnviamDados}>
+            <Textarea id="matriz.caracterizacao.entidadesQueEnviamDados" {...register('matriz.caracterizacao.entidadesQueEnviamDados')} />
+          </Campo>
+          <Campo id="matriz.caracterizacao.entidadesParaQuemEnvioDados" label={textos.matriz.campos.entidadesParaQuemEnvioDados}>
+            <Textarea id="matriz.caracterizacao.entidadesParaQuemEnvioDados" {...register('matriz.caracterizacao.entidadesParaQuemEnvioDados')} />
+          </Campo>
+          <Campo id="matriz.caracterizacao.suportesFisicos" label={textos.matriz.campos.suportesFisicos}>
+            <Textarea id="matriz.caracterizacao.suportesFisicos" {...register('matriz.caracterizacao.suportesFisicos')} />
+          </Campo>
+          <Campo id="matriz.caracterizacao.localizacaoSuportesFisicos" label={textos.matriz.campos.localizacaoSuportesFisicos}>
+            <Textarea id="matriz.caracterizacao.localizacaoSuportesFisicos" {...register('matriz.caracterizacao.localizacaoSuportesFisicos')} />
+          </Campo>
+        </div>
+      ) : null}
+
+      {passo === 3 ? (
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-responsavel', 3)}
+          aria-labelledby="wizard-responsavel-tab-3"
         >
           <Campo
             id="categoriasTitulares"
@@ -314,12 +387,12 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
         </div>
       ) : null}
 
-      {passo === 3 ? (
+      {passo === 4 ? (
         <div
           className="flex flex-col gap-4"
           role="tabpanel"
-          id={idPainelPasso('wizard-responsavel', 3)}
-          aria-labelledby="wizard-responsavel-tab-3"
+          id={idPainelPasso('wizard-responsavel', 4)}
+          aria-labelledby="wizard-responsavel-tab-4"
         >
           <Campo id="destinatarios" label={textos.campos.destinatarios} ajuda="destinatarios">
             <Textarea id="destinatarios" {...register('destinatarios')} />
@@ -385,12 +458,64 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
         </div>
       ) : null}
 
-      {passo === 4 ? (
+      {passo === 5 ? (
+        <div
+          className="flex flex-col gap-5"
+          role="tabpanel"
+          id={idPainelPasso('wizard-responsavel', 5)}
+          aria-labelledby="wizard-responsavel-tab-5"
+        >
+          <Campo id="matriz.ferramentas.ferramentasAplicacoes" label={textos.matriz.campos.ferramentasAplicacoes}>
+            <Textarea id="matriz.ferramentas.ferramentasAplicacoes" {...register('matriz.ferramentas.ferramentasAplicacoes')} />
+          </Campo>
+          <Campo id="matriz.ferramentas.numeroCamposComDadosPessoais" label={textos.matriz.campos.numeroCamposComDadosPessoais}>
+            <Input id="matriz.ferramentas.numeroCamposComDadosPessoais" {...register('matriz.ferramentas.numeroCamposComDadosPessoais')} />
+          </Campo>
+          <Campo id="matriz.ferramentas.volumeDadosPessoais" label={textos.matriz.campos.volumeDadosPessoais}>
+            <Input id="matriz.ferramentas.volumeDadosPessoais" {...register('matriz.ferramentas.volumeDadosPessoais')} />
+          </Campo>
+          <Campo id="matriz.ferramentas.numeroUtilizadoresComAcesso" label={textos.matriz.campos.numeroUtilizadoresComAcesso}>
+            <Input id="matriz.ferramentas.numeroUtilizadoresComAcesso" {...register('matriz.ferramentas.numeroUtilizadoresComAcesso')} />
+          </Campo>
+        </div>
+      ) : null}
+
+      {passo === 6 ? (
+        <div
+          className="flex flex-col gap-5"
+          role="tabpanel"
+          id={idPainelPasso('wizard-responsavel', 6)}
+          aria-labelledby="wizard-responsavel-tab-6"
+        >
+          <Controller
+            name="matriz.subcontratados"
+            control={control}
+            render={({ field }) => (
+              <CampoSubcontratadosMatriz valor={field.value ?? []} onChange={field.onChange} />
+            )}
+          />
+          <Campo
+            id="subcontratantesContratados"
+            label={textos.campos.subcontratantesContratados}
+            ajuda="subcontratantesContratados"
+          >
+            <Controller
+              name="subcontratantesContratados"
+              control={control}
+              render={({ field }) => (
+                <CampoSubcontratantes valor={field.value ?? []} onChange={field.onChange} />
+              )}
+            />
+          </Campo>
+        </div>
+      ) : null}
+
+      {passo === 7 ? (
         <div
           className="flex flex-col gap-4"
           role="tabpanel"
-          id={idPainelPasso('wizard-responsavel', 4)}
-          aria-labelledby="wizard-responsavel-tab-4"
+          id={idPainelPasso('wizard-responsavel', 7)}
+          aria-labelledby="wizard-responsavel-tab-7"
         >
           <Campo
             id="prazoConservacao"
@@ -400,6 +525,13 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
             ajuda="prazoConservacao"
           >
             <Textarea id="prazoConservacao" {...register('prazoConservacao')} />
+          </Campo>
+          <Campo
+            id="criterioPrazoConservacao"
+            label={textos.matriz.campos.criterioPrazoConservacao}
+            descricao={textos.formulario.criterioNota}
+          >
+            <Textarea id="criterioPrazoConservacao" {...register('criterioPrazoConservacao')} />
           </Campo>
           <Campo
             id="medidasTecnicasOrganizativas"
@@ -417,26 +549,228 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
         </div>
       ) : null}
 
-      {passo === 5 ? (
+      {passo === 8 ? (
+        <div
+          className="flex flex-col gap-5"
+          role="tabpanel"
+          id={idPainelPasso('wizard-responsavel', 8)}
+          aria-labelledby="wizard-responsavel-tab-8"
+        >
+          <Controller
+            name="avaliacao.requisitosFuncionais.deverInformar"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-deverInformar"
+                label={textos.avaliacao.campos.deverInformar}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoAcesso"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoAcesso"
+                label={textos.avaliacao.campos.direitoAcesso}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoRetificacao"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoRetificacao"
+                label={textos.avaliacao.campos.direitoRetificacao}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoApagamento"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoApagamento"
+                label={textos.avaliacao.campos.direitoApagamento}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoPortabilidade"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoPortabilidade"
+                label={textos.avaliacao.campos.direitoPortabilidade}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoLimitacao"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoLimitacao"
+                label={textos.avaliacao.campos.direitoLimitacao}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoNaoDecisoesAutomatizadas"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoNaoDecisoesAutomatizadas"
+                label={textos.avaliacao.campos.direitoNaoDecisoesAutomatizadas}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.direitoOposicao"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-direitoOposicao"
+                label={textos.avaliacao.campos.direitoOposicao}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.requisitosFuncionais.detecaoNotificacaoViolacoes"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="req-detecaoNotificacaoViolacoes"
+                label={textos.avaliacao.campos.detecaoNotificacaoViolacoes}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+        </div>
+      ) : null}
+
+      {passo === 9 ? (
+        <div
+          className="flex flex-col gap-5"
+          role="tabpanel"
+          id={idPainelPasso('wizard-responsavel', 9)}
+          aria-labelledby="wizard-responsavel-tab-9"
+        >
+          <Controller
+            name="avaliacao.controlosOperacionais.procedimentosAcessosDocumentados"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-procedimentosAcessosDocumentados"
+                label={textos.avaliacao.campos.procedimentosAcessosDocumentados}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.controlosOperacionais.procedimentosAcessosImplementados"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-procedimentosAcessosImplementados"
+                label={textos.avaliacao.campos.procedimentosAcessosImplementados}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.controlosOperacionais.acessosFormalmenteAutorizados"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-acessosFormalmenteAutorizados"
+                label={textos.avaliacao.campos.acessosFormalmenteAutorizados}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.controlosOperacionais.controlosAcessosPrivilegiados"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-controlosAcessosPrivilegiados"
+                label={textos.avaliacao.campos.controlosAcessosPrivilegiados}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.controlosOperacionais.revisaoPeriodicaAcessos"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-revisaoPeriodicaAcessos"
+                label={textos.avaliacao.campos.revisaoPeriodicaAcessos}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+          <Controller
+            name="avaliacao.controlosOperacionais.remocaoAcessosASaida"
+            control={control}
+            render={({ field }) => (
+              <CampoSimNao
+                id="ctrl-remocaoAcessosASaida"
+                label={textos.avaliacao.campos.remocaoAcessosASaida}
+                valor={field.value}
+                onChange={field.onChange}
+                comParcial
+              />
+            )}
+          />
+        </div>
+      ) : null}
+
+      {passo === 10 ? (
         <div
           className="flex flex-col gap-4"
           role="tabpanel"
-          id={idPainelPasso('wizard-responsavel', 5)}
-          aria-labelledby="wizard-responsavel-tab-5"
+          id={idPainelPasso('wizard-responsavel', 10)}
+          aria-labelledby="wizard-responsavel-tab-10"
         >
-          <Campo
-            id="subcontratantesContratados"
-            label={textos.campos.subcontratantesContratados}
-            ajuda="subcontratantesContratados"
-          >
-            <Controller
-              name="subcontratantesContratados"
-              control={control}
-              render={({ field }) => (
-                <CampoSubcontratantes valor={field.value ?? []} onChange={field.onChange} />
-              )}
-            />
-          </Campo>
           <Campo id="aipdRealizada" label={textos.campos.aipdRealizada}>
             <Select id="aipdRealizada" {...register('aipdRealizada')}>
               <option value="sim">{textos.aipd.sim}</option>
@@ -446,6 +780,15 @@ export function WizardResponsavel({ registoInicial, onGuardar, onCancelar }: Wiz
           </Campo>
           <Campo id="observacoes" label={textos.campos.observacoes}>
             <Textarea id="observacoes" {...register('observacoes')} />
+          </Campo>
+          <Campo id="matriz.comentarios" label={textos.matriz.campos.comentarios}>
+            <Textarea id="matriz.comentarios" {...register('matriz.comentarios')} />
+          </Campo>
+          <Campo id="matriz.normativosAplicaveis" label={textos.matriz.campos.normativosAplicaveis}>
+            <Textarea id="matriz.normativosAplicaveis" {...register('matriz.normativosAplicaveis')} />
+          </Campo>
+          <Campo id="matriz.diagramaProcesso" label={textos.matriz.campos.diagramaProcesso}>
+            <Input id="matriz.diagramaProcesso" {...register('matriz.diagramaProcesso')} />
           </Campo>
         </div>
       ) : null}
