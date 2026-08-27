@@ -1,23 +1,12 @@
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
 import type { RegistoResponsavel } from '@/domain/schema/responsavel'
 import type { RegistoSubcontratado } from '@/domain/schema/subcontratado'
-import {
-  baseLicitude,
-  categoriasDados,
-  categoriasTitulares,
-  medidasTecnicasOrganizativas,
-  type ItemVocabulario,
-} from '@/domain/schema/vocabularios'
 import { descarregarFicheiro } from '@/io/descarregar'
 import { nomeBaseFicheiro } from '@/io/nome-ficheiro'
-import {
-  rotuloBaseLicitude,
-  rotuloCategoriasDados,
-  rotuloMedidas,
-  rotuloResposta,
-  rotulosCategoriasTitulares,
-} from '@/io/excel/rotulos'
+import { rotuloEscala, rotuloResposta, rotuloUnidade } from '@/io/excel/rotulos'
+import { tamanhoTotal, formatarTamanho } from '@/domain/schema/anexo'
 import { textos } from '@/i18n/pt'
+import { NOME_ORGANIZACAO, UNIDADES_COORDENACAO } from '@/config/organizacao'
 
 export const NOME_FOLHA_RESPONSAVEL = 'Responsável'
 export const NOME_FOLHA_SUBCONTRATANTE = 'Subcontratante'
@@ -39,210 +28,140 @@ interface Coluna<T> {
   ler: (registo: T) => string
 }
 
+/** Colunas comuns às duas qualidades, na ordem do formulário. */
+function colunasComuns<T extends RegistoResponsavel | RegistoSubcontratado>(): Coluna<T>[] {
+  return [
+    { cabecalho: c.numero, ler: (r) => String(r.numero) },
+    { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
+    { cabecalho: c.direcao, ler: (r) => r.direcao ?? '' },
+    { cabecalho: c.unidadeCoordenacao, ler: (r) => rotuloUnidade(r.unidadeCoordenacao) },
+    { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
+    { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
+    { cabecalho: c.finalidade, ler: (r) => r.finalidade ?? '' },
+    { cabecalho: c.operacoesTratamento, ler: (r) => r.operacoesTratamento ?? '' },
+    { cabecalho: c.dadosPessoais, ler: (r) => r.dadosPessoais ?? '' },
+    {
+      cabecalho: c.dadosNecessariosParaFinalidade,
+      ler: (r) => rotuloResposta(r.dadosNecessariosParaFinalidade),
+    },
+    { cabecalho: c.categoriasDados, ler: (r) => r.categoriasDados ?? '' },
+    { cabecalho: c.categoriasEspeciais, ler: (r) => rotuloResposta(r.categoriasEspeciais) },
+    {
+      cabecalho: c.categoriasEspeciaisNecessarias,
+      ler: (r) => rotuloResposta(r.categoriasEspeciaisNecessarias),
+    },
+    { cabecalho: c.categoriasTitulares, ler: (r) => r.categoriasTitulares ?? '' },
+    { cabecalho: c.entidadesQueEnviamDados, ler: (r) => r.entidadesQueEnviamDados ?? '' },
+    { cabecalho: c.suportesFisicos, ler: (r) => r.suportesFisicos ?? '' },
+    { cabecalho: c.localizacaoSuportesFisicos, ler: (r) => r.localizacaoSuportesFisicos ?? '' },
+    { cabecalho: c.ferramentasAplicacoes, ler: (r) => r.ferramentasAplicacoes ?? '' },
+    {
+      cabecalho: c.numeroCamposComDadosPessoais,
+      ler: (r) => rotuloEscala(r.numeroCamposComDadosPessoais),
+    },
+    { cabecalho: c.volumeDadosPessoais, ler: (r) => rotuloEscala(r.volumeDadosPessoais) },
+    {
+      cabecalho: c.numeroUtilizadoresComAcesso,
+      ler: (r) => rotuloEscala(r.numeroUtilizadoresComAcesso),
+    },
+    { cabecalho: c.entidadesSubcontratadas, ler: (r) => r.entidadesSubcontratadas ?? '' },
+    {
+      cabecalho: c.operacoesTratamentoSubcontratadas,
+      ler: (r) => r.operacoesTratamentoSubcontratadas ?? '',
+    },
+    { cabecalho: c.existeContrato, ler: (r) => rotuloResposta(r.existeContrato) },
+    {
+      cabecalho: c.contratoComClausulasProtecaoDados,
+      ler: (r) => rotuloResposta(r.contratoComClausulasProtecaoDados),
+    },
+    { cabecalho: c.anexosContrato, ler: (r) => (r.anexosContrato ?? []).map((a) => a.nome).join('\n') },
+    {
+      cabecalho: c.transferenciasPaisesTerceiros,
+      ler: (r) => rotuloResposta(r.transferenciasPaisesTerceiros),
+    },
+    { cabecalho: c.paisesTerceiros, ler: (r) => r.paisesTerceiros ?? '' },
+    { cabecalho: c.auditoriasAoSubcontratado, ler: (r) => rotuloResposta(r.auditoriasAoSubcontratado) },
+    { cabecalho: c.pedidoAutorizacaoCnpd, ler: (r) => rotuloResposta(r.pedidoAutorizacaoCnpd) },
+    {
+      cabecalho: c.consentimentoMecanismosDemonstracao,
+      ler: (r) => r.consentimentoMecanismosDemonstracao ?? '',
+    },
+    {
+      cabecalho: c.consentimentoResponsabilidadeParental,
+      ler: (r) => rotuloResposta(r.consentimentoResponsabilidadeParental),
+    },
+    { cabecalho: c.criterioRetencao(NOME_ORGANIZACAO), ler: (r) => r.criterioRetencao ?? '' },
+    { cabecalho: c.retencaoPorNormativosLegais, ler: (r) => r.retencaoPorNormativosLegais ?? '' },
+    { cabecalho: c.deverInformar, ler: (r) => r.deverInformar ?? '' },
+    { cabecalho: c.direitoAcesso, ler: (r) => r.direitoAcesso ?? '' },
+    { cabecalho: c.direitoRetificacao, ler: (r) => r.direitoRetificacao ?? '' },
+    { cabecalho: c.direitoApagamento, ler: (r) => r.direitoApagamento ?? '' },
+    { cabecalho: c.direitoPortabilidade, ler: (r) => r.direitoPortabilidade ?? '' },
+    { cabecalho: c.direitoLimitacao, ler: (r) => r.direitoLimitacao ?? '' },
+    { cabecalho: c.direitoDecisoesAutomatizadas, ler: (r) => r.direitoDecisoesAutomatizadas ?? '' },
+    { cabecalho: c.direitoOposicao, ler: (r) => r.direitoOposicao ?? '' },
+    { cabecalho: c.detecaoNotificacaoViolacoes, ler: (r) => r.detecaoNotificacaoViolacoes ?? '' },
+    {
+      cabecalho: c.procedimentosAcessosDocumentados,
+      ler: (r) => rotuloResposta(r.procedimentosAcessosDocumentados),
+    },
+    {
+      cabecalho: c.procedimentosAcessosImplementados,
+      ler: (r) => rotuloResposta(r.procedimentosAcessosImplementados),
+    },
+    {
+      cabecalho: c.acessosFormalmenteAutorizados,
+      ler: (r) => rotuloResposta(r.acessosFormalmenteAutorizados),
+    },
+    {
+      cabecalho: c.controlosAcessosPrivilegiados,
+      ler: (r) => rotuloResposta(r.controlosAcessosPrivilegiados),
+    },
+    { cabecalho: c.revisaoPeriodicaAcessos, ler: (r) => rotuloResposta(r.revisaoPeriodicaAcessos) },
+    { cabecalho: c.remocaoAcessosASaida, ler: (r) => rotuloResposta(r.remocaoAcessosASaida) },
+    { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
+    { cabecalho: c.normativosAplicaveis, ler: (r) => r.normativosAplicaveis ?? '' },
+    {
+      cabecalho: c.anexos,
+      ler: (r) =>
+        (r.anexos ?? []).length === 0
+          ? ''
+          : `${(r.anexos ?? []).map((a) => a.nome).join('\n')}\n(${formatarTamanho(tamanhoTotal(r.anexos))})`,
+    },
+    { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
+    { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
+    { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
+    { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
+  ]
+}
+
+/**
+ * Cada folha começa pelas colunas próprias da qualidade e continua com as
+ * comuns, para a folha se ler pela mesma ordem do formulário.
+ */
 const COLUNAS_RESPONSAVEL: Coluna<RegistoResponsavel>[] = [
-  { cabecalho: 'ID', ler: (r) => r.id },
-  { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
-
-  // 1. Descrição do Processo / Caracterização
-  { cabecalho: c.direcao, ler: (r) => r.direcao },
-  { cabecalho: c.unidadeCoordenacao, ler: (r) => r.unidadeCoordenacao ?? '' },
-  { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
-  { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
-  { cabecalho: c.finalidade, ler: (r) => r.finalidade ?? '' },
-  { cabecalho: c.operacoesTratamento, ler: (r) => r.operacoesTratamento ?? '' },
-  { cabecalho: c.trataDadosPessoais, ler: (r) => rotuloResposta(r.trataDadosPessoais) },
-  {
-    cabecalho: c.dadosNecessariosParaFinalidade,
-    ler: (r) => rotuloResposta(r.dadosNecessariosParaFinalidade),
-  },
-  {
-    cabecalho: c['categoriasEspeciais.aplicavel'],
-    ler: (r) => rotuloResposta(r.categoriasEspeciais?.aplicavel),
-  },
-  {
-    cabecalho: c['categoriasEspeciais.identificar'],
-    ler: (r) => r.categoriasEspeciais?.identificar ?? '',
-  },
-  {
-    cabecalho: c.categoriasEspeciaisNecessarias,
-    ler: (r) => rotuloResposta(r.categoriasEspeciaisNecessarias),
-  },
-  {
-    cabecalho: c.categoriasTitulares,
-    ler: (r) => rotulosCategoriasTitulares(r.categoriasTitulares, r.categoriasTitularesOutra),
-  },
-  { cabecalho: c.categoriasDados, ler: (r) => rotuloCategoriasDados(r.categoriasDados) },
-  { cabecalho: c.entidadesQueEnviamDados, ler: (r) => r.entidadesQueEnviamDados ?? '' },
+  ...colunasComuns<RegistoResponsavel>().slice(0, 15),
   { cabecalho: c.entidadesParaQuemEnvioDados, ler: (r) => r.entidadesParaQuemEnvioDados ?? '' },
-  { cabecalho: c.suportesFisicos, ler: (r) => r.suportesFisicos ?? '' },
-  { cabecalho: c.localizacaoSuportesFisicos, ler: (r) => r.localizacaoSuportesFisicos ?? '' },
-
-  // 2. Ferramentas / Aplicações
-  { cabecalho: c.ferramentasAplicacoes, ler: (r) => r.ferramentasAplicacoes ?? '' },
-  { cabecalho: c.numeroCamposComDadosPessoais, ler: (r) => r.numeroCamposComDadosPessoais ?? '' },
-  { cabecalho: c.volumeDadosPessoais, ler: (r) => r.volumeDadosPessoais ?? '' },
-  { cabecalho: c.numeroUtilizadoresComAcesso, ler: (r) => r.numeroUtilizadoresComAcesso ?? '' },
-
-  // 3. Subcontratados — uma célula por pergunta, com uma linha por entidade
+  ...colunasComuns<RegistoResponsavel>().slice(15, 30),
+  { cabecalho: c.baseLicitude, ler: (r) => r.baseLicitude ?? '' },
   {
-    cabecalho: c['subcontratado.nome'],
-    ler: (r) => (r.subcontratados ?? []).map((s) => s.nome ?? '').join('\n'),
+    cabecalho: c.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO),
+    ler: (r) => r.retencaoDefinidaPelaOrganizacao ?? '',
   },
-  {
-    cabecalho: c['subcontratado.operacoesTratamento'],
-    ler: (r) => (r.subcontratados ?? []).map((s) => s.operacoesTratamento ?? '').join('\n'),
-  },
-  {
-    cabecalho: c['subcontratado.existeContrato'],
-    ler: (r) => (r.subcontratados ?? []).map((s) => rotuloResposta(s.existeContrato)).join('\n'),
-  },
-  {
-    cabecalho: c['subcontratado.contratoComClausulasProtecaoDados'],
-    ler: (r) =>
-      (r.subcontratados ?? [])
-        .map((s) => rotuloResposta(s.contratoComClausulasProtecaoDados))
-        .join('\n'),
-  },
-  {
-    cabecalho: c['subcontratado.transferenciasPaisesTerceiros'],
-    ler: (r) =>
-      (r.subcontratados ?? []).map((s) => rotuloResposta(s.transferenciasPaisesTerceiros)).join('\n'),
-  },
-  {
-    cabecalho: c['subcontratado.auditoriasAoSubcontratado'],
-    ler: (r) =>
-      (r.subcontratados ?? []).map((s) => rotuloResposta(s.auditoriasAoSubcontratado)).join('\n'),
-  },
-  {
-    cabecalho: c['subcontratado.pedidoAutorizacaoCnpd'],
-    ler: (r) => (r.subcontratados ?? []).map((s) => rotuloResposta(s.pedidoAutorizacaoCnpd)).join('\n'),
-  },
-
-  // 4. Base de Licitude
-  { cabecalho: c.baseLicitude, ler: (r) => rotuloBaseLicitude(r.baseLicitude) },
-  {
-    cabecalho: c.consentimentoMecanismosDemonstracao,
-    ler: (r) => rotuloResposta(r.consentimentoMecanismosDemonstracao),
-  },
-  {
-    cabecalho: c.consentimentoResponsabilidadeParental,
-    ler: (r) => rotuloResposta(r.consentimentoResponsabilidadeParental),
-  },
-  {
-    cabecalho: c.retencaoDefinidaPelaOrganizacao('a organização'),
-    ler: (r) => rotuloResposta(r.retencaoDefinidaPelaOrganizacao),
-  },
-  {
-    cabecalho: c.retencaoPorNormativosLegais,
-    ler: (r) => rotuloResposta(r.retencaoPorNormativosLegais),
-  },
-
-  // 5. Requisitos Funcionais / Direitos dos Titulares
-  { cabecalho: c.deverInformar, ler: (r) => rotuloResposta(r.deverInformar) },
-  { cabecalho: c.direitoAcesso, ler: (r) => rotuloResposta(r.direitoAcesso) },
-  { cabecalho: c.direitoRetificacao, ler: (r) => rotuloResposta(r.direitoRetificacao) },
-  { cabecalho: c.direitoApagamento, ler: (r) => rotuloResposta(r.direitoApagamento) },
-  { cabecalho: c.direitoPortabilidade, ler: (r) => rotuloResposta(r.direitoPortabilidade) },
-  { cabecalho: c.direitoLimitacao, ler: (r) => rotuloResposta(r.direitoLimitacao) },
-  {
-    cabecalho: c.direitoDecisoesAutomatizadas,
-    ler: (r) => rotuloResposta(r.direitoDecisoesAutomatizadas),
-  },
-  { cabecalho: c.direitoOposicao, ler: (r) => rotuloResposta(r.direitoOposicao) },
-  {
-    cabecalho: c.detecaoNotificacaoViolacoes,
-    ler: (r) => rotuloResposta(r.detecaoNotificacaoViolacoes),
-  },
-
-  // 6. Controlos Operacionais
-  {
-    cabecalho: c.procedimentosAcessosDocumentados,
-    ler: (r) => rotuloResposta(r.procedimentosAcessosDocumentados),
-  },
-  {
-    cabecalho: c.procedimentosAcessosImplementados,
-    ler: (r) => rotuloResposta(r.procedimentosAcessosImplementados),
-  },
-  {
-    cabecalho: c.acessosFormalmenteAutorizados,
-    ler: (r) => rotuloResposta(r.acessosFormalmenteAutorizados),
-  },
-  {
-    cabecalho: c.controlosAcessosPrivilegiados,
-    ler: (r) => rotuloResposta(r.controlosAcessosPrivilegiados),
-  },
-  { cabecalho: c.revisaoPeriodicaAcessos, ler: (r) => rotuloResposta(r.revisaoPeriodicaAcessos) },
-  { cabecalho: c.remocaoAcessosASaida, ler: (r) => rotuloResposta(r.remocaoAcessosASaida) },
-
-  // 7. Observações Gerais
-  {
-    cabecalho: c.medidasTecnicasOrganizativas,
-    ler: (r) => rotuloMedidas(r.medidasTecnicasOrganizativas),
-  },
-  { cabecalho: c.normativosAplicaveis, ler: (r) => r.normativosAplicaveis ?? '' },
-  { cabecalho: c.diagramaProcesso, ler: (r) => r.diagramaProcesso ?? '' },
-  { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
-  { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
-  { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
-  { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
+  ...colunasComuns<RegistoResponsavel>().slice(30),
 ]
 
 const COLUNAS_SUBCONTRATANTE: Coluna<RegistoSubcontratado>[] = [
-  { cabecalho: 'ID', ler: (r) => r.id },
-  { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
   { cabecalho: c.nomeResponsavelTratamento, ler: (r) => r.nomeResponsavelTratamento ?? '' },
-  { cabecalho: c.direcao, ler: (r) => r.direcao },
-  { cabecalho: c.unidadeCoordenacao, ler: (r) => r.unidadeCoordenacao ?? '' },
-  { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
-  { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
-  { cabecalho: c.finalidadeSubcontratado, ler: (r) => r.finalidade ?? '' },
   { cabecalho: c.responsavelConjunto, ler: (r) => r.responsavelConjunto ?? '' },
-  { cabecalho: c.baseLegal, ler: (r) => rotuloBaseLicitude(r.baseLegal) },
+  ...colunasComuns<RegistoSubcontratado>().slice(0, 8),
   { cabecalho: c.recolhaDados, ler: (r) => r.recolhaDados ?? '' },
-  {
-    cabecalho: c.categoriasTitulares,
-    ler: (r) => rotulosCategoriasTitulares(r.categoriasTitulares, r.categoriasTitularesOutra),
-  },
-  { cabecalho: c.categoriasDados, ler: (r) => rotuloCategoriasDados(r.categoriasDados) },
-  {
-    cabecalho: c['categoriasEspeciais.aplicavel'],
-    ler: (r) => rotuloResposta(r.categoriasEspeciais?.aplicavel),
-  },
-  {
-    cabecalho: c['categoriasEspeciais.identificar'],
-    ler: (r) => r.categoriasEspeciais?.identificar ?? '',
-  },
+  ...colunasComuns<RegistoSubcontratado>().slice(8, 15),
   { cabecalho: c.destinatarios, ler: (r) => r.destinatarios ?? '' },
-  {
-    cabecalho: c['transferencias.existem'],
-    ler: (r) => rotuloResposta(r.transferencias?.existem),
-  },
-  {
-    cabecalho: c['transferencias.identificar'],
-    ler: (r) => r.transferencias?.identificar ?? '',
-  },
+  ...colunasComuns<RegistoSubcontratado>().slice(15, 30),
+  { cabecalho: c.baseLegal, ler: (r) => r.baseLegal ?? '' },
   { cabecalho: c.prazoConservacao, ler: (r) => r.prazoConservacao ?? '' },
-  {
-    cabecalho: c.medidasTecnicasOrganizativas,
-    ler: (r) => rotuloMedidas(r.medidasTecnicasOrganizativas),
-  },
-  {
-    cabecalho: c.outrosSubcontratantes,
-    ler: (r) =>
-      (r.outrosSubcontratantes ?? [])
-        .map(
-          (s) =>
-            `${s.nome ?? ''}${s.contacto ? ` (${s.contacto})` : ''}${
-              s.dataContrato ? ` — ${s.dataContrato}` : ''
-            }`,
-        )
-        .join('\n'),
-  },
-  { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
-  { cabecalho: c.diagramaEcosistema, ler: (r) => r.diagramaEcosistema ?? '' },
-  { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
-  { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
-  { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
+  ...colunasComuns<RegistoSubcontratado>().slice(30),
 ]
 
 function escreverFolhaLegivel<T>(
@@ -278,10 +197,6 @@ function escreverTabelaVocabulario(
   folha.addRow([])
 }
 
-function linhasVocabulario(vocab: ItemVocabulario[]): (string | number)[][] {
-  return vocab.map((item) => [item.id, item.label, item.artigo ?? ''])
-}
-
 export async function gerarExcel(ficheiro: FicheiroRat): Promise<Blob> {
   const ExcelJS = await import('exceljs')
   const workbook = new ExcelJS.Workbook()
@@ -306,30 +221,33 @@ export async function gerarExcel(ficheiro: FicheiroRat): Promise<Blob> {
   const folhaListas = workbook.addWorksheet(NOME_FOLHA_LISTAS)
   escreverTabelaVocabulario(
     folhaListas,
-    'Base de licitude (art. 6.º/1)',
-    ['id', 'label', 'artigo'],
-    linhasVocabulario(baseLicitude),
+    'Escala de grandeza (contagens)',
+    ['valor', 'significado'],
+    [
+      [textos.escala.baixo, 'Ordem das dezenas'],
+      [textos.escala.medio, 'Ordem das centenas'],
+      [textos.escala.elevado, 'Ordem dos milhares'],
+    ],
   )
   escreverTabelaVocabulario(
     folhaListas,
-    'Categorias de titulares',
-    ['id', 'label'],
-    categoriasTitulares.map((i) => [i.id, i.label]),
+    'Estados do registo',
+    ['valor', 'significado'],
+    [
+      [textos.estado.rascunho, textos.estado.rascunhoDescricao],
+      [textos.estado.submetido, textos.estado.submetidoDescricao],
+      [textos.estado.devolvido, textos.estado.devolvidoDescricao],
+      [textos.estado.validado, textos.estado.validadoDescricao],
+    ],
   )
   escreverTabelaVocabulario(
     folhaListas,
-    'Categorias e tipos de dados',
-    ['id', 'label', 'tipos (exemplos)'],
-    categoriasDados.map((i) => [i.id, i.label, i.tipos.join(', ')]),
-  )
-  escreverTabelaVocabulario(
-    folhaListas,
-    'Medidas técnicas e organizativas',
-    ['id', 'label', 'tipo'],
-    medidasTecnicasOrganizativas.map((i) => [i.id, i.label, i.tipo]),
+    'Unidades de Coordenação',
+    ['sigla', 'nome'],
+    UNIDADES_COORDENACAO.map((u) => [u.sigla, u.nome]),
   )
   folhaListas.columns.forEach((coluna) => {
-    coluna.width = 32
+    coluna.width = 40
   })
 
   // Folha oculta com o JSON completo: é o que permite reimportar e

@@ -1,58 +1,20 @@
-import {
-  baseLicitude,
-  categoriasDados,
-  categoriasTitulares,
-  medidasTecnicasOrganizativas,
-} from '@/domain/schema/vocabularios'
-import type { CategoriaDados, MedidaTecnicaOrganizativa } from '@/domain/schema/comum'
+import { rotuloUnidade } from '@/config/organizacao'
 import { textos } from '@/i18n/pt'
 
-/** Conversão de ids de vocabulário e de respostas fechadas para texto legível. */
+/** Conversão de valores fechados para o texto que aparece no Excel e no PDF. */
 
-function rotuloDe(lista: { id: string; label: string }[], id: string | undefined): string {
-  if (!id) return ''
-  return lista.find((item) => item.id === id)?.label ?? id
-}
-
-export function rotuloBaseLicitude(id: string | undefined): string {
-  return rotuloDe(baseLicitude, id)
-}
-
-/** Sim / Parcialmente / Não / Não aplicável — vazio quando por responder. */
+/** Sim / Não / Não aplicável / Não sei — vazio quando por responder. */
 export function rotuloResposta(valor: string | undefined): string {
   if (!valor) return ''
   const respostas = textos.respostas as Record<string, string>
   return respostas[valor] ?? valor
 }
 
-export function rotulosCategoriasTitulares(
-  ids: string[] | undefined,
-  outra: string | undefined,
-): string {
-  return (ids ?? [])
-    .map((id) => (id === 'outro' && outra ? `Outro: ${outra}` : rotuloDe(categoriasTitulares, id)))
-    .join('; ')
+/** Baixo (dezenas) / Médio (centenas) / Elevado (milhares). */
+export function rotuloEscala(valor: string | undefined): string {
+  if (!valor) return ''
+  const escala = textos.escala as Record<string, string>
+  return escala[valor] ?? valor
 }
 
-export function rotuloCategoriasDados(lista: CategoriaDados[] | undefined): string {
-  return (lista ?? [])
-    .map((item) => {
-      const categoria =
-        item.categoria === 'outro' && item.categoriaOutra
-          ? `Outro: ${item.categoriaOutra}`
-          : rotuloDe(categoriasDados, item.categoria)
-      const tipos = item.tipos.filter(Boolean).join(', ')
-      return tipos ? `${categoria} (${tipos})` : categoria
-    })
-    .join('; ')
-}
-
-export function rotuloMedidas(lista: MedidaTecnicaOrganizativa[] | undefined): string {
-  return (lista ?? [])
-    .map((item) =>
-      item.medida === 'outro' && item.medidaOutra
-        ? `Outro: ${item.medidaOutra}`
-        : rotuloDe(medidasTecnicasOrganizativas, item.medida),
-    )
-    .join('; ')
-}
+export { rotuloUnidade }

@@ -8,21 +8,17 @@ import { Select } from '@/components/ui/select'
 import { Campo } from '@/components/form/campo'
 import { PassosWizard, idPainelPasso } from '@/components/form/passos-wizard'
 import { textos } from '@/i18n/pt'
-import { baseLicitude, categoriasTitulares } from '@/domain/schema/vocabularios'
+import { NOME_ORGANIZACAO, DIRECAO_POR_OMISSAO, UNIDADES_COORDENACAO } from '@/config/organizacao'
 import { registoResponsavelSchema, type RegistoResponsavel } from '@/domain/schema/responsavel'
-import { SeletorMultiplo } from '@/features/preenchimento/campos/seletor-multiplo'
-import { CampoMedidas } from '@/features/preenchimento/campos/campo-medidas'
-import { CampoCategoriasDados } from '@/features/preenchimento/campos/campo-categorias-dados'
 import { CampoSimNao } from '@/features/preenchimento/campos/campo-sim-nao'
-import { CampoSubcontratados } from '@/features/preenchimento/campos/campo-subcontratados'
+import { CampoEscala } from '@/features/preenchimento/campos/campo-escala'
+import { CampoAnexos } from '@/features/preenchimento/campos/campo-anexos'
 import { avaliarRegisto } from '@/domain/rules/motor'
 import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
 
 /**
- * Formulário do responsável pelo tratamento.
- *
- * As sete secções e a ordem dos campos dentro de cada uma seguem a
- * especificação do utilizador — ver src/domain/schema/responsavel.ts.
+ * Formulário do responsável pelo tratamento — sete secções, na ordem da
+ * especificação (ver src/domain/schema/responsavel.ts).
  */
 const PASSOS = [
   textos.passos.caracterizacao,
@@ -42,12 +38,12 @@ const CAMPOS_POR_PASSO: (keyof RegistoResponsavel)[][] = [
     'descricao',
     'finalidade',
     'operacoesTratamento',
-    'trataDadosPessoais',
+    'dadosPessoais',
     'dadosNecessariosParaFinalidade',
+    'categoriasDados',
     'categoriasEspeciais',
     'categoriasEspeciaisNecessarias',
     'categoriasTitulares',
-    'categoriasDados',
     'entidadesQueEnviamDados',
     'entidadesParaQuemEnvioDados',
     'suportesFisicos',
@@ -59,12 +55,23 @@ const CAMPOS_POR_PASSO: (keyof RegistoResponsavel)[][] = [
     'volumeDadosPessoais',
     'numeroUtilizadoresComAcesso',
   ],
-  ['subcontratados'],
+  [
+    'entidadesSubcontratadas',
+    'operacoesTratamentoSubcontratadas',
+    'existeContrato',
+    'contratoComClausulasProtecaoDados',
+    'anexosContrato',
+    'transferenciasPaisesTerceiros',
+    'paisesTerceiros',
+    'auditoriasAoSubcontratado',
+    'pedidoAutorizacaoCnpd',
+  ],
   [
     'baseLicitude',
     'consentimentoMecanismosDemonstracao',
     'consentimentoResponsabilidadeParental',
     'retencaoDefinidaPelaOrganizacao',
+    'criterioRetencao',
     'retencaoPorNormativosLegais',
   ],
   [
@@ -86,17 +93,10 @@ const CAMPOS_POR_PASSO: (keyof RegistoResponsavel)[][] = [
     'revisaoPeriodicaAcessos',
     'remocaoAcessosASaida',
   ],
-  [
-    'medidasTecnicasOrganizativas',
-    'normativosAplicaveis',
-    'diagramaProcesso',
-    'aipdRealizada',
-    'gestorProjeto',
-    'observacoes',
-  ],
+  ['medidasTecnicasOrganizativas', 'normativosAplicaveis', 'anexos', 'aipdRealizada', 'gestorProjeto', 'observacoes'],
 ]
 
-/** Os nove direitos dos titulares, na ordem da especificação. */
+/** Os nove campos dos direitos dos titulares, na ordem da especificação. */
 const DIREITOS = [
   'deverInformar',
   'direitoAcesso',
@@ -121,17 +121,20 @@ const CONTROLOS = [
 
 interface WizardResponsavelProps {
   registoInicial?: RegistoResponsavel
+  /** Número a atribuir a um registo novo (numeração automática). */
+  proximoNumero?: number
   onGuardar: (registo: RegistoResponsavel) => void
   onCancelar: () => void
-  /** Nome da organização, para o rótulo do período de retenção. */
-  organizacao?: string
+  /** O modo validador pode validar e devolver; a equipa não. */
+  permiteValidar?: boolean
 }
 
 export function WizardResponsavel({
   registoInicial,
+  proximoNumero = 1,
   onGuardar,
   onCancelar,
-  organizacao,
+  permiteValidar,
 }: WizardResponsavelProps) {
   const [passo, setPasso] = useState(0)
 
@@ -139,19 +142,17 @@ export function WizardResponsavel({
     () =>
       registoInicial ?? {
         id: crypto.randomUUID(),
+        numero: proximoNumero,
         tipoRegisto: 'responsavel',
         estado: 'rascunho',
-        direcao: '',
+        direcao: DIRECAO_POR_OMISSAO,
         nomeTratamento: '',
         gestorProjeto: { nome: '' },
-        categoriasTitulares: [],
-        categoriasDados: [],
-        medidasTecnicasOrganizativas: [],
-        subcontratados: [],
-        categoriasEspeciais: {},
+        anexos: [],
+        anexosContrato: [],
         anotacoes: [],
       },
-    [registoInicial],
+    [registoInicial, proximoNumero],
   )
 
   const {
@@ -169,8 +170,8 @@ export function WizardResponsavel({
   const registoAtual = watch()
   const ocorrencias = useMemo(() => avaliarRegisto(registoAtual), [registoAtual])
   const erros = useMemo(() => ocorrencias.filter((o) => o.severidade === 'erro'), [ocorrencias])
-  const temCategoriasEspeciais = watch('categoriasEspeciais.aplicavel') === 'sim'
-  const baseEhConsentimento = watch('baseLicitude') === 'consentimento'
+  const temCategoriasEspeciais = watch('categoriasEspeciais') === 'sim'
+  const temTransferencias = watch('transferenciasPaisesTerceiros') === 'sim'
 
   const passosComErro = new Set(
     CAMPOS_POR_PASSO.map((campos, indice) =>
@@ -201,6 +202,7 @@ export function WizardResponsavel({
         <AcoesEstado
           estado={watch('estado')}
           erros={erros}
+          permiteValidar={permiteValidar}
           onMudar={(novo) => setValue('estado', novo, { shouldDirty: true })}
         />
         <p className="hidden border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground lg:block">
@@ -209,16 +211,33 @@ export function WizardResponsavel({
       </div>
 
       <div className="flex min-w-0 flex-col gap-8">
-        <p className="text-xs text-muted-foreground">{textos.formulario.obrigatorio}</p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">{textos.formulario.obrigatorio}</p>
+          <p className="text-xs text-muted-foreground">
+            {textos.campos.numero}: <strong>{watch('numero')}</strong>
+          </p>
+        </div>
 
         {/* ── 1. Descrição do Processo / Caracterização ───────────── */}
         {passo === 0 ? (
           <div {...painel(0)}>
-            <Campo id="direcao" label={textos.campos.direcao} obrigatorio erro={errors.direcao?.message}>
+            <Campo id="direcao" label={textos.campos.direcao} obrigatorio>
               <Input id="direcao" {...register('direcao')} />
             </Campo>
             <Campo id="unidadeCoordenacao" label={textos.campos.unidadeCoordenacao} obrigatorio>
-              <Input id="unidadeCoordenacao" {...register('unidadeCoordenacao')} />
+              {/* Um <select> sem escolha devolve '', que falharia o enum:
+                  converte-se para undefined, que é "por responder". */}
+              <Select
+                id="unidadeCoordenacao"
+                {...register('unidadeCoordenacao', { setValueAs: (v) => v || undefined })}
+              >
+                <option value="">{textos.respostas.porResponder}</option>
+                {UNIDADES_COORDENACAO.map((unidade) => (
+                  <option key={unidade.id} value={unidade.id}>
+                    {unidade.sigla} — {unidade.nome}
+                  </option>
+                ))}
+              </Select>
             </Campo>
             <Campo
               id="nomeTratamento"
@@ -228,29 +247,23 @@ export function WizardResponsavel({
             >
               <Input id="nomeTratamento" {...register('nomeTratamento')} />
             </Campo>
-            <Campo id="descricao" label={textos.campos.descricao} obrigatorio>
-              <Textarea id="descricao" {...register('descricao')} />
+            <Campo id="descricao" label={textos.campos.descricao} obrigatorio ajuda="descricao">
+              <Textarea id="descricao" rows={5} {...register('descricao')} />
             </Campo>
-            <Campo id="finalidade" label={textos.campos.finalidade} obrigatorio ajuda="finalidades">
+            <Campo id="finalidade" label={textos.campos.finalidade} obrigatorio ajuda="finalidade">
               <Textarea id="finalidade" {...register('finalidade')} />
             </Campo>
-            <Campo id="operacoesTratamento" label={textos.campos.operacoesTratamento} obrigatorio>
+            <Campo
+              id="operacoesTratamento"
+              label={textos.campos.operacoesTratamento}
+              obrigatorio
+              ajuda="operacoesTratamento"
+            >
               <Textarea id="operacoesTratamento" {...register('operacoesTratamento')} />
             </Campo>
-
-            <Controller
-              control={control}
-              name="trataDadosPessoais"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="trataDadosPessoais"
-                  label={textos.campos.trataDadosPessoais}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
+            <Campo id="dadosPessoais" label={textos.campos.dadosPessoais} obrigatorio ajuda="dadosPessoais">
+              <Textarea id="dadosPessoais" {...register('dadosPessoais')} />
+            </Campo>
             <Controller
               control={control}
               name="dadosNecessariosParaFinalidade"
@@ -264,13 +277,21 @@ export function WizardResponsavel({
                 />
               )}
             />
+            <Campo
+              id="categoriasDados"
+              label={textos.campos.categoriasDados}
+              obrigatorio
+              ajuda="categoriasDados"
+            >
+              <Textarea id="categoriasDados" rows={4} {...register('categoriasDados')} />
+            </Campo>
             <Controller
               control={control}
-              name="categoriasEspeciais.aplicavel"
+              name="categoriasEspeciais"
               render={({ field }) => (
                 <CampoSimNao
-                  id="categoriasEspeciais.aplicavel"
-                  label={textos.campos['categoriasEspeciais.aplicavel']}
+                  id="categoriasEspeciais"
+                  label={textos.campos.categoriasEspeciais}
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
@@ -278,70 +299,28 @@ export function WizardResponsavel({
               )}
             />
             {temCategoriasEspeciais ? (
-              <>
-                <Campo
-                  id="categoriasEspeciais.identificar"
-                  label={textos.campos['categoriasEspeciais.identificar']}
-                  obrigatorio
-                  ajuda="categoriasEspeciais"
-                >
-                  <Textarea
-                    id="categoriasEspeciais.identificar"
-                    {...register('categoriasEspeciais.identificar')}
+              <Controller
+                control={control}
+                name="categoriasEspeciaisNecessarias"
+                render={({ field }) => (
+                  <CampoSimNao
+                    id="categoriasEspeciaisNecessarias"
+                    label={textos.campos.categoriasEspeciaisNecessarias}
+                    valor={field.value}
+                    onChange={field.onChange}
+                    obrigatorio
                   />
-                </Campo>
-                <Controller
-                  control={control}
-                  name="categoriasEspeciaisNecessarias"
-                  render={({ field }) => (
-                    <CampoSimNao
-                      id="categoriasEspeciaisNecessarias"
-                      label={textos.campos.categoriasEspeciaisNecessarias}
-                      valor={field.value}
-                      onChange={field.onChange}
-                      obrigatorio
-                    />
-                  )}
-                />
-              </>
+                )}
+              />
             ) : null}
-
             <Campo
               id="categoriasTitulares"
               label={textos.campos.categoriasTitulares}
               obrigatorio
               ajuda="categoriasTitulares"
             >
-              <Controller
-                control={control}
-                name="categoriasTitulares"
-                render={({ field }) => (
-                  <SeletorMultiplo
-                    name="categoriasTitulares"
-                    opcoes={categoriasTitulares}
-                    valor={field.value ?? []}
-                    onChange={field.onChange}
-                    valorOutro={watch('categoriasTitularesOutra')}
-                    onChangeOutro={(v) => setValue('categoriasTitularesOutra', v)}
-                  />
-                )}
-              />
+              <Textarea id="categoriasTitulares" {...register('categoriasTitulares')} />
             </Campo>
-            <Campo
-              id="categoriasDados"
-              label={textos.campos.categoriasDados}
-              obrigatorio
-              ajuda="categoriasDados"
-            >
-              <Controller
-                control={control}
-                name="categoriasDados"
-                render={({ field }) => (
-                  <CampoCategoriasDados valor={field.value ?? []} onChange={field.onChange} />
-                )}
-              />
-            </Campo>
-
             <Campo id="entidadesQueEnviamDados" label={textos.campos.entidadesQueEnviamDados} obrigatorio>
               <Textarea id="entidadesQueEnviamDados" {...register('entidadesQueEnviamDados')} />
             </Campo>
@@ -349,7 +328,6 @@ export function WizardResponsavel({
               id="entidadesParaQuemEnvioDados"
               label={textos.campos.entidadesParaQuemEnvioDados}
               obrigatorio
-              ajuda="destinatarios"
             >
               <Textarea id="entidadesParaQuemEnvioDados" {...register('entidadesParaQuemEnvioDados')} />
             </Campo>
@@ -372,121 +350,188 @@ export function WizardResponsavel({
             <Campo id="ferramentasAplicacoes" label={textos.campos.ferramentasAplicacoes} obrigatorio>
               <Textarea id="ferramentasAplicacoes" {...register('ferramentasAplicacoes')} />
             </Campo>
-            <Campo
-              id="numeroCamposComDadosPessoais"
-              label={textos.campos.numeroCamposComDadosPessoais}
-              obrigatorio
-            >
-              <Input id="numeroCamposComDadosPessoais" {...register('numeroCamposComDadosPessoais')} />
-            </Campo>
-            <Campo id="volumeDadosPessoais" label={textos.campos.volumeDadosPessoais} obrigatorio>
-              <Input id="volumeDadosPessoais" {...register('volumeDadosPessoais')} />
-            </Campo>
-            <Campo
-              id="numeroUtilizadoresComAcesso"
-              label={textos.campos.numeroUtilizadoresComAcesso}
-              obrigatorio
-            >
-              <Input id="numeroUtilizadoresComAcesso" {...register('numeroUtilizadoresComAcesso')} />
-            </Campo>
+            {(
+              [
+                ['numeroCamposComDadosPessoais', textos.campos.numeroCamposComDadosPessoais],
+                ['volumeDadosPessoais', textos.campos.volumeDadosPessoais],
+                ['numeroUtilizadoresComAcesso', textos.campos.numeroUtilizadoresComAcesso],
+              ] as const
+            ).map(([campo, rotulo]) => (
+              <Controller
+                key={campo}
+                control={control}
+                name={campo}
+                render={({ field }) => (
+                  <CampoEscala
+                    id={campo}
+                    label={rotulo}
+                    valor={field.value}
+                    onChange={field.onChange}
+                    obrigatorio
+                  />
+                )}
+              />
+            ))}
           </div>
         ) : null}
 
         {/* ── 3. Subcontratados ───────────────────────────────────── */}
         {passo === 2 ? (
           <div {...painel(2)}>
-            <Campo id="subcontratados" label={textos.campos.subcontratados} ajuda="subcontratantes">
+            <Campo id="entidadesSubcontratadas" label={textos.campos.entidadesSubcontratadas} obrigatorio>
+              <Textarea id="entidadesSubcontratadas" {...register('entidadesSubcontratadas')} />
+            </Campo>
+            <Campo
+              id="operacoesTratamentoSubcontratadas"
+              label={textos.campos.operacoesTratamentoSubcontratadas}
+              obrigatorio
+              ajuda="operacoesTratamentoSubcontratadas"
+            >
+              <Textarea
+                id="operacoesTratamentoSubcontratadas"
+                {...register('operacoesTratamentoSubcontratadas')}
+              />
+            </Campo>
+            <Controller
+              control={control}
+              name="existeContrato"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="existeContrato"
+                  label={textos.campos.existeContrato}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  obrigatorio
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="contratoComClausulasProtecaoDados"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="contratoComClausulasProtecaoDados"
+                  label={textos.campos.contratoComClausulasProtecaoDados}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  obrigatorio
+                />
+              )}
+            />
+            <Campo id="anexosContrato" label={textos.campos.anexosContrato}>
               <Controller
                 control={control}
-                name="subcontratados"
+                name="anexosContrato"
                 render={({ field }) => (
-                  <CampoSubcontratados valor={field.value ?? []} onChange={field.onChange} />
+                  <CampoAnexos valor={field.value ?? []} onChange={field.onChange} />
                 )}
               />
             </Campo>
+            <Controller
+              control={control}
+              name="transferenciasPaisesTerceiros"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="transferenciasPaisesTerceiros"
+                  label={textos.campos.transferenciasPaisesTerceiros}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  obrigatorio
+                />
+              )}
+            />
+            {temTransferencias ? (
+              <Campo id="paisesTerceiros" label={textos.campos.paisesTerceiros} obrigatorio>
+                <Input id="paisesTerceiros" {...register('paisesTerceiros')} />
+              </Campo>
+            ) : null}
+            <Controller
+              control={control}
+              name="auditoriasAoSubcontratado"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="auditoriasAoSubcontratado"
+                  label={textos.campos.auditoriasAoSubcontratado}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  obrigatorio
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="pedidoAutorizacaoCnpd"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="pedidoAutorizacaoCnpd"
+                  label={textos.campos.pedidoAutorizacaoCnpd}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  comNaoSei
+                  obrigatorio
+                />
+              )}
+            />
           </div>
         ) : null}
 
         {/* ── 4. Base de Licitude ─────────────────────────────────── */}
         {passo === 3 ? (
           <div {...painel(3)}>
-            <Campo
-              id="baseLicitude"
-              label={textos.campos.baseLicitude}
-              obrigatorio
-              erro={errors.baseLicitude?.message}
-              ajuda="baseLicitude"
-            >
-              <Select id="baseLicitude" {...register('baseLicitude')}>
-                <option value="">{textos.respostas.porResponder}</option>
-                {baseLicitude.map((opcao) => (
-                  <option key={opcao.id} value={opcao.id}>
-                    {opcao.label}
-                  </option>
-                ))}
-              </Select>
+            <Campo id="baseLicitude" label={textos.campos.baseLicitude} obrigatorio ajuda="baseLicitude">
+              <Textarea id="baseLicitude" rows={4} {...register('baseLicitude')} />
             </Campo>
 
-            {baseEhConsentimento ? (
-              <>
-                <p className="rounded-md border border-primary-border bg-primary-soft p-3 text-sm text-primary-strong">
-                  {textos.formulario.notaConsentimento}
-                </p>
-                <Controller
-                  control={control}
-                  name="consentimentoMecanismosDemonstracao"
-                  render={({ field }) => (
-                    <CampoSimNao
-                      id="consentimentoMecanismosDemonstracao"
-                      label={textos.campos.consentimentoMecanismosDemonstracao}
-                      valor={field.value}
-                      onChange={field.onChange}
-                      obrigatorio
-                    />
-                  )}
+            <p className="rounded-md border border-primary-border bg-primary-soft p-3 text-sm text-primary-strong">
+              {textos.formulario.notaConsentimento}
+            </p>
+            <Campo
+              id="consentimentoMecanismosDemonstracao"
+              label={textos.campos.consentimentoMecanismosDemonstracao}
+            >
+              <Textarea
+                id="consentimentoMecanismosDemonstracao"
+                {...register('consentimentoMecanismosDemonstracao')}
+              />
+            </Campo>
+            <Controller
+              control={control}
+              name="consentimentoResponsabilidadeParental"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="consentimentoResponsabilidadeParental"
+                  label={textos.campos.consentimentoResponsabilidadeParental}
+                  valor={field.value}
+                  onChange={field.onChange}
                 />
-                <Controller
-                  control={control}
-                  name="consentimentoResponsabilidadeParental"
-                  render={({ field }) => (
-                    <CampoSimNao
-                      id="consentimentoResponsabilidadeParental"
-                      label={textos.campos.consentimentoResponsabilidadeParental}
-                      valor={field.value}
-                      onChange={field.onChange}
-                      obrigatorio
-                    />
-                  )}
-                />
-              </>
-            ) : null}
+              )}
+            />
 
-            <Controller
-              control={control}
-              name="retencaoDefinidaPelaOrganizacao"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="retencaoDefinidaPelaOrganizacao"
-                  label={textos.campos.retencaoDefinidaPelaOrganizacao(organizacao || 'a organização')}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="retencaoPorNormativosLegais"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="retencaoPorNormativosLegais"
-                  label={textos.campos.retencaoPorNormativosLegais}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
+            <Campo
+              id="retencaoDefinidaPelaOrganizacao"
+              label={textos.campos.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO)}
+              obrigatorio
+              ajuda="prazoConservacao"
+            >
+              <Textarea
+                id="retencaoDefinidaPelaOrganizacao"
+                {...register('retencaoDefinidaPelaOrganizacao')}
+              />
+            </Campo>
+            <Campo
+              id="criterioRetencao"
+              label={textos.campos.criterioRetencao(NOME_ORGANIZACAO)}
+              obrigatorio
+            >
+              <Textarea id="criterioRetencao" {...register('criterioRetencao')} />
+            </Campo>
+            <Campo
+              id="retencaoPorNormativosLegais"
+              label={textos.campos.retencaoPorNormativosLegais}
+              obrigatorio
+            >
+              <Textarea id="retencaoPorNormativosLegais" {...register('retencaoPorNormativosLegais')} />
+            </Campo>
           </div>
         ) : null}
 
@@ -494,21 +539,9 @@ export function WizardResponsavel({
         {passo === 4 ? (
           <div {...painel(4)}>
             {DIREITOS.map((campo) => (
-              <Controller
-                key={campo}
-                control={control}
-                name={campo}
-                render={({ field }) => (
-                  <CampoSimNao
-                    id={campo}
-                    label={textos.campos[campo]}
-                    valor={field.value}
-                    onChange={field.onChange}
-                    comParcial
-                    obrigatorio
-                  />
-                )}
-              />
+              <Campo key={campo} id={campo} label={textos.campos[campo]} obrigatorio ajuda={campo}>
+                <Textarea id={campo} {...register(campo)} />
+              </Campo>
             ))}
           </div>
         ) : null}
@@ -527,7 +560,6 @@ export function WizardResponsavel({
                     label={textos.campos[campo]}
                     valor={field.value}
                     onChange={field.onChange}
-                    comParcial
                     obrigatorio
                   />
                 )}
@@ -545,19 +577,23 @@ export function WizardResponsavel({
               obrigatorio
               ajuda="medidasTecnicasOrganizativas"
             >
-              <Controller
-                control={control}
-                name="medidasTecnicasOrganizativas"
-                render={({ field }) => (
-                  <CampoMedidas valor={field.value ?? []} onChange={field.onChange} />
-                )}
+              <Textarea
+                id="medidasTecnicasOrganizativas"
+                rows={4}
+                {...register('medidasTecnicasOrganizativas')}
               />
             </Campo>
             <Campo id="normativosAplicaveis" label={textos.campos.normativosAplicaveis} obrigatorio>
               <Textarea id="normativosAplicaveis" {...register('normativosAplicaveis')} />
             </Campo>
-            <Campo id="diagramaProcesso" label={textos.campos.diagramaProcesso}>
-              <Input id="diagramaProcesso" {...register('diagramaProcesso')} />
+            <Campo id="anexos" label={textos.campos.anexos}>
+              <Controller
+                control={control}
+                name="anexos"
+                render={({ field }) => (
+                  <CampoAnexos valor={field.value ?? []} onChange={field.onChange} />
+                )}
+              />
             </Campo>
             <Controller
               control={control}

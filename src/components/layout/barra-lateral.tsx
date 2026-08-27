@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { textos } from '@/i18n/pt'
+import { LOGO, NOME_ORGANIZACAO } from '@/config/organizacao'
 
 interface ItemNavegacao {
   para: string
@@ -68,12 +69,21 @@ export function BarraLateral() {
     <aside className="no-print flex w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <Link
         to="/"
-        className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-5 text-[0.95rem] font-semibold"
+        className="flex flex-col gap-2 border-b border-sidebar-border px-5 py-5"
       >
-        <svg viewBox="0 0 24 24" {...traco} className="h-5 w-5 shrink-0" aria-hidden="true">
-          <path d="M12 3 5 6v5.5c0 4.3 2.9 8.2 7 9.5 4.1-1.3 7-5.2 7-9.5V6z" />
-        </svg>
-        <span>{textos.app.marca} · RGPD</span>
+        {/* O logótipo é servido do próprio bundle (public/), nunca de uma
+            CDN. Enquanto não existir, mostra-se só o nome. */}
+        {LOGO ? (
+          <img src={LOGO} alt={NOME_ORGANIZACAO} className="h-8 w-auto self-start" />
+        ) : (
+          <span className="text-[0.95rem] font-semibold">{NOME_ORGANIZACAO}</span>
+        )}
+        <span className="flex items-center gap-2 text-xs font-medium text-sidebar-foreground/70">
+          <svg viewBox="0 0 24 24" {...traco} className="h-4 w-4 shrink-0" aria-hidden="true">
+            <path d="M12 3 5 6v5.5c0 4.3 2.9 8.2 7 9.5 4.1-1.3 7-5.2 7-9.5V6z" />
+          </svg>
+          {textos.app.marca} · RGPD
+        </span>
       </Link>
 
       <nav className="flex flex-col gap-1 p-3" aria-label={textos.navegacao.principal}>

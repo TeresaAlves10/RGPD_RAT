@@ -8,6 +8,8 @@ import { Select } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
 import { textos } from '@/i18n/pt'
 import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
+import { rotuloUnidade } from '@/config/organizacao'
+import { PainelTotais } from '@/components/painel-totais'
 import { BarraExportacao } from '@/features/preenchimento/barra-exportacao'
 import { BarraImportacao } from '@/features/preenchimento/barra-importacao'
 import { avaliarFicheiro } from '@/domain/rules/motor'
@@ -198,6 +200,8 @@ export function ListaRegistos() {
 
       {ficheiro.registos.length > 0 ? (
         <>
+          <PainelTotais registos={ficheiro.registos} />
+          <p className="-mt-4 text-xs text-muted-foreground">{textos.totais.nota}</p>
           {/* Progresso do conjunto */}
           <div className="flex flex-col gap-3">
             <div className="flex h-2 gap-1 overflow-hidden rounded-full">
@@ -327,6 +331,7 @@ export function ListaRegistos() {
               <table className="w-full min-w-[64rem] text-left text-sm">
                 <thead className="border-b border-border bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
+                    <th className="px-4 py-3 font-medium">{textos.campos.numero}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaNome}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaTipo}</th>
                     <th className="px-4 py-3 font-medium">{textos.lista.colunaDirecao}</th>
@@ -341,11 +346,14 @@ export function ListaRegistos() {
                     const estado = estadoPorRegisto.get(registo.id) ?? ESTADO_VAZIO
                     return (
                       <tr key={registo.id} className="transition-colors hover:bg-muted/40">
+                        <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                          {registo.numero}
+                        </td>
                         <td className="px-4 py-3 font-medium">{registo.nomeTratamento}</td>
                         <td className="px-4 py-3 text-muted-foreground">{nomeTipo(registo)}</td>
                         <td className="px-4 py-3 text-muted-foreground">{registo.direcao}</td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {registo.unidadeCoordenacao || '—'}
+                          {rotuloUnidade(registo.unidadeCoordenacao) || '—'}
                         </td>
                         <td className="px-4 py-3">
                           <EstadoRegistoBadge estado={registo.estado} />

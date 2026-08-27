@@ -52,12 +52,17 @@ describe('conteúdo do PDF', () => {
   it('traz os valores preenchidos do responsável', () => {
     expect(texto).toContain(registoResponsavelCompleto.finalidade)
     expect(texto).toContain(registoResponsavelCompleto.suportesFisicos)
-    expect(texto).toContain(registoResponsavelCompleto.subcontratados?.[0].nome)
+    expect(texto).toContain(registoResponsavelCompleto.entidadesSubcontratadas)
   })
 
   it('traz os campos do subcontratante', () => {
     expect(texto).toContain(registoSubcontratadoCompleto.nomeResponsavelTratamento)
     expect(texto).toContain(registoSubcontratadoCompleto.prazoConservacao)
+    expect(texto).toContain(registoSubcontratadoCompleto.destinatarios)
+  })
+
+  it('mostra a numeração automática no título de cada registo', () => {
+    expect(texto).toContain(`${registoResponsavelCompleto.numero}. ${registoResponsavelCompleto.nomeTratamento}`)
   })
 
   it('mostra o estado e quem validou', () => {
@@ -90,7 +95,12 @@ describe('conteúdo do PDF', () => {
         registos: [ficheiroRatFixtureValido.registos[0]],
       }),
     )
-    // Sem nada preenchido, a secção "Ferramentas" não abre sequer.
-    expect(soMinimo).not.toContain(textos.passos.ferramentas)
+    // Sem nada preenchido, a secção "Ferramentas" não abre sequer. O
+    // teste procura o cabeçalho de secção, não o texto: o rótulo do campo
+    // é a mesma frase e aparece na lista de verificações.
+    const cabecalhoSeccao = (nome: string) =>
+      JSON.stringify({ text: nome, style: 'tituloSeccao' })
+    expect(soMinimo).not.toContain(cabecalhoSeccao(textos.passos.ferramentas))
+    expect(soMinimo).toContain(cabecalhoSeccao(textos.passos.caracterizacao))
   })
 })

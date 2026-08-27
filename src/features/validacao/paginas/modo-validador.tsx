@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,7 +9,10 @@ import { avaliarFicheiro } from '@/domain/rules/motor'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
 import type { AnotacaoCampo, EstadoRegisto } from '@/domain/schema/comum'
 import type { Registo } from '@/domain/schema/registo'
-import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
+import { WizardResponsavel } from '@/features/preenchimento/wizard-responsavel'
+import { WizardSubcontratado } from '@/features/preenchimento/wizard-subcontratado'
+import { PainelTotais } from '@/components/painel-totais'
+import { EstadoRegistoBadge } from '@/components/estado-registo'
 import { exportarJson } from '@/io/json/exportar'
 import { CartaoRegisto } from '@/features/validacao/cartao-registo'
 
@@ -37,8 +39,8 @@ export function ModoValidador() {
   const [errosImportacao, setErrosImportacao] = useState<string[]>([])
   const [aExportar, setAExportar] = useState<string | null>(null)
   const [nomeValidador, setNomeValidador] = useState('')
-  const navigate = useNavigate()
-  const { definirFicheiro } = useFicheiro()
+  /** Registo aberto no formulário completo, para o validador corrigir. */
+  const [registoEmEdicao, setRegistoEmEdicao] = useState<string | null>(null)
 
   const resumo = useMemo(
     () =>
@@ -123,6 +125,24 @@ export function ModoValidador() {
     }))
   }
 
+  const registoAberto = registoEmEdicao
+    ? (entradaSelecionada?.ficheiro.registos.find((r) => r.id === registoEmEdicao) ?? null)
+    : null
+
+  /**
+   * Registos submetidos em toda a sessão — é por aqui que o validador
+   * começa, em vez de ter de abrir ficheiro a ficheiro.
+   */
+  const submetidos = useMemo(
+    () =>
+      sessao.flatMap((entrada) =>
+        entrada.ficheiro.registos
+          .filter((registo) => registo.estado === 'submetido')
+          .map((registo) => ({ entrada, registo })),
+      ),
+    [sessao],
+  )
+
   async function exportar(entrada: EntradaSessao, formato: 'json' | 'excel' | 'pdf') {
     setAExportar(entrada.id)
     try {
@@ -170,11 +190,45 @@ export function ModoValidador() {
         ))}
       </div>
 
-      {entradaSelecionada ? (
+      {entradaSelecionada && registoAberto ? (
+        <div className="flex flex-col gap-4">
+          <Button
+            variant="outline"
+            className="self-start"
+            onClick={() => setRegistoEmEdicao(null)}
+          >
+            {textos.validador.botaoVoltarRegistos}
+          </Button>
+          {/* O validador pode alterar qualquer campo, a qualquer momento:
+              é o mesmo formulário do GP, a escrever no ficheiro da sessão. */}
+          {registoAberto.tipoRegisto === 'responsavel' ? (
+            <WizardResponsavel
+              registoInicial={registoAberto}
+              permiteValidar
+              onGuardar={(registo) => {
+                alterarRegisto(entradaSelecionada.id, registo.id, () => registo)
+                setRegistoEmEdicao(null)
+              }}
+              onCancelar={() => setRegistoEmEdicao(null)}
+            />
+          ) : (
+            <WizardSubcontratado
+              registoInicial={registoAberto}
+              permiteValidar
+              onGuardar={(registo) => {
+                alterarRegisto(entradaSelecionada.id, registo.id, () => registo)
+                setRegistoEmEdicao(null)
+              }}
+              onCancelar={() => setRegistoEmEdicao(null)}
+            />
+          )}
+        </div>
+      ) : entradaSelecionada ? (
         <div className="flex flex-col gap-4">
           <Button variant="outline" className="self-start" onClick={() => setEntradaSelecionadaId(null)}>
             {textos.validador.botaoVoltarSessao}
           </Button>
+          <PainelTotais registos={entradaSelecionada.ficheiro.registos} />
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -196,19 +250,6 @@ export function ModoValidador() {
               onClick={() => exportar(entradaSelecionada, 'pdf')}
             >
               {textos.exportar.botaoPdf}
-            </Button>
-            {/* Corrigir usa o formulário completo, que trabalha sobre o
-                ficheiro em edição — por isso carrega-se lá o ficheiro
-                inteiro em vez de editar a cópia da sessão. */}
-            <Button
-              variant="subtle"
-              onClick={() => {
-                if (!window.confirm(textos.validador.confirmarCorrigir)) return
-                definirFicheiro(entradaSelecionada.ficheiro)
-                navigate('/')
-              }}
-            >
-              {textos.validador.botaoCorrigir}
             </Button>
           </div>
           <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4">
@@ -233,11 +274,54 @@ export function ModoValidador() {
                 )
               }
               onMudarEstado={(estado) => mudarEstado(entradaSelecionada.id, registo.id, estado)}
+              onEditar={() => setRegistoEmEdicao(registo.id)}
             />
           ))}
         </div>
       ) : (
         <>
+          {submetidos.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">{textos.validador.submetidosTitulo}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {textos.validador.submetidosDescricao}
+                </p>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {submetidos.map(({ entrada, registo }) => (
+                  <li
+                    key={registo.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3"
+                  >
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <span className="font-medium">
+                        {registo.numero}. {registo.nomeTratamento}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {entrada.ficheiro.metadados.equipa} · {entrada.nomeFicheiro} ·{' '}
+                        {registo.gestorProjeto.nome}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <EstadoRegistoBadge estado={registo.estado} />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEntradaSelecionadaId(entrada.id)
+                          setRegistoEmEdicao(registo.id)
+                        }}
+                      >
+                        {textos.validador.botaoRever}
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           <h2 className="text-lg font-semibold">{textos.validador.resumoSessaoTitulo}</h2>
           {resumo.length === 0 ? (
             <Card>

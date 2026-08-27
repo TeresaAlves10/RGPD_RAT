@@ -38,6 +38,10 @@ export function PaginaFormularioRegisto() {
     ? ficheiro.registos.find((r) => r.id === id)
     : undefined
 
+  // Numeração automática: o próximo número livre dentro deste ficheiro.
+  const proximoNumero =
+    ficheiro.registos.reduce((maior, r) => Math.max(maior, r.numero), 0) + 1
+
   const tipoRegisto = registoExistente?.tipoRegisto ?? tipo
   const titulo = registoExistente?.nomeTratamento?.trim() || textos.navegacao.novoRegisto
 
@@ -57,7 +61,7 @@ export function PaginaFormularioRegisto() {
           registoInicial={
             registoExistente?.tipoRegisto === 'responsavel' ? registoExistente : undefined
           }
-          organizacao={ficheiro.metadados.organizacao}
+          proximoNumero={proximoNumero}
           onGuardar={aoGuardar}
           onCancelar={aoCancelar}
         />
@@ -72,6 +76,7 @@ export function PaginaFormularioRegisto() {
           registoInicial={
             registoExistente?.tipoRegisto === 'subcontratado' ? registoExistente : undefined
           }
+          proximoNumero={proximoNumero}
           onGuardar={aoGuardar}
           onCancelar={aoCancelar}
         />

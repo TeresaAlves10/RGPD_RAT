@@ -1,18 +1,16 @@
 import { z } from 'zod'
 import {
   campoBaseRegistoSchema,
-  categoriaDadosSchema,
-  categoriasEspeciaisSchema,
-  respostaControloSchema,
+  escalaGrandezaSchema,
+  respostaCnpdSchema,
   respostaSimNaoSchema,
 } from '@/domain/schema/comum'
-import { idsBaseLicitude, idsCategoriasTitulares } from '@/domain/schema/vocabularios'
+import { anexoSchema } from '@/domain/schema/anexo'
 
 /**
  * RAT — a organização é RESPONSÁVEL PELO TRATAMENTO (art. 30.º/1 do RGPD).
  *
- * A ordem e o agrupamento dos campos seguem exatamente as sete secções
- * indicadas pelo utilizador:
+ * Sete secções, pela ordem da especificação:
  *   1. Descrição do Processo / Caracterização
  *   2. Ferramentas / Aplicações utilizadas
  *   3. Subcontratados
@@ -21,35 +19,26 @@ import { idsBaseLicitude, idsCategoriasTitulares } from '@/domain/schema/vocabul
  *   6. Controlos Operacionais
  *   7. Observações Gerais
  *
- * Sobre `optional()`: ver a nota de obrigatoriedade em comum.ts. Todos
- * estes campos são obrigatórios para submeter o registo a validação; o
- * que os torna obrigatórios é o catálogo de regras, não o schema.
+ * Quase tudo é texto livre: o utilizador preferiu descrição aberta com
+ * orientação de preenchimento (ver src/domain/help/) a listas fechadas,
+ * porque a realidade de cada processo raramente cabe numa taxonomia. As
+ * poucas listas que restam são as que têm respostas genuinamente
+ * enumeráveis (sim/não, escalas de grandeza).
+ *
+ * Sobre `optional()`: ver a nota de obrigatoriedade em comum.ts.
  */
-
-/** Uma entidade subcontratada e as perguntas do art. 28.º sobre ela. */
-export const subcontratadoSchema = z.object({
-  nome: z.string().optional(),
-  operacoesTratamento: z.string().optional(),
-  existeContrato: respostaSimNaoSchema.optional(),
-  contratoComClausulasProtecaoDados: respostaSimNaoSchema.optional(),
-  transferenciasPaisesTerceiros: respostaSimNaoSchema.optional(),
-  auditoriasAoSubcontratado: respostaSimNaoSchema.optional(),
-  pedidoAutorizacaoCnpd: respostaSimNaoSchema.optional(),
-})
-export type Subcontratado = z.infer<typeof subcontratadoSchema>
-
 export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
   tipoRegisto: z.literal('responsavel'),
 
   // ── 1. Descrição do Processo / Caracterização ──────────────────────
   finalidade: z.string().optional(),
   operacoesTratamento: z.string().optional(),
-  trataDadosPessoais: respostaSimNaoSchema.optional(),
+  dadosPessoais: z.string().optional(),
   dadosNecessariosParaFinalidade: respostaSimNaoSchema.optional(),
-  categoriasEspeciais: categoriasEspeciaisSchema.optional(),
+  categoriasDados: z.string().optional(),
+  categoriasEspeciais: respostaSimNaoSchema.optional(),
   categoriasEspeciaisNecessarias: respostaSimNaoSchema.optional(),
-  categoriasTitulares: z.array(z.enum(idsCategoriasTitulares)).optional(),
-  categoriasTitularesOutra: z.string().optional(),
+  categoriasTitulares: z.string().optional(),
   entidadesQueEnviamDados: z.string().optional(),
   entidadesParaQuemEnvioDados: z.string().optional(),
   suportesFisicos: z.string().optional(),
@@ -57,50 +46,51 @@ export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
 
   // ── 2. Ferramentas / Aplicações utilizadas ─────────────────────────
   ferramentasAplicacoes: z.string().optional(),
-  numeroCamposComDadosPessoais: z.string().optional(),
-  volumeDadosPessoais: z.string().optional(),
-  numeroUtilizadoresComAcesso: z.string().optional(),
+  numeroCamposComDadosPessoais: escalaGrandezaSchema.optional(),
+  volumeDadosPessoais: escalaGrandezaSchema.optional(),
+  numeroUtilizadoresComAcesso: escalaGrandezaSchema.optional(),
 
   // ── 3. Subcontratados ──────────────────────────────────────────────
-  subcontratados: z.array(subcontratadoSchema).optional(),
+  entidadesSubcontratadas: z.string().optional(),
+  operacoesTratamentoSubcontratadas: z.string().optional(),
+  existeContrato: respostaSimNaoSchema.optional(),
+  contratoComClausulasProtecaoDados: respostaSimNaoSchema.optional(),
+  /** Anexo do contrato ou das cláusulas de proteção de dados. */
+  anexosContrato: z.array(anexoSchema).optional(),
+  transferenciasPaisesTerceiros: respostaSimNaoSchema.optional(),
+  paisesTerceiros: z.string().optional(),
+  auditoriasAoSubcontratado: respostaSimNaoSchema.optional(),
+  pedidoAutorizacaoCnpd: respostaCnpdSchema.optional(),
 
   // ── 4. Base de Licitude ────────────────────────────────────────────
-  baseLicitude: z.enum(idsBaseLicitude).optional(),
-  /** Só se aplica quando a base de licitude é o consentimento (art. 7.º). */
-  consentimentoMecanismosDemonstracao: respostaSimNaoSchema.optional(),
-  /** Consentimento de menores (art. 8.º). */
+  baseLicitude: z.string().optional(),
+  consentimentoMecanismosDemonstracao: z.string().optional(),
   consentimentoResponsabilidadeParental: respostaSimNaoSchema.optional(),
-  retencaoDefinidaPelaOrganizacao: respostaSimNaoSchema.optional(),
-  retencaoPorNormativosLegais: respostaSimNaoSchema.optional(),
+  retencaoDefinidaPelaOrganizacao: z.string().optional(),
+  criterioRetencao: z.string().optional(),
+  retencaoPorNormativosLegais: z.string().optional(),
 
   // ── 5. Requisitos Funcionais / Direitos dos Titulares ──────────────
-  deverInformar: respostaControloSchema.optional(),
-  direitoAcesso: respostaControloSchema.optional(),
-  direitoRetificacao: respostaControloSchema.optional(),
-  direitoApagamento: respostaControloSchema.optional(),
-  direitoPortabilidade: respostaControloSchema.optional(),
-  direitoLimitacao: respostaControloSchema.optional(),
-  direitoDecisoesAutomatizadas: respostaControloSchema.optional(),
-  direitoOposicao: respostaControloSchema.optional(),
-  detecaoNotificacaoViolacoes: respostaControloSchema.optional(),
+  deverInformar: z.string().optional(),
+  direitoAcesso: z.string().optional(),
+  direitoRetificacao: z.string().optional(),
+  direitoApagamento: z.string().optional(),
+  direitoPortabilidade: z.string().optional(),
+  direitoLimitacao: z.string().optional(),
+  direitoDecisoesAutomatizadas: z.string().optional(),
+  direitoOposicao: z.string().optional(),
+  detecaoNotificacaoViolacoes: z.string().optional(),
 
   // ── 6. Controlos Operacionais ──────────────────────────────────────
-  procedimentosAcessosDocumentados: respostaControloSchema.optional(),
-  procedimentosAcessosImplementados: respostaControloSchema.optional(),
-  acessosFormalmenteAutorizados: respostaControloSchema.optional(),
-  controlosAcessosPrivilegiados: respostaControloSchema.optional(),
-  revisaoPeriodicaAcessos: respostaControloSchema.optional(),
-  remocaoAcessosASaida: respostaControloSchema.optional(),
+  procedimentosAcessosDocumentados: respostaSimNaoSchema.optional(),
+  procedimentosAcessosImplementados: respostaSimNaoSchema.optional(),
+  acessosFormalmenteAutorizados: respostaSimNaoSchema.optional(),
+  controlosAcessosPrivilegiados: respostaSimNaoSchema.optional(),
+  revisaoPeriodicaAcessos: respostaSimNaoSchema.optional(),
+  remocaoAcessosASaida: respostaSimNaoSchema.optional(),
 
   // ── 7. Observações Gerais ──────────────────────────────────────────
-  // medidasTecnicasOrganizativas e aipdRealizada vêm de campoBaseRegisto.
-  normativosAplicaveis: z.string().optional(),
-  diagramaProcesso: z.string().optional(),
-  observacoes: z.string().optional(),
-
-  // Categorias/tipos de dados: a especificação do responsável não os
-  // separa da caracterização, mas sem eles o art. 30.º/1/c fica por
-  // cumprir, por isso entram na secção 1 do formulário.
-  categoriasDados: z.array(categoriaDadosSchema).optional(),
+  // medidasTecnicasOrganizativas, normativosAplicaveis, anexos,
+  // aipdRealizada, gestorProjeto e observacoes vêm de campoBaseRegisto.
 })
 export type RegistoResponsavel = z.infer<typeof registoResponsavelSchema>

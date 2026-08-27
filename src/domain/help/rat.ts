@@ -6,7 +6,9 @@
  * linha 11), extraído programaticamente — não reescritas de memória (ver
  * CLAUDE.md §4). As marcadas `fonte: 'regulamento'` citam diretamente o
  * texto do Regulamento (UE) 2016/679 (RGPD) para vocabulários que o Excel
- * não documentava com um comentário próprio.
+ * não documentava com um comentário próprio. As marcadas
+ * `fonte: 'orientacao'` são as orientações de preenchimento escritas pelo
+ * utilizador para as equipas desta organização.
  */
 
 export interface AjudaCampo {
@@ -15,7 +17,7 @@ export interface AjudaCampo {
   /** Base legal citada (artigo/número/alínea). */
   baseLegal: string
   texto: string
-  fonte: 'excel' | 'regulamento'
+  fonte: 'excel' | 'regulamento' | 'orientacao'
 }
 
 export const ajudaRat: AjudaCampo[] = [
@@ -112,6 +114,128 @@ export const ajudaRat: AjudaCampo[] = [
   },
 ]
 
+export const ajudaOrientacoes: AjudaCampo[] = [
+  {
+    campo: 'descricao',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Descrever, de forma clara e objetiva, o processo ou atividade de tratamento de dados pessoais, indicando o que é realizado com os dados, em que contexto e com que objetivo. A descrição deve permitir compreender o percurso dos dados desde a sua recolha ou receção até à sua utilização, partilha, conservação e, quando aplicável, eliminação.',
+  },
+  {
+    campo: 'finalidade',
+    baseLegal: 'art. 30.º/1, b)',
+    fonte: 'orientacao',
+    texto:
+      'A(s) finalidade(s) ou o objetivo do tratamento de dados pessoais devem ser determinadas, explícitas e legítimas.',
+  },
+  {
+    campo: 'operacoesTratamento',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Qualquer ação, manual ou automatizada, realizada sobre dados pessoais, incluindo a recolha, registo, validação, organização, conservação, consulta, atualização, utilização e partilha dos dados com sistemas ou entidades autorizadas.',
+  },
+  {
+    campo: 'dadosPessoais',
+    baseLegal: 'art. 4.º/1',
+    fonte: 'orientacao',
+    texto:
+      'Dados pessoais são quaisquer informações relacionadas com uma pessoa singular identificada ou identificável, direta ou indiretamente. Exemplos: nome, NIF, número de utente.',
+  },
+  {
+    campo: 'categoriasDados',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Identificar as categorias de dados pessoais tratados no âmbito do processo, de acordo com o tipo de informação recolhida ou utilizada. Exemplos: dados de identificação; dados de contacto; dados profissionais; dados de localização; dados de autenticação e acesso; dados relativos a equipamentos ou dispositivos; dados de saúde; dados genéticos; dados biométricos.',
+  },
+  {
+    campo: 'categoriasEspeciais',
+    baseLegal: 'art. 9.º',
+    fonte: 'orientacao',
+    texto:
+      'Dados pessoais que, pela sua natureza, beneficiam de proteção reforçada nos termos do RGPD. Incluem dados sobre origem racial ou étnica, opiniões políticas, convicções religiosas ou filosóficas, filiação sindical, dados genéticos, dados biométricos para identificação inequívoca, dados relativos à saúde e dados relativos à vida sexual ou orientação sexual.',
+  },
+  {
+    campo: 'categoriasTitulares',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Identificar os grupos ou tipos de pessoas singulares a quem respeitam os dados pessoais tratados no âmbito do processo. Exemplos: utentes/doentes; profissionais de saúde; colaboradores; cidadãos; candidatos; fornecedores/prestadores de serviços; representantes legais; visitantes/utilizadores de portais e aplicações; outros.',
+  },
+  {
+    campo: 'operacoesTratamentoSubcontratadas',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto: 'Ações manuais ou automatizadas executadas pelas entidades subcontratadas.',
+  },
+  {
+    campo: 'baseLicitude',
+    baseLegal: 'art. 6.º/1',
+    fonte: 'orientacao',
+    texto:
+      'Base de licitude é o fundamento jurídico que permite à organização tratar os dados pessoais de forma legal, de acordo com o RGPD. Consentimento — o titular dos dados autorizou, de forma livre, específica, informada e inequívoca, o tratamento dos seus dados. Execução de contrato — o tratamento é necessário para celebrar ou executar um contrato com o titular dos dados. Cumprimento de obrigação jurídica — o tratamento é necessário para cumprir uma obrigação legal aplicável ao responsável pelo tratamento. Interesses vitais — o tratamento é necessário para proteger a vida ou a integridade física de uma pessoa. Interesse público / exercício de autoridade pública — o tratamento é necessário para o exercício de funções de interesse público ou de autoridade pública atribuídas ao responsável pelo tratamento. Interesses legítimos — o tratamento é necessário para prosseguir interesses legítimos do responsável pelo tratamento ou de terceiros, desde que não prevaleçam os direitos e liberdades do titular dos dados.',
+  },
+  {
+    campo: 'direitoAcesso',
+    baseLegal: 'art. 15.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular obter confirmação sobre se os seus dados pessoais são tratados e, em caso afirmativo, aceder aos mesmos e a informação sobre o respetivo tratamento.',
+  },
+  {
+    campo: 'direitoRetificacao',
+    baseLegal: 'art. 16.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular solicitar a correção ou atualização dos seus dados pessoais que estejam incorretos ou incompletos.',
+  },
+  {
+    campo: 'direitoApagamento',
+    baseLegal: 'art. 17.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular solicitar a eliminação dos seus dados pessoais, quando estejam reunidas as condições previstas no RGPD.',
+  },
+  {
+    campo: 'direitoPortabilidade',
+    baseLegal: 'art. 20.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular receber os seus dados pessoais, num formato estruturado e de uso corrente, e transmiti-los a outro responsável pelo tratamento, quando aplicável.',
+  },
+  {
+    campo: 'direitoLimitacao',
+    baseLegal: 'art. 18.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular solicitar a limitação da utilização dos seus dados pessoais em determinadas situações previstas no RGPD.',
+  },
+  {
+    campo: 'direitoDecisoesAutomatizadas',
+    baseLegal: 'art. 22.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular não ficar sujeito a uma decisão baseada exclusivamente em tratamento automatizado, incluindo definição de perfis, quando esta produza efeitos jurídicos ou efeitos similares significativos, salvo nas situações previstas no RGPD.',
+  },
+  {
+    campo: 'direitoOposicao',
+    baseLegal: 'art. 21.º',
+    fonte: 'orientacao',
+    texto:
+      'Permite ao titular opor-se ao tratamento dos seus dados pessoais em determinadas situações, nomeadamente quando o tratamento tenha por base o interesse público ou interesses legítimos.',
+  },
+]
+
+/**
+ * As orientações do utilizador vêm primeiro: são as que a organização
+ * escreveu para as suas equipas. A fundamentação legal extraída do
+ * template antigo serve de reserva para os campos que elas não cobrem.
+ */
 export function obterAjudaCampo(campo: string): AjudaCampo | undefined {
-  return ajudaRat.find((entrada) => entrada.campo === campo)
+  return (
+    ajudaOrientacoes.find((entrada) => entrada.campo === campo) ??
+    ajudaRat.find((entrada) => entrada.campo === campo)
+  )
 }

@@ -46,8 +46,12 @@ importa, corrige, reenvia
 6. **Português de Portugal** em toda a interface. Todas as *strings* visíveis
    ao utilizador vivem em `src/i18n/pt.ts` — nunca texto hardcoded em
    componentes.
-7. **Licença MIT.** Sem logótipos institucionais nem dados de exemplo reais
-   no repositório (usar sempre dados fictícios nos *fixtures* e capturas).
+7. **Licença MIT.** Nada de dados de exemplo reais no repositório — usar
+   sempre dados fictícios nos *fixtures* e capturas. A identidade da
+   organização (nome, Direção, Unidades de Coordenação, logótipo) vive
+   toda em `src/config/organizacao.ts` e em `public/`, para o código
+   continuar genérico e outra organização adotar a aplicação mudando só
+   esse ficheiro.
 8. Não implementar autenticação, dashboard agregado persistente, nem
    qualquer noção de "utilizador" — isso está fora de âmbito.
 
@@ -108,6 +112,26 @@ importa, corrige, reenvia
 - **Um ficheiro = vários tratamentos da mesma equipa.** A estrutura do
   JSON é sempre `{ metadados, registos: [...] }`.
 
+- **Numeração automática.** Cada registo tem um `numero` sequencial
+  dentro do ficheiro, atribuído na criação. É o "ID" que aparece na
+  lista, no Excel e no PDF; o `id` UUID continua a ser a chave interna.
+
+- **O validador pode alterar qualquer campo, a qualquer momento.** No
+  modo validador, "Editar campos" abre o mesmo formulário do GP sobre o
+  registo do ficheiro da sessão, com validar/devolver disponíveis. Não é
+  uma permissão de utilizador (continua a não haver utilizadores): é o
+  que aquele ecrã oferece.
+
+- **Anexos.** Documentos importantes (imagem, diagrama, Word, PDF) e o
+  contrato de subcontratação podem ser anexados ao registo. Sem servidor,
+  o conteúdo viaja em base64 dentro do ficheiro — daí os limites de
+  `src/domain/schema/anexo.ts` e o cuidado no rascunho local, que guarda
+  os nomes mas não o conteúdo quando a quota estoira.
+
+- **Totais, não dashboard.** O painel de totais conta os registos do
+  ficheiro aberto no browser. Não contraria a regra 8: não há agregação
+  persistente, não há servidor, e os números desaparecem ao fechar.
+
 - **Perguntas condicionais.** Só aparecem quando se aplicam, e só então
   são obrigatórias: as duas do consentimento (arts. 7.º e 8.º) apenas se
   a base de licitude for o consentimento; a identificação das categorias
@@ -144,20 +168,28 @@ popover), organizados em `src/domain/help/*.ts`, indexados pelo `id` do
 campo do schema. Pede o texto completo desses comentários se precisares —
 não os reescrevas de memória, cita a base legal com precisão.
 
-## 5. Vocabulários controlados
+## 5. Texto livre com orientação, não listas fechadas
 
-Substituir todo o texto livre por listas fechadas onde o conteúdo é
-enumerável, com opção "Outro (especificar)" quando fizer sentido:
-- Base de licitude (art. 6.º/1, a–f)
-- Condição do art. 9.º/2 para categorias especiais
-- Categorias de titulares dos dados
-- Categorias e tipos de dados pessoais (taxonomia de dois níveis:
-  categoria → tipos, conforme os exemplos dos comentários do Excel)
-- Mecanismo de garantia de transferência internacional (decisão de
-  adequação, CCT, BCR, derrogação do art. 49.º)
-- Medidas técnicas e organizativas (lista de exemplos, não exaustiva)
+A versão inicial usava vocabulários controlados para categorias de
+titulares, categorias de dados, base de licitude e medidas técnicas. O
+utilizador substituiu-os por **texto livre com orientação de
+preenchimento**: a realidade de cada processo raramente cabe numa
+taxonomia, e uma lista fechada leva a escolher a opção menos errada em
+vez de descrever o que realmente acontece.
 
-Ficam em `src/domain/vocabularios/*.json`, versionados no repositório.
+As listas fechadas que restam são as que têm respostas genuinamente
+enumeráveis:
+- `respostaSimNao` — sim / não / não aplicável;
+- `respostaCnpd` — acrescenta "não sei", porque quem preenche pode
+  genuinamente não saber, e isso é diferente de "não";
+- `escalaGrandeza` — Baixo (dezenas) / Médio (centenas) / Elevado
+  (milhares), em vez de números exatos que envelhecem no dia seguinte;
+- Unidade de Coordenação, que vem da configuração da organização.
+
+As orientações fornecidas pelo utilizador estão em
+`src/domain/help/rat.ts` (`ajudaOrientacoes`) e aparecem ao lado de cada
+campo. Têm precedência sobre a fundamentação legal extraída do template
+antigo, que serve de reserva.
 
 ## 6. Rascunho local (localStorage)
 

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
 import { ficheiroRatSchema } from '@/domain/schema/ficheiro'
+import type { Registo } from '@/domain/schema/registo'
+import type { Anexo } from '@/domain/schema/anexo'
 
 /**
  * Rascunho local (CLAUDE.md §6): único mecanismo de persistência de toda a
@@ -30,13 +32,45 @@ export function lerRascunho(): RascunhoGuardado | null {
   }
 }
 
+/**
+ * Versão do ficheiro sem o conteúdo dos anexos, para caber na quota do
+ * localStorage. Os nomes ficam, o conteúdo não — os anexos continuam
+ * inteiros no ficheiro exportado, que é onde têm de estar.
+ */
+function semConteudoDeAnexos(ficheiro: FicheiroRat): FicheiroRat {
+  const limpar = (anexos: Anexo[] | undefined): Anexo[] | undefined =>
+    anexos?.map((anexo) => ({ ...anexo, conteudo: '' }))
+  return {
+    ...ficheiro,
+    registos: ficheiro.registos.map(
+      (registo): Registo => ({
+        ...registo,
+        anexos: limpar(registo.anexos),
+        anexosContrato: limpar(registo.anexosContrato),
+      }),
+    ),
+  }
+}
+
 export function guardarRascunho(ficheiro: FicheiroRat): void {
   try {
     const rascunho: RascunhoGuardado = { guardadoEm: new Date().toISOString(), ficheiro }
     window.localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(rascunho))
   } catch {
-    // localStorage indisponível (modo privado, quota excedida, etc.) — o
-    // rascunho é apenas uma conveniência, nunca bloqueia o preenchimento.
+    // Quota excedida é quase sempre culpa dos anexos: tenta outra vez sem
+    // o conteúdo deles, para não se perder o resto do preenchimento.
+    try {
+      window.localStorage.setItem(
+        CHAVE_RASCUNHO,
+        JSON.stringify({
+          guardadoEm: new Date().toISOString(),
+          ficheiro: semConteudoDeAnexos(ficheiro),
+        }),
+      )
+    } catch {
+      // localStorage indisponível (modo privado, etc.) — o rascunho é
+      // apenas uma conveniência, nunca bloqueia o preenchimento.
+    }
   }
 }
 

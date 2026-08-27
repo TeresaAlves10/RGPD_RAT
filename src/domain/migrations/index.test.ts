@@ -117,25 +117,26 @@ describe('migração v4 -> v5 do responsável', () => {
   it('achata a matriz aninhada nos campos das secções', () => {
     if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
     expect(registo.operacoesTratamento).toBe('Recolha e conservação.')
-    expect(registo.trataDadosPessoais).toBe('sim')
     expect(registo.suportesFisicos).toBe('Papel.')
     expect(registo.ferramentasAplicacoes).toBe('Sistema fictício de RH.')
-    expect(registo.retencaoDefinidaPelaOrganizacao).toBe('sim')
+    // A retenção era sim/não na v5 e passou a texto na v6.
+    expect(registo.retencaoDefinidaPelaOrganizacao).toBe('Sim')
     expect(registo.normativosAplicaveis).toBe('Código do Trabalho.')
   })
 
   it('traz as respostas do módulo de avaliação para as secções 5 e 6', () => {
     if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
-    expect(registo.direitoAcesso).toBe('sim')
-    // O campo mudou de nome entre versões.
-    expect(registo.direitoDecisoesAutomatizadas).toBe('nao_aplicavel')
+    // Os direitos passaram a texto livre na v6; os controlos ficaram sim/não.
+    expect(registo.direitoAcesso).toBe('Sim')
+    expect(registo.direitoDecisoesAutomatizadas).toBe('Não aplicável')
     expect(registo.revisaoPeriodicaAcessos).toBe('nao')
   })
 
   it('converte o booleano das categorias especiais para sim/não', () => {
     if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
-    expect(registo.categoriasEspeciais?.aplicavel).toBe('sim')
-    expect(registo.categoriasEspeciais?.identificar).toBe('Dados de saúde.')
+    expect(registo.categoriasEspeciais).toBe('sim')
+    // A identificação deixou de ter campo próprio: fica nas observações.
+    expect(registo.observacoes).toContain('Dados de saúde.')
   })
 
   it('renomeia "finalidades" para "finalidade"', () => {
@@ -176,10 +177,10 @@ describe('migração v4 -> v5 do subcontratante', () => {
     expect(observacoes).toContain('Gestão de tickets.')
   })
 
-  it('converte transferenciasInternacionais para o novo campo transferencias', () => {
+  it('converte transferenciasInternacionais para os campos de países terceiros', () => {
     if (registo.tipoRegisto !== 'subcontratado') throw new Error('tipo inesperado')
-    expect(registo.transferencias?.existem).toBe('sim')
-    expect(registo.transferencias?.identificar).toBe('Reino Unido')
+    expect(registo.transferenciasPaisesTerceiros).toBe('sim')
+    expect(registo.paisesTerceiros).toBe('Reino Unido')
   })
 })
 
@@ -205,5 +206,90 @@ describe('migração desde as versões mais antigas', () => {
       registos: [{ ...registoResponsavelV4, estado: 'validado' }],
     })
     expect(resultado.registos[0].estado).toBe('validado')
+  })
+})
+
+/** Um registo tal como era gravado na v5, com listas fechadas. */
+const registoResponsavelV5 = {
+  id: '55555555-5555-4555-8555-555555555555',
+  tipoRegisto: 'responsavel',
+  estado: 'submetido',
+  direcao: 'Direção Fictícia',
+  unidadeCoordenacao: 'Unidade de Registos Nacionais',
+  nomeTratamento: 'Tratamento v5',
+  gestorProjeto: { nome: 'Eva Fictícia' },
+  finalidade: 'Finalidade fictícia.',
+  categoriasTitulares: ['colaboradores', 'outro'],
+  categoriasTitularesOutra: 'Estagiários',
+  categoriasDados: [{ categoria: 'identificacao_civil', tipos: ['Nome', 'NIF'] }],
+  categoriasEspeciais: { aplicavel: 'sim', identificar: 'Dados de saúde.' },
+  baseLicitude: 'obrigacao_juridica',
+  medidasTecnicasOrganizativas: [
+    { medida: 'encriptacao' },
+    { medida: 'outro', medidaOutra: 'Cláusula de confidencialidade' },
+  ],
+  numeroCamposComDadosPessoais: '24',
+  direitoAcesso: 'parcial',
+  revisaoPeriodicaAcessos: 'parcial',
+  subcontratados: [
+    { nome: 'Fornecedor Fictício', operacoesTratamento: 'Alojamento.', existeContrato: 'sim' },
+  ],
+  observacoes: 'Observação original.',
+  anotacoes: [],
+}
+
+describe('migração v5 -> v6', () => {
+  const resultado = migrarParaVersaoAtual({
+    schemaVersion: 5,
+    metadados: ficheiroRatFixtureValido.metadados,
+    registos: [registoResponsavelV5],
+  })
+  const registo = resultado.registos[0]
+
+  it('atribui numeração automática', () => {
+    expect(registo.numero).toBe(1)
+  })
+
+  it('converte as listas fechadas para o texto legível equivalente', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.categoriasTitulares).toContain('Colaboradores')
+    // O valor de "Outro" não se perde na conversão.
+    expect(registo.categoriasTitulares).toContain('Estagiários')
+    expect(registo.categoriasDados).toContain('Dados de identificação civil')
+    expect(registo.categoriasDados).toContain('Nome, NIF')
+    expect(registo.baseLicitude).toContain('obrigação jurídica')
+    expect(registo.medidasTecnicasOrganizativas).toContain('Encriptação')
+    expect(registo.medidasTecnicasOrganizativas).toContain('Cláusula de confidencialidade')
+  })
+
+  it('reconhece a Unidade de Coordenação pelo nome anterior', () => {
+    expect(registo.unidadeCoordenacao).toBe('urn')
+  })
+
+  it('converte as respostas de controlo: texto nos direitos, sim/não nos controlos', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.direitoAcesso).toBe('Parcialmente')
+    // "parcial" deixou de existir nos controlos operacionais.
+    expect(registo.revisaoPeriodicaAcessos).toBe('sim')
+  })
+
+  it('achata a lista de subcontratados num bloco de texto', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.entidadesSubcontratadas).toBe('Fornecedor Fictício')
+    expect(registo.operacoesTratamentoSubcontratadas).toBe('Alojamento.')
+    expect(registo.existeContrato).toBe('sim')
+  })
+
+  it('não perde texto dos campos que mudaram de forma', () => {
+    const observacoes = registo.observacoes ?? ''
+    expect(observacoes).toContain('Observação original.')
+    // A contagem era texto livre e passou a escala: não se adivinha.
+    expect(observacoes).toContain('24')
+    expect(observacoes).toContain('Dados de saúde.')
+  })
+
+  it('deixa por escolher o que não pode ser adivinhado', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.numeroCamposComDadosPessoais).toBeUndefined()
   })
 })
