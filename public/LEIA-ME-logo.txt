@@ -1,0 +1,19 @@
+Logótipo da organização
+=======================
+
+Coloca aqui o ficheiro do logótipo com o nome `logo.svg`. Aparece na
+barra lateral, no lugar do nome em texto, sem ser preciso mexer em código.
+
+  public/logo.svg
+
+Notas:
+
+- SVG é o formato preferido (fica nítido em qualquer ecrã). Para usar
+  PNG, muda `LOGO` em `src/config/organizacao.ts` para 'logo.png'.
+- O ficheiro é servido pela própria aplicação, a partir do bundle — nunca
+  de uma CDN, para não quebrar a garantia de "zero rede em runtime"
+  (ver CLAUDE.md §2.1 e o teste em src/test/zero-rede.test.ts).
+- Enquanto o ficheiro não existir, a barra lateral mostra o nome da
+  organização em texto. Não fica imagem partida.
+- O logótipo aparece só na aplicação. Os PDF exportados continuam a
+  identificar a organização pelo nome, em texto.
