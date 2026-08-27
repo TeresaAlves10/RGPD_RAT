@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
   campoBaseRegistoSchema,
-  escalaGrandezaSchema,
+  contagemSchema,
   respostaCnpdSchema,
   respostaSimNaoSchema,
 } from '@/domain/schema/comum'
@@ -42,9 +42,9 @@ export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
 
   // Ferramentas
   ferramentasAplicacoes: z.string().optional(),
-  numeroCamposComDadosPessoais: escalaGrandezaSchema.optional(),
-  volumeDadosPessoais: escalaGrandezaSchema.optional(),
-  numeroUtilizadoresComAcesso: escalaGrandezaSchema.optional(),
+  numeroCamposComDadosPessoais: contagemSchema.optional(),
+  volumeDadosPessoais: contagemSchema.optional(),
+  numeroUtilizadoresComAcesso: contagemSchema.optional(),
 
   // Outros subcontratantes (art. 28.º)
   entidadesSubcontratadas: z.string().optional(),
@@ -76,7 +76,6 @@ export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
   direitoLimitacao: z.string().optional(),
   direitoDecisoesAutomatizadas: z.string().optional(),
   direitoOposicao: z.string().optional(),
-  detecaoNotificacaoViolacoes: z.string().optional(),
 
   // Controlos operacionais
   procedimentosAcessosDocumentados: respostaSimNaoSchema.optional(),
@@ -85,5 +84,7 @@ export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
   controlosAcessosPrivilegiados: respostaSimNaoSchema.optional(),
   revisaoPeriodicaAcessos: respostaSimNaoSchema.optional(),
   remocaoAcessosASaida: respostaSimNaoSchema.optional(),
+  /** Movida dos direitos dos titulares para aqui, a pedido do utilizador. */
+  detecaoNotificacaoViolacoes: z.string().optional(),
 })
 export type RegistoSubcontratado = z.infer<typeof registoSubcontratadoSchema>

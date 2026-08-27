@@ -1,6 +1,7 @@
 import { Select } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { textos } from '@/i18n/pt'
+import { cn } from '@/lib/utils'
 
 type Valor = string | undefined
 
@@ -12,6 +13,8 @@ interface CampoSimNaoProps {
   /** Acrescenta "Não sei" — só a pergunta sobre a CNPD o usa. */
   comNaoSei?: boolean
   obrigatorio?: boolean
+  /** Dá peso visual à pergunta, para não passar despercebida. */
+  destaque?: boolean
 }
 
 /**
@@ -25,13 +28,22 @@ export function CampoSimNao({
   onChange,
   comNaoSei,
   obrigatorio,
+  destaque,
 }: CampoSimNaoProps) {
   return (
-    <div className="grid items-center gap-x-6 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_13rem]">
+    <div
+      className={cn(
+        'grid items-center gap-x-6 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_13rem]',
+        destaque && 'rounded-md border border-primary-border bg-primary-soft p-3',
+      )}
+    >
       {/* O asterisco fica fora do <label>: dentro passaria a fazer parte
           do nome acessível do campo. */}
       <div className="flex items-baseline gap-1">
-        <Label htmlFor={id} className="text-sm font-normal leading-snug">
+        <Label
+          htmlFor={id}
+          className={cn('text-sm leading-snug', destaque ? 'font-semibold' : 'font-normal')}
+        >
           {label}
         </Label>
         {obrigatorio ? (

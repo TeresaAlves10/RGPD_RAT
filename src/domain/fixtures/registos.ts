@@ -48,9 +48,9 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
 
   // 2. Ferramentas / Aplicações utilizadas
   ferramentasAplicacoes: 'Sistema fictício de gestão de recursos humanos.',
-  numeroCamposComDadosPessoais: 'baixo',
-  volumeDadosPessoais: 'medio',
-  numeroUtilizadoresComAcesso: 'baixo',
+  numeroCamposComDadosPessoais: { escala: 'baixo', valor: '24' },
+  volumeDadosPessoais: { escala: 'medio', valor: 'Cerca de 400 colaboradores.' },
+  numeroUtilizadoresComAcesso: { escala: 'baixo', valor: '6' },
 
   // 3. Subcontratados
   entidadesSubcontratadas: 'Processamento de Salários Fictícia, Lda.',
@@ -148,9 +148,9 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
   localizacaoSuportesFisicos: 'N/A',
 
   ferramentasAplicacoes: 'Plataforma fictícia de gestão de tickets.',
-  numeroCamposComDadosPessoais: 'baixo',
-  volumeDadosPessoais: 'elevado',
-  numeroUtilizadoresComAcesso: 'baixo',
+  numeroCamposComDadosPessoais: { escala: 'baixo', valor: '12' },
+  volumeDadosPessoais: { escala: 'elevado', valor: 'Milhares de pedidos por ano.' },
+  numeroUtilizadoresComAcesso: { escala: 'baixo', valor: '15' },
 
   entidadesSubcontratadas: 'Centro de Dados Fictício, S.A.',
   operacoesTratamentoSubcontratadas: 'Alojamento da infraestrutura aplicacional.',
@@ -203,7 +203,7 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -220,7 +220,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   metadados: {
     equipa: '',
     dataCriacao: '2026-01-15T10:00:00.000Z',

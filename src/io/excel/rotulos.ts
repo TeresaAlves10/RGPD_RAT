@@ -1,5 +1,6 @@
 import { rotuloUnidade } from '@/config/organizacao'
 import { textos } from '@/i18n/pt'
+import type { Contagem } from '@/domain/schema/comum'
 
 /** Conversão de valores fechados para o texto que aparece no Excel e no PDF. */
 
@@ -10,11 +11,18 @@ export function rotuloResposta(valor: string | undefined): string {
   return respostas[valor] ?? valor
 }
 
-/** Baixo (dezenas) / Médio (centenas) / Elevado (milhares). */
-export function rotuloEscala(valor: string | undefined): string {
-  if (!valor) return ''
+/**
+ * Contagem: ordem de grandeza e, se existir, o número ou nota exata —
+ * "Médio (centenas) — 240".
+ */
+export function rotuloEscala(contagem: Contagem | undefined): string {
+  if (!contagem) return ''
   const escala = textos.escala as Record<string, string>
-  return escala[valor] ?? valor
+  const partes = [
+    contagem.escala ? (escala[contagem.escala] ?? contagem.escala) : '',
+    contagem.valor ?? '',
+  ].filter(Boolean)
+  return partes.join(' — ')
 }
 
 export { rotuloUnidade }

@@ -293,3 +293,36 @@ describe('migração v5 -> v6', () => {
     expect(registo.numeroCamposComDadosPessoais).toBeUndefined()
   })
 })
+
+describe('migração v6 -> v7', () => {
+  const resultado = migrarParaVersaoAtual({
+    schemaVersion: 6,
+    metadados: ficheiroRatFixtureValido.metadados,
+    registos: [
+      {
+        id: '66666666-6666-4666-8666-666666666666',
+        numero: 1,
+        tipoRegisto: 'responsavel',
+        estado: 'rascunho',
+        nomeTratamento: 'Tratamento v6',
+        gestorProjeto: { nome: 'Filipa Fictícia' },
+        numeroCamposComDadosPessoais: 'medio',
+        volumeDadosPessoais: 'elevado',
+        numeroUtilizadoresComAcesso: undefined,
+      },
+    ],
+  })
+  const registo = resultado.registos[0]
+
+  it('transforma a escala num par escala/valor, sem perder a escolha', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.numeroCamposComDadosPessoais).toEqual({ escala: 'medio' })
+    expect(registo.volumeDadosPessoais).toEqual({ escala: 'elevado' })
+  })
+
+  it('deixa por responder o que já estava por responder', () => {
+    if (registo.tipoRegisto !== 'responsavel') throw new Error('tipo inesperado')
+    expect(registo.numeroUtilizadoresComAcesso).toBeUndefined()
+  })
+})
+
