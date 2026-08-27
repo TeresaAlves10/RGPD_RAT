@@ -11,7 +11,6 @@ import { textos } from '@/i18n/pt'
 import { NOME_ORGANIZACAO, DIRECAO_POR_OMISSAO, UNIDADES_COORDENACAO } from '@/config/organizacao'
 import { registoSubcontratadoSchema, type RegistoSubcontratado } from '@/domain/schema/subcontratado'
 import { CampoSimNao } from '@/features/preenchimento/campos/campo-sim-nao'
-import { CampoEscala } from '@/features/preenchimento/campos/campo-escala'
 import { CampoAnexos } from '@/features/preenchimento/campos/campo-anexos'
 import { avaliarRegisto } from '@/domain/rules/motor'
 import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
@@ -19,108 +18,34 @@ import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
 /**
  * Formulário do subcontratante (art. 30.º/2).
  *
- * Replica as sete secções do responsável, como pedido, com as diferenças
- * próprias desta qualidade: o responsável por conta de quem se atua, o
- * responsável conjunto, a recolha, os destinatários e a base legal.
+ * A lista de campos é deliberadamente mais curta do que a do responsável:
+ * o art. 30.º/2 exige menos do subcontratante do que o art. 30.º/1 exige
+ * de quem determina as finalidades e os meios (ver
+ * src/domain/schema/subcontratado.ts). Cinco secções, não sete.
  */
 const PASSOS = [
-  textos.passos.caracterizacao,
-  textos.passos.ferramentas,
-  textos.passos.subcontratados,
-  textos.passos.baseLicitude,
-  textos.passos.requisitosFuncionais,
-  textos.passos.controlosOperacionais,
-  textos.passos.observacoesGerais,
+  textos.passos.subIdentificacao,
+  textos.passos.subTratamentoBaseLegal,
+  textos.passos.subTitularesDados,
+  textos.passos.subTransferenciasConservacao,
+  textos.passos.subSegurancaObservacoes,
 ] as const
 
 const CAMPOS_POR_PASSO: (keyof RegistoSubcontratado)[][] = [
+  ['nomeResponsavelTratamento', 'direcao', 'unidadeCoordenacao', 'nomeTratamento', 'descricao'],
+  ['finalidade', 'baseLegal', 'recolhaDados'],
+  ['categoriasTitulares', 'categoriasDados', 'dadosPessoais', 'categoriasEspeciais'],
+  ['transferenciasPaisesTerceiros', 'paisesTerceiros', 'prazoConservacao', 'criterioRetencao'],
   [
-    'nomeResponsavelTratamento',
-    'responsavelConjunto',
-    'direcao',
-    'unidadeCoordenacao',
-    'nomeTratamento',
-    'descricao',
-    'finalidade',
-    'operacoesTratamento',
-    'recolhaDados',
-    'dadosPessoais',
-    'dadosNecessariosParaFinalidade',
-    'categoriasDados',
-    'categoriasEspeciais',
-    'categoriasEspeciaisNecessarias',
-    'categoriasTitulares',
-    'entidadesQueEnviamDados',
-    'destinatarios',
-    'suportesFisicos',
-    'localizacaoSuportesFisicos',
-  ],
-  [
-    'ferramentasAplicacoes',
-    'numeroCamposComDadosPessoais',
-    'volumeDadosPessoais',
-    'numeroUtilizadoresComAcesso',
-  ],
-  [
+    'medidasTecnicasOrganizativas',
+    'existemOutrosSubcontratantes',
     'entidadesSubcontratadas',
-    'operacoesTratamentoSubcontratadas',
-    'existeContrato',
-    'contratoComClausulasProtecaoDados',
-    'anexosContrato',
-    'transferenciasPaisesTerceiros',
-    'paisesTerceiros',
-    'auditoriasAoSubcontratado',
-    'pedidoAutorizacaoCnpd',
+    'observacoes',
+    'anexos',
+    'aipdRealizada',
+    'gestorProjeto',
   ],
-  [
-    'baseLegal',
-    'consentimentoMecanismosDemonstracao',
-    'consentimentoResponsabilidadeParental',
-    'prazoConservacao',
-    'criterioRetencao',
-    'retencaoPorNormativosLegais',
-  ],
-  [
-    'deverInformar',
-    'direitoAcesso',
-    'direitoRetificacao',
-    'direitoApagamento',
-    'direitoPortabilidade',
-    'direitoLimitacao',
-    'direitoDecisoesAutomatizadas',
-    'direitoOposicao',
-  ],
-  [
-    'procedimentosAcessosDocumentados',
-    'procedimentosAcessosImplementados',
-    'acessosFormalmenteAutorizados',
-    'controlosAcessosPrivilegiados',
-    'revisaoPeriodicaAcessos',
-    'remocaoAcessosASaida',
-    'detecaoNotificacaoViolacoes',
-  ],
-  ['medidasTecnicasOrganizativas', 'normativosAplicaveis', 'anexos', 'aipdRealizada', 'gestorProjeto', 'observacoes'],
 ]
-
-const DIREITOS = [
-  'deverInformar',
-  'direitoAcesso',
-  'direitoRetificacao',
-  'direitoApagamento',
-  'direitoPortabilidade',
-  'direitoLimitacao',
-  'direitoDecisoesAutomatizadas',
-  'direitoOposicao',
-] as const
-
-const CONTROLOS = [
-  'procedimentosAcessosDocumentados',
-  'procedimentosAcessosImplementados',
-  'acessosFormalmenteAutorizados',
-  'controlosAcessosPrivilegiados',
-  'revisaoPeriodicaAcessos',
-  'remocaoAcessosASaida',
-] as const
 
 interface WizardSubcontratadoProps {
   registoInicial?: RegistoSubcontratado
@@ -150,7 +75,6 @@ export function WizardSubcontratado({
         nomeTratamento: '',
         gestorProjeto: { nome: '' },
         anexos: [],
-        anexosContrato: [],
         anotacoes: [],
       },
     [registoInicial, proximoNumero],
@@ -171,8 +95,8 @@ export function WizardSubcontratado({
   const registoAtual = watch()
   const ocorrencias = useMemo(() => avaliarRegisto(registoAtual), [registoAtual])
   const erros = useMemo(() => ocorrencias.filter((o) => o.severidade === 'erro'), [ocorrencias])
-  const temCategoriasEspeciais = watch('categoriasEspeciais') === 'sim'
   const temTransferencias = watch('transferenciasPaisesTerceiros') === 'sim'
+  const temOutrosSubcontratantes = watch('existemOutrosSubcontratantes') === 'sim'
 
   const passosComErro = new Set(
     CAMPOS_POR_PASSO.map((campos, indice) =>
@@ -219,6 +143,7 @@ export function WizardSubcontratado({
           </p>
         </div>
 
+        {/* ── 1. Identificação ─────────────────────────────────────── */}
         {passo === 0 ? (
           <div {...painel(0)}>
             <Campo
@@ -227,9 +152,6 @@ export function WizardSubcontratado({
               obrigatorio
             >
               <Input id="nomeResponsavelTratamento" {...register('nomeResponsavelTratamento')} />
-            </Campo>
-            <Campo id="responsavelConjunto" label={textos.campos.responsavelConjunto} obrigatorio>
-              <Input id="responsavelConjunto" {...register('responsavelConjunto')} />
             </Campo>
             <Campo id="direcao" label={textos.campos.direcao} obrigatorio>
               <Input id="direcao" {...register('direcao')} />
@@ -260,36 +182,35 @@ export function WizardSubcontratado({
             <Campo id="descricao" label={textos.campos.descricao} obrigatorio ajuda="descricao">
               <Textarea id="descricao" rows={5} {...register('descricao')} />
             </Campo>
+          </div>
+        ) : null}
+
+        {/* ── 2. Tratamento e base legal ───────────────────────────── */}
+        {passo === 1 ? (
+          <div {...painel(1)}>
             <Campo id="finalidade" label={textos.campos.finalidade} obrigatorio ajuda="finalidade">
               <Textarea id="finalidade" {...register('finalidade')} />
             </Campo>
-            <Campo
-              id="operacoesTratamento"
-              label={textos.campos.operacoesTratamento}
-              obrigatorio
-              ajuda="operacoesTratamento"
-            >
-              <Textarea id="operacoesTratamento" {...register('operacoesTratamento')} />
+            <Campo id="baseLegal" label={textos.campos.baseLegal} obrigatorio ajuda="baseLicitude">
+              <Textarea id="baseLegal" rows={4} {...register('baseLegal')} />
             </Campo>
             <Campo id="recolhaDados" label={textos.campos.recolhaDados} obrigatorio>
               <Textarea id="recolhaDados" {...register('recolhaDados')} />
             </Campo>
-            <Campo id="dadosPessoais" label={textos.campos.dadosPessoais} obrigatorio ajuda="dadosPessoais">
-              <Textarea id="dadosPessoais" {...register('dadosPessoais')} />
+          </div>
+        ) : null}
+
+        {/* ── 3. Titulares e dados ─────────────────────────────────── */}
+        {passo === 2 ? (
+          <div {...painel(2)}>
+            <Campo
+              id="categoriasTitulares"
+              label={textos.campos.categoriasTitulares}
+              obrigatorio
+              ajuda="categoriasTitulares"
+            >
+              <Textarea id="categoriasTitulares" {...register('categoriasTitulares')} />
             </Campo>
-            <Controller
-              control={control}
-              name="dadosNecessariosParaFinalidade"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="dadosNecessariosParaFinalidade"
-                  label={textos.campos.dadosNecessariosParaFinalidade}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
             <Campo
               id="categoriasDados"
               label={textos.campos.categoriasDados}
@@ -297,6 +218,9 @@ export function WizardSubcontratado({
               ajuda="categoriasDados"
             >
               <Textarea id="categoriasDados" rows={4} {...register('categoriasDados')} />
+            </Campo>
+            <Campo id="dadosPessoais" label={textos.campos.dadosPessoais} obrigatorio ajuda="dadosPessoais">
+              <Textarea id="dadosPessoais" {...register('dadosPessoais')} />
             </Campo>
             <Controller
               control={control}
@@ -311,129 +235,12 @@ export function WizardSubcontratado({
                 />
               )}
             />
-            {temCategoriasEspeciais ? (
-              <Controller
-                control={control}
-                name="categoriasEspeciaisNecessarias"
-                render={({ field }) => (
-                  <CampoSimNao
-                    id="categoriasEspeciaisNecessarias"
-                    label={textos.campos.categoriasEspeciaisNecessarias}
-                    valor={field.value}
-                    onChange={field.onChange}
-                    obrigatorio
-                  />
-                )}
-              />
-            ) : null}
-            <Campo
-              id="categoriasTitulares"
-              label={textos.campos.categoriasTitulares}
-              obrigatorio
-              ajuda="categoriasTitulares"
-            >
-              <Textarea id="categoriasTitulares" {...register('categoriasTitulares')} />
-            </Campo>
-            <Campo id="entidadesQueEnviamDados" label={textos.campos.entidadesQueEnviamDados} obrigatorio>
-              <Textarea id="entidadesQueEnviamDados" {...register('entidadesQueEnviamDados')} />
-            </Campo>
-            <Campo id="destinatarios" label={textos.campos.destinatarios} obrigatorio ajuda="destinatarios">
-              <Textarea id="destinatarios" {...register('destinatarios')} />
-            </Campo>
-            <Campo id="suportesFisicos" label={textos.campos.suportesFisicos} obrigatorio>
-              <Textarea id="suportesFisicos" {...register('suportesFisicos')} />
-            </Campo>
-            <Campo
-              id="localizacaoSuportesFisicos"
-              label={textos.campos.localizacaoSuportesFisicos}
-              obrigatorio
-            >
-              <Input id="localizacaoSuportesFisicos" {...register('localizacaoSuportesFisicos')} />
-            </Campo>
           </div>
         ) : null}
 
-        {passo === 1 ? (
-          <div {...painel(1)}>
-            <Campo id="ferramentasAplicacoes" label={textos.campos.ferramentasAplicacoes} obrigatorio>
-              <Textarea id="ferramentasAplicacoes" {...register('ferramentasAplicacoes')} />
-            </Campo>
-            {(
-              [
-                ['numeroCamposComDadosPessoais', textos.campos.numeroCamposComDadosPessoais],
-                ['volumeDadosPessoais', textos.campos.volumeDadosPessoais],
-                ['numeroUtilizadoresComAcesso', textos.campos.numeroUtilizadoresComAcesso],
-              ] as const
-            ).map(([campo, rotulo]) => (
-              <Controller
-                key={campo}
-                control={control}
-                name={campo}
-                render={({ field }) => (
-                  <CampoEscala
-                    id={campo}
-                    label={rotulo}
-                    valor={field.value}
-                    onChange={field.onChange}
-                    obrigatorio
-                  />
-                )}
-              />
-            ))}
-          </div>
-        ) : null}
-
-        {passo === 2 ? (
-          <div {...painel(2)}>
-            <Campo id="entidadesSubcontratadas" label={textos.campos.entidadesSubcontratadas} obrigatorio>
-              <Textarea id="entidadesSubcontratadas" {...register('entidadesSubcontratadas')} />
-            </Campo>
-            <Campo
-              id="operacoesTratamentoSubcontratadas"
-              label={textos.campos.operacoesTratamentoSubcontratadas}
-              obrigatorio
-              ajuda="operacoesTratamentoSubcontratadas"
-            >
-              <Textarea
-                id="operacoesTratamentoSubcontratadas"
-                {...register('operacoesTratamentoSubcontratadas')}
-              />
-            </Campo>
-            <Controller
-              control={control}
-              name="existeContrato"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="existeContrato"
-                  label={textos.campos.existeContrato}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="contratoComClausulasProtecaoDados"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="contratoComClausulasProtecaoDados"
-                  label={textos.campos.contratoComClausulasProtecaoDados}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
-            <Campo id="anexosContrato" label={textos.campos.anexosContrato}>
-              <Controller
-                control={control}
-                name="anexosContrato"
-                render={({ field }) => (
-                  <CampoAnexos valor={field.value ?? []} onChange={field.onChange} />
-                )}
-              />
-            </Campo>
+        {/* ── 4. Transferências e conservação ──────────────────────── */}
+        {passo === 3 ? (
+          <div {...painel(3)}>
             <Controller
               control={control}
               name="transferenciasPaisesTerceiros"
@@ -448,71 +255,15 @@ export function WizardSubcontratado({
               )}
             />
             {temTransferencias ? (
-              <Campo id="paisesTerceiros" label={textos.campos.paisesTerceiros} obrigatorio ajuda="transferencias">
+              <Campo
+                id="paisesTerceiros"
+                label={textos.campos.paisesTerceiros}
+                obrigatorio
+                ajuda="transferencias"
+              >
                 <Input id="paisesTerceiros" {...register('paisesTerceiros')} />
               </Campo>
             ) : null}
-            <Controller
-              control={control}
-              name="auditoriasAoSubcontratado"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="auditoriasAoSubcontratado"
-                  label={textos.campos.auditoriasAoSubcontratado}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  obrigatorio
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="pedidoAutorizacaoCnpd"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="pedidoAutorizacaoCnpd"
-                  label={textos.campos.pedidoAutorizacaoCnpd}
-                  valor={field.value}
-                  onChange={field.onChange}
-                  comNaoSei
-                  obrigatorio
-                />
-              )}
-            />
-          </div>
-        ) : null}
-
-        {passo === 3 ? (
-          <div {...painel(3)}>
-            <Campo id="baseLegal" label={textos.campos.baseLegal} obrigatorio ajuda="baseLicitude">
-              <Textarea id="baseLegal" rows={4} {...register('baseLegal')} />
-            </Campo>
-
-            <p className="rounded-md border border-primary-border bg-primary-soft p-3 text-sm text-primary-strong">
-              {textos.formulario.notaConsentimento}
-            </p>
-            <Campo
-              id="consentimentoMecanismosDemonstracao"
-              label={textos.campos.consentimentoMecanismosDemonstracao}
-            >
-              <Textarea
-                id="consentimentoMecanismosDemonstracao"
-                {...register('consentimentoMecanismosDemonstracao')}
-              />
-            </Campo>
-            <Controller
-              control={control}
-              name="consentimentoResponsabilidadeParental"
-              render={({ field }) => (
-                <CampoSimNao
-                  id="consentimentoResponsabilidadeParental"
-                  label={textos.campos.consentimentoResponsabilidadeParental}
-                  valor={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-
             <Campo
               id="prazoConservacao"
               label={textos.campos.prazoConservacao}
@@ -528,61 +279,12 @@ export function WizardSubcontratado({
             >
               <Textarea id="criterioRetencao" {...register('criterioRetencao')} />
             </Campo>
-            <Campo
-              id="retencaoPorNormativosLegais"
-              label={textos.campos.retencaoPorNormativosLegais}
-              obrigatorio
-            >
-              <Textarea id="retencaoPorNormativosLegais" {...register('retencaoPorNormativosLegais')} />
-            </Campo>
           </div>
         ) : null}
 
+        {/* ── 5. Segurança e observações ───────────────────────────── */}
         {passo === 4 ? (
           <div {...painel(4)}>
-            {DIREITOS.map((campo) => (
-              <Campo key={campo} id={campo} label={textos.campos[campo]} obrigatorio ajuda={campo}>
-                <Textarea id={campo} {...register(campo)} />
-              </Campo>
-            ))}
-          </div>
-        ) : null}
-
-        {passo === 5 ? (
-          <div {...painel(5)}>
-            {CONTROLOS.map((campo) => (
-              <Controller
-                key={campo}
-                control={control}
-                name={campo}
-                render={({ field }) => (
-                  <CampoSimNao
-                    id={campo}
-                    label={textos.campos[campo]}
-                    valor={field.value}
-                    onChange={field.onChange}
-                    obrigatorio
-                  />
-                )}
-              />
-            ))}
-            {/* Movida dos direitos dos titulares para aqui, a pedido do
-                utilizador. Mantém-se em texto livre, como os direitos. */}
-            <Campo
-              id="detecaoNotificacaoViolacoes"
-              label={textos.campos.detecaoNotificacaoViolacoes}
-              obrigatorio
-            >
-              <Textarea
-                id="detecaoNotificacaoViolacoes"
-                {...register('detecaoNotificacaoViolacoes')}
-              />
-            </Campo>
-          </div>
-        ) : null}
-
-        {passo === 6 ? (
-          <div {...painel(6)}>
             <Campo
               id="medidasTecnicasOrganizativas"
               label={textos.campos.medidasTecnicasOrganizativas}
@@ -595,8 +297,26 @@ export function WizardSubcontratado({
                 {...register('medidasTecnicasOrganizativas')}
               />
             </Campo>
-            <Campo id="normativosAplicaveis" label={textos.campos.normativosAplicaveis} obrigatorio>
-              <Textarea id="normativosAplicaveis" {...register('normativosAplicaveis')} />
+            <Controller
+              control={control}
+              name="existemOutrosSubcontratantes"
+              render={({ field }) => (
+                <CampoSimNao
+                  id="existemOutrosSubcontratantes"
+                  label={textos.campos.existemOutrosSubcontratantes}
+                  valor={field.value}
+                  onChange={field.onChange}
+                  obrigatorio
+                />
+              )}
+            />
+            {temOutrosSubcontratantes ? (
+              <Campo id="entidadesSubcontratadas" label={textos.campos.entidadesSubcontratadas} obrigatorio>
+                <Textarea id="entidadesSubcontratadas" {...register('entidadesSubcontratadas')} />
+              </Campo>
+            ) : null}
+            <Campo id="observacoes" label={textos.campos.observacoes}>
+              <Textarea id="observacoes" {...register('observacoes')} />
             </Campo>
             <Campo id="anexos" label={textos.campos.anexos}>
               <Controller
@@ -631,9 +351,6 @@ export function WizardSubcontratado({
             </Campo>
             <Campo id="gestorProjeto.contacto" label={textos.campos['gestorProjeto.contacto']}>
               <Input id="gestorProjeto.contacto" {...register('gestorProjeto.contacto')} />
-            </Campo>
-            <Campo id="observacoes" label={textos.campos.observacoes}>
-              <Textarea id="observacoes" {...register('observacoes')} />
             </Campo>
           </div>
         ) : null}

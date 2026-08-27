@@ -42,13 +42,17 @@ function semConteudoDeAnexos(ficheiro: FicheiroRat): FicheiroRat {
     anexos?.map((anexo) => ({ ...anexo, conteudo: '' }))
   return {
     ...ficheiro,
-    registos: ficheiro.registos.map(
-      (registo): Registo => ({
-        ...registo,
-        anexos: limpar(registo.anexos),
-        anexosContrato: limpar(registo.anexosContrato),
-      }),
-    ),
+    registos: ficheiro.registos.map((registo): Registo => {
+      // Só o responsável tem anexo próprio do contrato de subcontratação.
+      if (registo.tipoRegisto === 'responsavel') {
+        return {
+          ...registo,
+          anexos: limpar(registo.anexos),
+          anexosContrato: limpar(registo.anexosContrato),
+        }
+      }
+      return { ...registo, anexos: limpar(registo.anexos) }
+    }),
   }
 }
 

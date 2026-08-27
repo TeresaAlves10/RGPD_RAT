@@ -58,7 +58,7 @@ describe('conteúdo do PDF', () => {
   it('traz os campos do subcontratante', () => {
     expect(texto).toContain(registoSubcontratadoCompleto.nomeResponsavelTratamento)
     expect(texto).toContain(registoSubcontratadoCompleto.prazoConservacao)
-    expect(texto).toContain(registoSubcontratadoCompleto.destinatarios)
+    expect(texto).toContain(registoSubcontratadoCompleto.entidadesSubcontratadas)
   })
 
   it('mostra a numeração automática no título de cada registo', () => {

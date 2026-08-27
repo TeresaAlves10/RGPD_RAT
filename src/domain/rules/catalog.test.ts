@@ -44,10 +44,10 @@ describe('campos obrigatórios do responsável', () => {
   it('negativo: um registo mínimo acusa os campos por preencher', () => {
     const ids = violadas(registoResponsavelMinimo)
     expect(ids).toContain('comum.obrigatorio.finalidade')
-    expect(ids).toContain('comum.obrigatorio.operacoesTratamento')
-    expect(ids).toContain('comum.obrigatorio.ferramentasAplicacoes')
-    expect(ids).toContain('comum.obrigatorio.direitoAcesso')
-    expect(ids).toContain('comum.obrigatorio.revisaoPeriodicaAcessos')
+    expect(ids).toContain('resp.obrigatorio.operacoesTratamento')
+    expect(ids).toContain('resp.obrigatorio.ferramentasAplicacoes')
+    expect(ids).toContain('resp.obrigatorio.direitoAcesso')
+    expect(ids).toContain('resp.obrigatorio.revisaoPeriodicaAcessos')
     expect(ids).toContain('comum.obrigatorio.unidadeCoordenacao')
     expect(ids).toContain('resp.obrigatorio.baseLicitude')
     expect(podeSubmeter(registoResponsavelMinimo)).toBe(false)
@@ -55,15 +55,15 @@ describe('campos obrigatórios do responsável', () => {
 
   it('negativo: apagar um único campo obrigatório acusa só esse campo', () => {
     const ids = violadas(responsavel({ suportesFisicos: '   ' }))
-    expect(ids).toContain('comum.obrigatorio.suportesFisicos')
-    expect(ids).not.toContain('comum.obrigatorio.localizacaoSuportesFisicos')
+    expect(ids).toContain('resp.obrigatorio.suportesFisicos')
+    expect(ids).not.toContain('resp.obrigatorio.localizacaoSuportesFisicos')
   })
 })
 
 describe('categorias especiais de dados (art. 9.º)', () => {
   it('positivo: com categorias especiais, a necessidade está respondida', () => {
     expect(violadas(registoResponsavelCompleto)).not.toContain(
-      'comum.categoriasEspeciaisNecessidadePorResponder',
+      'resp.categoriasEspeciaisNecessidadePorResponder',
     )
   })
 
@@ -71,7 +71,7 @@ describe('categorias especiais de dados (art. 9.º)', () => {
     const ids = violadas(
       responsavel({ categoriasEspeciais: 'sim', categoriasEspeciaisNecessarias: undefined }),
     )
-    expect(ids).toContain('comum.categoriasEspeciaisNecessidadePorResponder')
+    expect(ids).toContain('resp.categoriasEspeciaisNecessidadePorResponder')
   })
 
   it('não se aplica quando não há categorias especiais', () => {
@@ -105,39 +105,39 @@ describe('transferências para países terceiros (art. 44.º)', () => {
 describe('subcontratação (art. 28.º)', () => {
   it('positivo: com contrato e com cláusulas de proteção de dados', () => {
     const ids = violadas(registoResponsavelCompleto)
-    expect(ids).not.toContain('comum.subcontratadoSemContrato')
-    expect(ids).not.toContain('comum.subcontratadoSemClausulas')
+    expect(ids).not.toContain('resp.subcontratadoSemContrato')
+    expect(ids).not.toContain('resp.subcontratadoSemClausulas')
   })
 
   it('negativo: sem contrato e sem cláusulas', () => {
     const ids = violadas(
       responsavel({ existeContrato: 'nao', contratoComClausulasProtecaoDados: 'nao' }),
     )
-    expect(ids).toContain('comum.subcontratadoSemContrato')
-    expect(ids).toContain('comum.subcontratadoSemClausulas')
+    expect(ids).toContain('resp.subcontratadoSemContrato')
+    expect(ids).toContain('resp.subcontratadoSemClausulas')
   })
 })
 
 describe('segurança dos acessos (art. 32.º)', () => {
   it('positivo: acessos removidos à saída', () => {
-    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.acessosSemRemocaoASaida')
+    expect(violadas(registoResponsavelCompleto)).not.toContain('resp.acessosSemRemocaoASaida')
   })
 
   it('negativo: acessos por remover à saída', () => {
     expect(violadas(responsavel({ remocaoAcessosASaida: 'nao' }))).toContain(
-      'comum.acessosSemRemocaoASaida',
+      'resp.acessosSemRemocaoASaida',
     )
   })
 })
 
 describe('minimização dos dados (art. 5.º/1 c))', () => {
   it('positivo: todos os dados são necessários', () => {
-    expect(violadas(registoResponsavelCompleto)).not.toContain('comum.dadosDesnecessarios')
+    expect(violadas(registoResponsavelCompleto)).not.toContain('resp.dadosDesnecessarios')
   })
 
   it('negativo: nem todos os dados são necessários', () => {
     expect(violadas(responsavel({ dadosNecessariosParaFinalidade: 'nao' }))).toContain(
-      'comum.dadosDesnecessarios',
+      'resp.dadosDesnecessarios',
     )
   })
 })
@@ -153,7 +153,7 @@ describe('campos obrigatórios do subcontratante', () => {
     expect(ids).toContain('sub.obrigatorio.nomeResponsavelTratamento')
     expect(ids).toContain('sub.obrigatorio.baseLegal')
     expect(ids).toContain('sub.obrigatorio.prazoConservacao')
-    expect(ids).toContain('sub.obrigatorio.destinatarios')
+    expect(ids).toContain('sub.obrigatorio.recolhaDados')
     expect(podeSubmeter(registoSubcontratadoMinimo)).toBe(false)
   })
 
@@ -163,10 +163,9 @@ describe('campos obrigatórios do subcontratante', () => {
   })
 
   it('as regras comuns aplicam-se às duas qualidades', () => {
-    // O utilizador pediu que a lista do responsável se replicasse aqui.
     const ids = violadas(registoSubcontratadoMinimo)
-    expect(ids).toContain('comum.obrigatorio.direitoAcesso')
-    expect(ids).toContain('comum.obrigatorio.ferramentasAplicacoes')
+    expect(ids).toContain('comum.obrigatorio.medidasTecnicasOrganizativas')
+    expect(ids).toContain('comum.obrigatorio.categoriasDados')
   })
 })
 

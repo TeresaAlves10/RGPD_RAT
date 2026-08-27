@@ -28,140 +28,160 @@ interface Coluna<T> {
   ler: (registo: T) => string
 }
 
-/** Colunas comuns às duas qualidades, na ordem do formulário. */
-function colunasComuns<T extends RegistoResponsavel | RegistoSubcontratado>(): Coluna<T>[] {
-  return [
-    { cabecalho: c.numero, ler: (r) => String(r.numero) },
-    { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
-    { cabecalho: c.direcao, ler: (r) => r.direcao ?? '' },
-    { cabecalho: c.unidadeCoordenacao, ler: (r) => rotuloUnidade(r.unidadeCoordenacao) },
-    { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
-    { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
-    { cabecalho: c.finalidade, ler: (r) => r.finalidade ?? '' },
-    { cabecalho: c.operacoesTratamento, ler: (r) => r.operacoesTratamento ?? '' },
-    { cabecalho: c.dadosPessoais, ler: (r) => r.dadosPessoais ?? '' },
-    {
-      cabecalho: c.dadosNecessariosParaFinalidade,
-      ler: (r) => rotuloResposta(r.dadosNecessariosParaFinalidade),
-    },
-    { cabecalho: c.categoriasDados, ler: (r) => r.categoriasDados ?? '' },
-    { cabecalho: c.categoriasEspeciais, ler: (r) => rotuloResposta(r.categoriasEspeciais) },
-    {
-      cabecalho: c.categoriasEspeciaisNecessarias,
-      ler: (r) => rotuloResposta(r.categoriasEspeciaisNecessarias),
-    },
-    { cabecalho: c.categoriasTitulares, ler: (r) => r.categoriasTitulares ?? '' },
-    { cabecalho: c.entidadesQueEnviamDados, ler: (r) => r.entidadesQueEnviamDados ?? '' },
-    { cabecalho: c.suportesFisicos, ler: (r) => r.suportesFisicos ?? '' },
-    { cabecalho: c.localizacaoSuportesFisicos, ler: (r) => r.localizacaoSuportesFisicos ?? '' },
-    { cabecalho: c.ferramentasAplicacoes, ler: (r) => r.ferramentasAplicacoes ?? '' },
-    {
-      cabecalho: c.numeroCamposComDadosPessoais,
-      ler: (r) => rotuloEscala(r.numeroCamposComDadosPessoais),
-    },
-    { cabecalho: c.volumeDadosPessoais, ler: (r) => rotuloEscala(r.volumeDadosPessoais) },
-    {
-      cabecalho: c.numeroUtilizadoresComAcesso,
-      ler: (r) => rotuloEscala(r.numeroUtilizadoresComAcesso),
-    },
-    { cabecalho: c.entidadesSubcontratadas, ler: (r) => r.entidadesSubcontratadas ?? '' },
-    {
-      cabecalho: c.operacoesTratamentoSubcontratadas,
-      ler: (r) => r.operacoesTratamentoSubcontratadas ?? '',
-    },
-    { cabecalho: c.existeContrato, ler: (r) => rotuloResposta(r.existeContrato) },
-    {
-      cabecalho: c.contratoComClausulasProtecaoDados,
-      ler: (r) => rotuloResposta(r.contratoComClausulasProtecaoDados),
-    },
-    { cabecalho: c.anexosContrato, ler: (r) => (r.anexosContrato ?? []).map((a) => a.nome).join('\n') },
-    {
-      cabecalho: c.transferenciasPaisesTerceiros,
-      ler: (r) => rotuloResposta(r.transferenciasPaisesTerceiros),
-    },
-    { cabecalho: c.paisesTerceiros, ler: (r) => r.paisesTerceiros ?? '' },
-    { cabecalho: c.auditoriasAoSubcontratado, ler: (r) => rotuloResposta(r.auditoriasAoSubcontratado) },
-    { cabecalho: c.pedidoAutorizacaoCnpd, ler: (r) => rotuloResposta(r.pedidoAutorizacaoCnpd) },
-    {
-      cabecalho: c.consentimentoMecanismosDemonstracao,
-      ler: (r) => r.consentimentoMecanismosDemonstracao ?? '',
-    },
-    {
-      cabecalho: c.consentimentoResponsabilidadeParental,
-      ler: (r) => rotuloResposta(r.consentimentoResponsabilidadeParental),
-    },
-    { cabecalho: c.criterioRetencao(NOME_ORGANIZACAO), ler: (r) => r.criterioRetencao ?? '' },
-    { cabecalho: c.retencaoPorNormativosLegais, ler: (r) => r.retencaoPorNormativosLegais ?? '' },
-    { cabecalho: c.deverInformar, ler: (r) => r.deverInformar ?? '' },
-    { cabecalho: c.direitoAcesso, ler: (r) => r.direitoAcesso ?? '' },
-    { cabecalho: c.direitoRetificacao, ler: (r) => r.direitoRetificacao ?? '' },
-    { cabecalho: c.direitoApagamento, ler: (r) => r.direitoApagamento ?? '' },
-    { cabecalho: c.direitoPortabilidade, ler: (r) => r.direitoPortabilidade ?? '' },
-    { cabecalho: c.direitoLimitacao, ler: (r) => r.direitoLimitacao ?? '' },
-    { cabecalho: c.direitoDecisoesAutomatizadas, ler: (r) => r.direitoDecisoesAutomatizadas ?? '' },
-    { cabecalho: c.direitoOposicao, ler: (r) => r.direitoOposicao ?? '' },
-    { cabecalho: c.detecaoNotificacaoViolacoes, ler: (r) => r.detecaoNotificacaoViolacoes ?? '' },
-    {
-      cabecalho: c.procedimentosAcessosDocumentados,
-      ler: (r) => rotuloResposta(r.procedimentosAcessosDocumentados),
-    },
-    {
-      cabecalho: c.procedimentosAcessosImplementados,
-      ler: (r) => rotuloResposta(r.procedimentosAcessosImplementados),
-    },
-    {
-      cabecalho: c.acessosFormalmenteAutorizados,
-      ler: (r) => rotuloResposta(r.acessosFormalmenteAutorizados),
-    },
-    {
-      cabecalho: c.controlosAcessosPrivilegiados,
-      ler: (r) => rotuloResposta(r.controlosAcessosPrivilegiados),
-    },
-    { cabecalho: c.revisaoPeriodicaAcessos, ler: (r) => rotuloResposta(r.revisaoPeriodicaAcessos) },
-    { cabecalho: c.remocaoAcessosASaida, ler: (r) => rotuloResposta(r.remocaoAcessosASaida) },
-    { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
-    { cabecalho: c.normativosAplicaveis, ler: (r) => r.normativosAplicaveis ?? '' },
-    {
-      cabecalho: c.anexos,
-      ler: (r) =>
-        (r.anexos ?? []).length === 0
-          ? ''
-          : `${(r.anexos ?? []).map((a) => a.nome).join('\n')}\n(${formatarTamanho(tamanhoTotal(r.anexos))})`,
-    },
-    { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
-    { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
-    { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
-    { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
-  ]
-}
-
-/**
- * Cada folha começa pelas colunas próprias da qualidade e continua com as
- * comuns, para a folha se ler pela mesma ordem do formulário.
- */
+/** Colunas do responsável, na ordem das sete secções do formulário. */
 const COLUNAS_RESPONSAVEL: Coluna<RegistoResponsavel>[] = [
-  ...colunasComuns<RegistoResponsavel>().slice(0, 15),
+  { cabecalho: c.numero, ler: (r) => String(r.numero) },
+  { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
+  { cabecalho: c.direcao, ler: (r) => r.direcao ?? '' },
+  { cabecalho: c.unidadeCoordenacao, ler: (r) => rotuloUnidade(r.unidadeCoordenacao) },
+  { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
+  { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
+  { cabecalho: c.finalidade, ler: (r) => r.finalidade ?? '' },
+  { cabecalho: c.operacoesTratamento, ler: (r) => r.operacoesTratamento ?? '' },
+  { cabecalho: c.dadosPessoais, ler: (r) => r.dadosPessoais ?? '' },
+  {
+    cabecalho: c.dadosNecessariosParaFinalidade,
+    ler: (r) => rotuloResposta(r.dadosNecessariosParaFinalidade),
+  },
+  { cabecalho: c.categoriasDados, ler: (r) => r.categoriasDados ?? '' },
+  { cabecalho: c.categoriasEspeciais, ler: (r) => rotuloResposta(r.categoriasEspeciais) },
+  {
+    cabecalho: c.categoriasEspeciaisNecessarias,
+    ler: (r) => rotuloResposta(r.categoriasEspeciaisNecessarias),
+  },
+  { cabecalho: c.categoriasTitulares, ler: (r) => r.categoriasTitulares ?? '' },
+  { cabecalho: c.entidadesQueEnviamDados, ler: (r) => r.entidadesQueEnviamDados ?? '' },
   { cabecalho: c.entidadesParaQuemEnvioDados, ler: (r) => r.entidadesParaQuemEnvioDados ?? '' },
-  ...colunasComuns<RegistoResponsavel>().slice(15, 30),
+  { cabecalho: c.suportesFisicos, ler: (r) => r.suportesFisicos ?? '' },
+  { cabecalho: c.localizacaoSuportesFisicos, ler: (r) => r.localizacaoSuportesFisicos ?? '' },
+  { cabecalho: c.ferramentasAplicacoes, ler: (r) => r.ferramentasAplicacoes ?? '' },
+  {
+    cabecalho: c.numeroCamposComDadosPessoais,
+    ler: (r) => rotuloEscala(r.numeroCamposComDadosPessoais),
+  },
+  { cabecalho: c.volumeDadosPessoais, ler: (r) => rotuloEscala(r.volumeDadosPessoais) },
+  {
+    cabecalho: c.numeroUtilizadoresComAcesso,
+    ler: (r) => rotuloEscala(r.numeroUtilizadoresComAcesso),
+  },
+  { cabecalho: c.entidadesSubcontratadas, ler: (r) => r.entidadesSubcontratadas ?? '' },
+  {
+    cabecalho: c.operacoesTratamentoSubcontratadas,
+    ler: (r) => r.operacoesTratamentoSubcontratadas ?? '',
+  },
+  { cabecalho: c.existeContrato, ler: (r) => rotuloResposta(r.existeContrato) },
+  {
+    cabecalho: c.contratoComClausulasProtecaoDados,
+    ler: (r) => rotuloResposta(r.contratoComClausulasProtecaoDados),
+  },
+  { cabecalho: c.anexosContrato, ler: (r) => (r.anexosContrato ?? []).map((a) => a.nome).join('\n') },
+  {
+    cabecalho: c.transferenciasPaisesTerceiros,
+    ler: (r) => rotuloResposta(r.transferenciasPaisesTerceiros),
+  },
+  { cabecalho: c.paisesTerceiros, ler: (r) => r.paisesTerceiros ?? '' },
+  { cabecalho: c.auditoriasAoSubcontratado, ler: (r) => rotuloResposta(r.auditoriasAoSubcontratado) },
+  { cabecalho: c.pedidoAutorizacaoCnpd, ler: (r) => rotuloResposta(r.pedidoAutorizacaoCnpd) },
   { cabecalho: c.baseLicitude, ler: (r) => r.baseLicitude ?? '' },
+  {
+    cabecalho: c.consentimentoMecanismosDemonstracao,
+    ler: (r) => r.consentimentoMecanismosDemonstracao ?? '',
+  },
+  {
+    cabecalho: c.consentimentoResponsabilidadeParental,
+    ler: (r) => rotuloResposta(r.consentimentoResponsabilidadeParental),
+  },
   {
     cabecalho: c.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO),
     ler: (r) => r.retencaoDefinidaPelaOrganizacao ?? '',
   },
-  ...colunasComuns<RegistoResponsavel>().slice(30),
+  { cabecalho: c.criterioRetencao(NOME_ORGANIZACAO), ler: (r) => r.criterioRetencao ?? '' },
+  { cabecalho: c.retencaoPorNormativosLegais, ler: (r) => r.retencaoPorNormativosLegais ?? '' },
+  { cabecalho: c.deverInformar, ler: (r) => r.deverInformar ?? '' },
+  { cabecalho: c.direitoAcesso, ler: (r) => r.direitoAcesso ?? '' },
+  { cabecalho: c.direitoRetificacao, ler: (r) => r.direitoRetificacao ?? '' },
+  { cabecalho: c.direitoApagamento, ler: (r) => r.direitoApagamento ?? '' },
+  { cabecalho: c.direitoPortabilidade, ler: (r) => r.direitoPortabilidade ?? '' },
+  { cabecalho: c.direitoLimitacao, ler: (r) => r.direitoLimitacao ?? '' },
+  { cabecalho: c.direitoDecisoesAutomatizadas, ler: (r) => r.direitoDecisoesAutomatizadas ?? '' },
+  { cabecalho: c.direitoOposicao, ler: (r) => r.direitoOposicao ?? '' },
+  {
+    cabecalho: c.procedimentosAcessosDocumentados,
+    ler: (r) => rotuloResposta(r.procedimentosAcessosDocumentados),
+  },
+  {
+    cabecalho: c.procedimentosAcessosImplementados,
+    ler: (r) => rotuloResposta(r.procedimentosAcessosImplementados),
+  },
+  {
+    cabecalho: c.acessosFormalmenteAutorizados,
+    ler: (r) => rotuloResposta(r.acessosFormalmenteAutorizados),
+  },
+  {
+    cabecalho: c.controlosAcessosPrivilegiados,
+    ler: (r) => rotuloResposta(r.controlosAcessosPrivilegiados),
+  },
+  { cabecalho: c.revisaoPeriodicaAcessos, ler: (r) => rotuloResposta(r.revisaoPeriodicaAcessos) },
+  { cabecalho: c.remocaoAcessosASaida, ler: (r) => rotuloResposta(r.remocaoAcessosASaida) },
+  { cabecalho: c.detecaoNotificacaoViolacoes, ler: (r) => r.detecaoNotificacaoViolacoes ?? '' },
+  { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
+  { cabecalho: c.normativosAplicaveis, ler: (r) => r.normativosAplicaveis ?? '' },
+  {
+    cabecalho: c.anexos,
+    ler: (r) =>
+      (r.anexos ?? []).length === 0
+        ? ''
+        : `${(r.anexos ?? []).map((a) => a.nome).join('\n')}\n(${formatarTamanho(tamanhoTotal(r.anexos))})`,
+  },
+  { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
+  { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
+  { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
+  { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
 ]
 
+/**
+ * Colunas do subcontratante, na ordem das cinco secções do formulário —
+ * mais curtas do que as do responsável (art. 30.º/2 exige menos).
+ */
 const COLUNAS_SUBCONTRATANTE: Coluna<RegistoSubcontratado>[] = [
+  { cabecalho: c.numero, ler: (r) => String(r.numero) },
+  { cabecalho: textos.estado.etiqueta, ler: (r) => textos.estado[r.estado] },
   { cabecalho: c.nomeResponsavelTratamento, ler: (r) => r.nomeResponsavelTratamento ?? '' },
-  { cabecalho: c.responsavelConjunto, ler: (r) => r.responsavelConjunto ?? '' },
-  ...colunasComuns<RegistoSubcontratado>().slice(0, 8),
-  { cabecalho: c.recolhaDados, ler: (r) => r.recolhaDados ?? '' },
-  ...colunasComuns<RegistoSubcontratado>().slice(8, 15),
-  { cabecalho: c.destinatarios, ler: (r) => r.destinatarios ?? '' },
-  ...colunasComuns<RegistoSubcontratado>().slice(15, 30),
+  { cabecalho: c.direcao, ler: (r) => r.direcao ?? '' },
+  { cabecalho: c.unidadeCoordenacao, ler: (r) => rotuloUnidade(r.unidadeCoordenacao) },
+  { cabecalho: c.nomeTratamento, ler: (r) => r.nomeTratamento },
+  { cabecalho: c.descricao, ler: (r) => r.descricao ?? '' },
+  { cabecalho: c.finalidade, ler: (r) => r.finalidade ?? '' },
   { cabecalho: c.baseLegal, ler: (r) => r.baseLegal ?? '' },
+  { cabecalho: c.recolhaDados, ler: (r) => r.recolhaDados ?? '' },
+  { cabecalho: c.categoriasTitulares, ler: (r) => r.categoriasTitulares ?? '' },
+  { cabecalho: c.categoriasDados, ler: (r) => r.categoriasDados ?? '' },
+  { cabecalho: c.dadosPessoais, ler: (r) => r.dadosPessoais ?? '' },
+  { cabecalho: c.categoriasEspeciais, ler: (r) => rotuloResposta(r.categoriasEspeciais) },
+  {
+    cabecalho: c.transferenciasPaisesTerceiros,
+    ler: (r) => rotuloResposta(r.transferenciasPaisesTerceiros),
+  },
+  { cabecalho: c.paisesTerceiros, ler: (r) => r.paisesTerceiros ?? '' },
   { cabecalho: c.prazoConservacao, ler: (r) => r.prazoConservacao ?? '' },
-  ...colunasComuns<RegistoSubcontratado>().slice(30),
+  { cabecalho: c.criterioRetencao(NOME_ORGANIZACAO), ler: (r) => r.criterioRetencao ?? '' },
+  { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
+  {
+    cabecalho: c.existemOutrosSubcontratantes,
+    ler: (r) => rotuloResposta(r.existemOutrosSubcontratantes),
+  },
+  { cabecalho: c.entidadesSubcontratadas, ler: (r) => r.entidadesSubcontratadas ?? '' },
+  { cabecalho: c.observacoes, ler: (r) => r.observacoes ?? '' },
+  {
+    cabecalho: c.anexos,
+    ler: (r) =>
+      (r.anexos ?? []).length === 0
+        ? ''
+        : `${(r.anexos ?? []).map((a) => a.nome).join('\n')}\n(${formatarTamanho(tamanhoTotal(r.anexos))})`,
+  },
+  { cabecalho: c.aipdRealizada, ler: (r) => rotuloResposta(r.aipdRealizada) },
+  { cabecalho: c['gestorProjeto.nome'], ler: (r) => r.gestorProjeto.nome },
+  { cabecalho: c['gestorProjeto.contacto'], ler: (r) => r.gestorProjeto.contacto ?? '' },
 ]
 
 function escreverFolhaLegivel<T>(

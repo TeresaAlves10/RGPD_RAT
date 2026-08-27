@@ -32,33 +32,19 @@ function seccao(nome: string, linhas: Content[]): Content[] {
   return linhas.length > 0 ? [titulo(nome), ...linhas] : []
 }
 
-/**
- * As secções são as mesmas nas duas qualidades (o utilizador pediu que a
- * lista do responsável se replicasse no subcontratante); só mudam os
- * campos próprios de cada uma, passados em `extras`.
- */
-interface Extras {
-  identificacao?: Content[]
-  caracterizacao?: Content[]
-  licitude?: Content[]
-}
-
-function seccoesRegisto(
-  registo: RegistoResponsavel | RegistoSubcontratado,
-  extras: Extras,
-): Content[] {
+/** As sete secções do responsável (art. 30.º/1), na ordem do formulário. */
+function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
   const anexos = registo.anexos ?? []
   const anexosContrato = registo.anexosContrato ?? []
 
   return [
     ...seccao(textos.passos.caracterizacao, [
-      ...(extras.identificacao ?? []),
       ...campo(c.direcao, registo.direcao),
       ...campo(c.unidadeCoordenacao, rotuloUnidade(registo.unidadeCoordenacao)),
       ...campo(c.descricao, registo.descricao),
       ...campo(c.finalidade, registo.finalidade),
       ...campo(c.operacoesTratamento, registo.operacoesTratamento),
-      ...(extras.caracterizacao ?? []),
+      ...campo(c.entidadesParaQuemEnvioDados, registo.entidadesParaQuemEnvioDados),
       ...campo(c.dadosPessoais, registo.dadosPessoais),
       ...campo(
         c.dadosNecessariosParaFinalidade,
@@ -105,7 +91,7 @@ function seccoesRegisto(
     ]),
 
     ...seccao(textos.passos.baseLicitude, [
-      ...(extras.licitude ?? []),
+      ...campo(c.baseLicitude, registo.baseLicitude),
       ...campo(
         c.consentimentoMecanismosDemonstracao,
         registo.consentimentoMecanismosDemonstracao,
@@ -113,6 +99,10 @@ function seccoesRegisto(
       ...campo(
         c.consentimentoResponsabilidadeParental,
         rotuloResposta(registo.consentimentoResponsabilidadeParental),
+      ),
+      ...campo(
+        c.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO),
+        registo.retencaoDefinidaPelaOrganizacao,
       ),
       ...campo(c.criterioRetencao(NOME_ORGANIZACAO), registo.criterioRetencao),
       ...campo(c.retencaoPorNormativosLegais, registo.retencaoPorNormativosLegais),
@@ -127,7 +117,6 @@ function seccoesRegisto(
       ...campo(c.direitoLimitacao, registo.direitoLimitacao),
       ...campo(c.direitoDecisoesAutomatizadas, registo.direitoDecisoesAutomatizadas),
       ...campo(c.direitoOposicao, registo.direitoOposicao),
-      ...campo(c.detecaoNotificacaoViolacoes, registo.detecaoNotificacaoViolacoes),
     ]),
 
     ...seccao(textos.passos.controlosOperacionais, [
@@ -149,6 +138,7 @@ function seccoesRegisto(
       ),
       ...campo(c.revisaoPeriodicaAcessos, rotuloResposta(registo.revisaoPeriodicaAcessos)),
       ...campo(c.remocaoAcessosASaida, rotuloResposta(registo.remocaoAcessosASaida)),
+      ...campo(c.detecaoNotificacaoViolacoes, registo.detecaoNotificacaoViolacoes),
     ]),
 
     ...seccao(textos.passos.observacoesGerais, [
@@ -170,34 +160,63 @@ function seccoesRegisto(
   ]
 }
 
-function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
-  return seccoesRegisto(registo, {
-    caracterizacao: campo(c.entidadesParaQuemEnvioDados, registo.entidadesParaQuemEnvioDados),
-    licitude: [
-      ...campo(c.baseLicitude, registo.baseLicitude),
-      ...campo(
-        c.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO),
-        registo.retencaoDefinidaPelaOrganizacao,
-      ),
-    ],
-  })
-}
-
+/**
+ * As cinco secções do subcontratante (art. 30.º/2) — mais curtas do que
+ * as do responsável, na mesma ordem do formulário.
+ */
 function seccoesSubcontratado(registo: RegistoSubcontratado): Content[] {
-  return seccoesRegisto(registo, {
-    identificacao: [
+  const anexos = registo.anexos ?? []
+
+  return [
+    ...seccao(textos.passos.subIdentificacao, [
       ...campo(c.nomeResponsavelTratamento, registo.nomeResponsavelTratamento),
-      ...campo(c.responsavelConjunto, registo.responsavelConjunto),
-    ],
-    caracterizacao: [
-      ...campo(c.recolhaDados, registo.recolhaDados),
-      ...campo(c.destinatarios, registo.destinatarios),
-    ],
-    licitude: [
+      ...campo(c.direcao, registo.direcao),
+      ...campo(c.unidadeCoordenacao, rotuloUnidade(registo.unidadeCoordenacao)),
+      ...campo(c.descricao, registo.descricao),
+    ]),
+
+    ...seccao(textos.passos.subTratamentoBaseLegal, [
+      ...campo(c.finalidade, registo.finalidade),
       ...campo(c.baseLegal, registo.baseLegal),
+      ...campo(c.recolhaDados, registo.recolhaDados),
+    ]),
+
+    ...seccao(textos.passos.subTitularesDados, [
+      ...campo(c.categoriasTitulares, registo.categoriasTitulares),
+      ...campo(c.categoriasDados, registo.categoriasDados),
+      ...campo(c.dadosPessoais, registo.dadosPessoais),
+      ...campo(c.categoriasEspeciais, rotuloResposta(registo.categoriasEspeciais)),
+    ]),
+
+    ...seccao(textos.passos.subTransferenciasConservacao, [
+      ...campo(
+        c.transferenciasPaisesTerceiros,
+        rotuloResposta(registo.transferenciasPaisesTerceiros),
+      ),
+      ...campo(c.paisesTerceiros, registo.paisesTerceiros),
       ...campo(c.prazoConservacao, registo.prazoConservacao),
-    ],
-  })
+      ...campo(c.criterioRetencao(NOME_ORGANIZACAO), registo.criterioRetencao),
+    ]),
+
+    ...seccao(textos.passos.subSegurancaObservacoes, [
+      ...campo(c.medidasTecnicasOrganizativas, registo.medidasTecnicasOrganizativas),
+      ...campo(
+        c.existemOutrosSubcontratantes,
+        rotuloResposta(registo.existemOutrosSubcontratantes),
+      ),
+      ...campo(c.entidadesSubcontratadas, registo.entidadesSubcontratadas),
+      ...campo(
+        c.anexos,
+        anexos.length > 0
+          ? `${anexos.map((a) => a.nome).join('; ')} (${formatarTamanho(tamanhoTotal(anexos))})`
+          : undefined,
+      ),
+      ...campo(c.aipdRealizada, rotuloResposta(registo.aipdRealizada)),
+      ...campo(c['gestorProjeto.nome'], registo.gestorProjeto.nome),
+      ...campo(c['gestorProjeto.contacto'], registo.gestorProjeto.contacto),
+      ...campo(c.observacoes, registo.observacoes),
+    ]),
+  ]
 }
 
 function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {

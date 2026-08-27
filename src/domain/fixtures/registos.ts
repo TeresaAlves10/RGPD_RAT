@@ -133,63 +133,24 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
     'Receção de pedidos de suporte no portal do cliente, registo e resolução por conta do responsável pelo tratamento, e eliminação 90 dias após o encerramento do pedido.',
 
   nomeResponsavelTratamento: 'Cliente Alfa Fictício, Lda.',
-  responsavelConjunto: 'N/A',
   finalidade: 'Registo e resolução de pedidos de suporte técnico dos utilizadores do cliente.',
-  operacoesTratamento: 'Recolha, registo, consulta, atualização e eliminação.',
+  baseLegal: 'Execução de contrato de prestação de serviços com o responsável pelo tratamento.',
   recolhaDados: 'Pedidos submetidos pelos utilizadores finais no portal de suporte do cliente.',
-  dadosPessoais: 'Nome, endereço de correio eletrónico, telefone.',
-  dadosNecessariosParaFinalidade: 'sim',
-  categoriasDados: 'Dados de identificação\nDados de contacto',
-  categoriasEspeciais: 'nao',
+
   categoriasTitulares: 'Clientes; utilizadores de portais e aplicações',
-  entidadesQueEnviamDados: 'Cliente Alfa Fictício, Lda.',
-  destinatarios: 'Apenas o responsável pelo tratamento por conta de quem se atua.',
-  suportesFisicos: 'Nenhum.',
-  localizacaoSuportesFisicos: 'N/A',
-
-  ferramentasAplicacoes: 'Plataforma fictícia de gestão de tickets.',
-  numeroCamposComDadosPessoais: { escala: 'baixo', valor: '12' },
-  volumeDadosPessoais: { escala: 'elevado', valor: 'Milhares de pedidos por ano.' },
-  numeroUtilizadoresComAcesso: { escala: 'baixo', valor: '15' },
-
-  entidadesSubcontratadas: 'Centro de Dados Fictício, S.A.',
-  operacoesTratamentoSubcontratadas: 'Alojamento da infraestrutura aplicacional.',
-  existeContrato: 'sim',
-  contratoComClausulasProtecaoDados: 'sim',
-  auditoriasAoSubcontratado: 'sim',
-  pedidoAutorizacaoCnpd: 'nao_aplicavel',
+  categoriasDados: 'Dados de identificação\nDados de contacto',
+  dadosPessoais: 'Nome, endereço de correio eletrónico, telefone.',
+  categoriasEspeciais: 'nao',
 
   transferenciasPaisesTerceiros: 'sim',
   paisesTerceiros: 'Reino Unido (ao abrigo de decisão de adequação).',
-
-  baseLegal: 'Execução de contrato de prestação de serviços com o responsável pelo tratamento.',
-  consentimentoMecanismosDemonstracao: 'Não aplicável.',
-  consentimentoResponsabilidadeParental: 'nao_aplicavel',
   prazoConservacao: 'Até 90 dias após o encerramento do pedido de suporte.',
   criterioRetencao: 'Prazo contratualmente acordado com o responsável pelo tratamento.',
-  retencaoPorNormativosLegais: 'Não aplicável.',
-
-  deverInformar: 'Cumprido pelo responsável pelo tratamento, junto dos seus utilizadores.',
-  direitoAcesso: 'Encaminhado para o responsável pelo tratamento no prazo de 5 dias úteis.',
-  direitoRetificacao: 'Encaminhado para o responsável pelo tratamento.',
-  direitoApagamento: 'Executado a pedido do responsável pelo tratamento.',
-  direitoPortabilidade: 'Não aplicável.',
-  direitoLimitacao: 'Executado a pedido do responsável pelo tratamento.',
-  direitoDecisoesAutomatizadas: 'Não aplicável.',
-  direitoOposicao: 'Não aplicável.',
-  detecaoNotificacaoViolacoes:
-    'Notificação ao responsável pelo tratamento sem demora injustificada, nos termos do art. 33.º/2.',
-
-  procedimentosAcessosDocumentados: 'sim',
-  procedimentosAcessosImplementados: 'sim',
-  acessosFormalmenteAutorizados: 'sim',
-  controlosAcessosPrivilegiados: 'sim',
-  revisaoPeriodicaAcessos: 'sim',
-  remocaoAcessosASaida: 'sim',
 
   medidasTecnicasOrganizativas:
     'Encriptação em trânsito e em repouso; políticas internas de proteção de dados; avaliação prévia de subcontratantes.',
-  normativosAplicaveis: 'Contratos de prestação de serviços com cada responsável.',
+  existemOutrosSubcontratantes: 'sim',
+  entidadesSubcontratadas: 'Centro de Dados Fictício, S.A.',
   aipdRealizada: 'sim',
   gestorProjeto: { nome: 'Diana Fictícia', contacto: 'diana.ficticia@exemplo.pt' },
   observacoes: 'Ecossistema documentado no anexo técnico do contrato.',
@@ -203,7 +164,7 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 7,
+  schemaVersion: 8,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -220,7 +181,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 7,
+  schemaVersion: 8,
   metadados: {
     equipa: '',
     dataCriacao: '2026-01-15T10:00:00.000Z',

@@ -59,54 +59,22 @@ function obrigatorioDe(
 }
 
 /**
- * Campos com o mesmo nome e o mesmo significado nas duas qualidades. O
- * utilizador pediu que a lista do responsável se replicasse no
- * subcontratante, por isso a maior parte das regras é comum.
+ * Campos com o mesmo nome, o mesmo significado e a mesma obrigatoriedade
+ * nas duas qualidades. A lista do subcontratante é mais curta do que a do
+ * responsável (art. 30.º/2 exige menos do que o art. 30.º/1) — só entram
+ * aqui os campos que o subcontratante também tem no schema.
  */
 const CAMPOS_COMUNS: [string, string][] = [
   ['direcao', c.direcao],
   ['unidadeCoordenacao', c.unidadeCoordenacao],
   ['descricao', c.descricao],
   ['finalidade', c.finalidade],
-  ['operacoesTratamento', c.operacoesTratamento],
   ['dadosPessoais', c.dadosPessoais],
-  ['dadosNecessariosParaFinalidade', c.dadosNecessariosParaFinalidade],
   ['categoriasDados', c.categoriasDados],
   ['categoriasEspeciais', c.categoriasEspeciais],
   ['categoriasTitulares', c.categoriasTitulares],
-  ['entidadesQueEnviamDados', c.entidadesQueEnviamDados],
-  ['suportesFisicos', c.suportesFisicos],
-  ['localizacaoSuportesFisicos', c.localizacaoSuportesFisicos],
-  ['ferramentasAplicacoes', c.ferramentasAplicacoes],
-  ['numeroCamposComDadosPessoais', c.numeroCamposComDadosPessoais],
-  ['volumeDadosPessoais', c.volumeDadosPessoais],
-  ['numeroUtilizadoresComAcesso', c.numeroUtilizadoresComAcesso],
-  ['entidadesSubcontratadas', c.entidadesSubcontratadas],
-  ['operacoesTratamentoSubcontratadas', c.operacoesTratamentoSubcontratadas],
-  ['existeContrato', c.existeContrato],
-  ['contratoComClausulasProtecaoDados', c.contratoComClausulasProtecaoDados],
-  ['transferenciasPaisesTerceiros', c.transferenciasPaisesTerceiros],
-  ['auditoriasAoSubcontratado', c.auditoriasAoSubcontratado],
-  ['pedidoAutorizacaoCnpd', c.pedidoAutorizacaoCnpd],
   ['criterioRetencao', c.criterioRetencao(NOME_ORGANIZACAO)],
-  ['retencaoPorNormativosLegais', c.retencaoPorNormativosLegais],
-  ['deverInformar', c.deverInformar],
-  ['direitoAcesso', c.direitoAcesso],
-  ['direitoRetificacao', c.direitoRetificacao],
-  ['direitoApagamento', c.direitoApagamento],
-  ['direitoPortabilidade', c.direitoPortabilidade],
-  ['direitoLimitacao', c.direitoLimitacao],
-  ['direitoDecisoesAutomatizadas', c.direitoDecisoesAutomatizadas],
-  ['direitoOposicao', c.direitoOposicao],
-  ['detecaoNotificacaoViolacoes', c.detecaoNotificacaoViolacoes],
-  ['procedimentosAcessosDocumentados', c.procedimentosAcessosDocumentados],
-  ['procedimentosAcessosImplementados', c.procedimentosAcessosImplementados],
-  ['acessosFormalmenteAutorizados', c.acessosFormalmenteAutorizados],
-  ['controlosAcessosPrivilegiados', c.controlosAcessosPrivilegiados],
-  ['revisaoPeriodicaAcessos', c.revisaoPeriodicaAcessos],
-  ['remocaoAcessosASaida', c.remocaoAcessosASaida],
   ['medidasTecnicasOrganizativas', c.medidasTecnicasOrganizativas],
-  ['normativosAplicaveis', c.normativosAplicaveis],
   ['aipdRealizada', c.aipdRealizada],
 ]
 
@@ -122,17 +90,6 @@ const regrasComuns: RegraRegisto[] = [
     mensagem: `${c['gestorProjeto.nome']} — por preencher.`,
   },
   {
-    id: 'comum.categoriasEspeciaisNecessidadePorResponder',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'categoriasEspeciaisNecessarias',
-    descricao:
-      'Havendo categorias especiais, tem de estar respondido se todas são necessárias.',
-    verificar: (registo) =>
-      registo.categoriasEspeciais !== 'sim' || preenchido(registo.categoriasEspeciaisNecessarias),
-    mensagem: `${c.categoriasEspeciaisNecessarias} — por responder.`,
-  },
-  {
     id: 'comum.paisesTerceirosPorIdentificar',
     escopo: 'registo',
     severidade: 'erro',
@@ -140,55 +97,51 @@ const regrasComuns: RegraRegisto[] = [
     descricao:
       'Havendo transferências para países terceiros, é preciso identificar o destino (art. 44.º).',
     verificar: (registo) =>
-      registo.transferenciasPaisesTerceiros !== 'sim' || preenchido(registo.paisesTerceiros),
+      (ehResponsavel(registo) || ehSubcontratado(registo)) &&
+      (registo.transferenciasPaisesTerceiros !== 'sim' || preenchido(registo.paisesTerceiros)),
     mensagem:
       'Indicaste que há transferências para fora da União Europeia — identifica para que país ou países (art. 44.º).',
   },
-  {
-    id: 'comum.dadosDesnecessarios',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'dadosNecessariosParaFinalidade',
-    descricao: 'Princípio da minimização dos dados (art. 5.º/1 c)).',
-    verificar: (registo) => registo.dadosNecessariosParaFinalidade !== 'nao',
-    mensagem:
-      'Indicaste que nem todos os dados recolhidos são necessários para a finalidade — o princípio da minimização (art. 5.º/1 c)) obriga a reduzir a recolha ao necessário.',
-  },
-  {
-    id: 'comum.subcontratadoSemContrato',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'existeContrato',
-    descricao: 'O art. 28.º/3 exige contrato escrito com o subcontratante.',
-    verificar: (registo) => registo.existeContrato !== 'nao',
-    mensagem:
-      'Não há contrato com a entidade subcontratada — o art. 28.º/3 exige que a subcontratação seja regulada por contrato escrito.',
-  },
-  {
-    id: 'comum.subcontratadoSemClausulas',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'contratoComClausulasProtecaoDados',
-    descricao: 'O contrato de subcontratação tem de conter as matérias do art. 28.º/3.',
-    verificar: (registo) => registo.contratoComClausulasProtecaoDados !== 'nao',
-    mensagem:
-      'O contrato de subcontratação não tem cláusulas de proteção de dados — o art. 28.º/3 enumera o que tem de constar do contrato.',
-  },
-  {
-    id: 'comum.acessosSemRemocaoASaida',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'remocaoAcessosASaida',
-    descricao: 'Acessos por remover após a saída são um risco de segurança (art. 32.º).',
-    verificar: (registo) => registo.remocaoAcessosASaida !== 'nao',
-    mensagem:
-      'Os acessos não são removidos quando um colaborador sai — o art. 32.º/1 b) exige assegurar a confidencialidade dos sistemas de forma continuada.',
-  },
 ]
 
-/** Campos que só existem numa das qualidades. */
+/** Campos que só existem no registo do responsável. */
 const regrasResponsavel: RegraRegisto[] = [
+  obrigatorioDe('resp', ehResponsavel, 'operacoesTratamento', c.operacoesTratamento),
+  obrigatorioDe('resp', ehResponsavel, 'dadosNecessariosParaFinalidade', c.dadosNecessariosParaFinalidade),
+  obrigatorioDe('resp', ehResponsavel, 'entidadesQueEnviamDados', c.entidadesQueEnviamDados),
   obrigatorioDe('resp', ehResponsavel, 'entidadesParaQuemEnvioDados', c.entidadesParaQuemEnvioDados),
+  obrigatorioDe('resp', ehResponsavel, 'suportesFisicos', c.suportesFisicos),
+  obrigatorioDe('resp', ehResponsavel, 'localizacaoSuportesFisicos', c.localizacaoSuportesFisicos),
+  obrigatorioDe('resp', ehResponsavel, 'ferramentasAplicacoes', c.ferramentasAplicacoes),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'numeroCamposComDadosPessoais',
+    c.numeroCamposComDadosPessoais,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'volumeDadosPessoais', c.volumeDadosPessoais),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'numeroUtilizadoresComAcesso',
+    c.numeroUtilizadoresComAcesso,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'entidadesSubcontratadas', c.entidadesSubcontratadas),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'operacoesTratamentoSubcontratadas',
+    c.operacoesTratamentoSubcontratadas,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'existeContrato', c.existeContrato),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'contratoComClausulasProtecaoDados',
+    c.contratoComClausulasProtecaoDados,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'auditoriasAoSubcontratado', c.auditoriasAoSubcontratado),
+  obrigatorioDe('resp', ehResponsavel, 'pedidoAutorizacaoCnpd', c.pedidoAutorizacaoCnpd),
   obrigatorioDe('resp', ehResponsavel, 'baseLicitude', c.baseLicitude),
   obrigatorioDe(
     'resp',
@@ -196,15 +149,140 @@ const regrasResponsavel: RegraRegisto[] = [
     'retencaoDefinidaPelaOrganizacao',
     c.retencaoDefinidaPelaOrganizacao(NOME_ORGANIZACAO),
   ),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'retencaoPorNormativosLegais',
+    c.retencaoPorNormativosLegais,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'deverInformar', c.deverInformar),
+  obrigatorioDe('resp', ehResponsavel, 'direitoAcesso', c.direitoAcesso),
+  obrigatorioDe('resp', ehResponsavel, 'direitoRetificacao', c.direitoRetificacao),
+  obrigatorioDe('resp', ehResponsavel, 'direitoApagamento', c.direitoApagamento),
+  obrigatorioDe('resp', ehResponsavel, 'direitoPortabilidade', c.direitoPortabilidade),
+  obrigatorioDe('resp', ehResponsavel, 'direitoLimitacao', c.direitoLimitacao),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'direitoDecisoesAutomatizadas',
+    c.direitoDecisoesAutomatizadas,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'direitoOposicao', c.direitoOposicao),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'detecaoNotificacaoViolacoes',
+    c.detecaoNotificacaoViolacoes,
+  ),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'procedimentosAcessosDocumentados',
+    c.procedimentosAcessosDocumentados,
+  ),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'procedimentosAcessosImplementados',
+    c.procedimentosAcessosImplementados,
+  ),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'acessosFormalmenteAutorizados',
+    c.acessosFormalmenteAutorizados,
+  ),
+  obrigatorioDe(
+    'resp',
+    ehResponsavel,
+    'controlosAcessosPrivilegiados',
+    c.controlosAcessosPrivilegiados,
+  ),
+  obrigatorioDe('resp', ehResponsavel, 'revisaoPeriodicaAcessos', c.revisaoPeriodicaAcessos),
+  obrigatorioDe('resp', ehResponsavel, 'remocaoAcessosASaida', c.remocaoAcessosASaida),
+  obrigatorioDe('resp', ehResponsavel, 'normativosAplicaveis', c.normativosAplicaveis),
+  {
+    id: 'resp.categoriasEspeciaisNecessidadePorResponder',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'categoriasEspeciaisNecessarias',
+    descricao:
+      'Havendo categorias especiais, tem de estar respondido se todas são necessárias.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.categoriasEspeciais !== 'sim' ||
+      preenchido(registo.categoriasEspeciaisNecessarias),
+    mensagem: `${c.categoriasEspeciaisNecessarias} — por responder.`,
+  },
+  {
+    id: 'resp.dadosDesnecessarios',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'dadosNecessariosParaFinalidade',
+    descricao: 'Princípio da minimização dos dados (art. 5.º/1 c)).',
+    verificar: (registo) => !ehResponsavel(registo) || registo.dadosNecessariosParaFinalidade !== 'nao',
+    mensagem:
+      'Indicaste que nem todos os dados recolhidos são necessários para a finalidade — o princípio da minimização (art. 5.º/1 c)) obriga a reduzir a recolha ao necessário.',
+  },
+  {
+    id: 'resp.subcontratadoSemContrato',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'existeContrato',
+    descricao: 'O art. 28.º/3 exige contrato escrito com o subcontratante.',
+    verificar: (registo) => !ehResponsavel(registo) || registo.existeContrato !== 'nao',
+    mensagem:
+      'Não há contrato com a entidade subcontratada — o art. 28.º/3 exige que a subcontratação seja regulada por contrato escrito.',
+  },
+  {
+    id: 'resp.subcontratadoSemClausulas',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'contratoComClausulasProtecaoDados',
+    descricao: 'O contrato de subcontratação tem de conter as matérias do art. 28.º/3.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) || registo.contratoComClausulasProtecaoDados !== 'nao',
+    mensagem:
+      'O contrato de subcontratação não tem cláusulas de proteção de dados — o art. 28.º/3 enumera o que tem de constar do contrato.',
+  },
+  {
+    id: 'resp.acessosSemRemocaoASaida',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'remocaoAcessosASaida',
+    descricao: 'Acessos por remover após a saída são um risco de segurança (art. 32.º).',
+    verificar: (registo) => !ehResponsavel(registo) || registo.remocaoAcessosASaida !== 'nao',
+    mensagem:
+      'Os acessos não são removidos quando um colaborador sai — o art. 32.º/1 b) exige assegurar a confidencialidade dos sistemas de forma continuada.',
+  },
 ]
 
+/** Campos que só existem no registo do subcontratante. */
 const regrasSubcontratado: RegraRegisto[] = [
   obrigatorioDe('sub', ehSubcontratado, 'nomeResponsavelTratamento', c.nomeResponsavelTratamento),
-  obrigatorioDe('sub', ehSubcontratado, 'responsavelConjunto', c.responsavelConjunto),
   obrigatorioDe('sub', ehSubcontratado, 'baseLegal', c.baseLegal),
   obrigatorioDe('sub', ehSubcontratado, 'recolhaDados', c.recolhaDados),
-  obrigatorioDe('sub', ehSubcontratado, 'destinatarios', c.destinatarios),
   obrigatorioDe('sub', ehSubcontratado, 'prazoConservacao', c.prazoConservacao),
+  obrigatorioDe(
+    'sub',
+    ehSubcontratado,
+    'existemOutrosSubcontratantes',
+    c.existemOutrosSubcontratantes,
+  ),
+  {
+    id: 'sub.outrosSubcontratantesPorIdentificar',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'entidadesSubcontratadas',
+    descricao:
+      'Havendo outros subcontratantes (art. 28.º), é preciso identificá-los pelo nome.',
+    verificar: (registo) =>
+      !ehSubcontratado(registo) ||
+      registo.existemOutrosSubcontratantes !== 'sim' ||
+      preenchido(registo.entidadesSubcontratadas),
+    mensagem:
+      'Indicaste que há outros subcontratantes — identifica-os pelo nome (art. 28.º).',
+  },
 ]
 
 /** Regras de âmbito ficheiro. */

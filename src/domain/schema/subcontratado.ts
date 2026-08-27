@@ -1,90 +1,47 @@
 import { z } from 'zod'
-import {
-  campoBaseRegistoSchema,
-  contagemSchema,
-  respostaCnpdSchema,
-  respostaSimNaoSchema,
-} from '@/domain/schema/comum'
-import { anexoSchema } from '@/domain/schema/anexo'
+import { campoBaseRegistoSchema, respostaSimNaoSchema } from '@/domain/schema/comum'
 
 /**
  * RAT — a organização é SUBCONTRATANTE (art. 30.º/2 do RGPD): trata dados
  * por conta de um responsável.
  *
- * Segue a mesma lista de campos e os mesmos tipos de resposta do
- * responsável ("replica para o registo enquanto subcontratante"), com as
- * diferenças próprias desta qualidade: o nome do responsável por conta de
- * quem se atua, o responsável conjunto, os destinatários, as
- * transferências do art. 44.º e os outros subcontratantes do art. 28.º.
+ * A lista é deliberadamente mais curta do que a do responsável. O
+ * art. 30.º/2 exige menos do subcontratante, e o que não consta aqui —
+ * ferramentas e volumes, direitos dos titulares, controlos de acesso,
+ * auditorias, CNPD — são obrigações de quem determina as finalidades e os
+ * meios, não de quem executa por conta de outrem.
+ *
+ * Sobre `optional()`: ver a nota de obrigatoriedade em comum.ts.
  */
 export const registoSubcontratadoSchema = campoBaseRegistoSchema.extend({
   tipoRegisto: z.literal('subcontratado'),
 
+  // ── Identificação ──────────────────────────────────────────────────
   /** Por conta de quem a organização trata os dados. */
   nomeResponsavelTratamento: z.string().optional(),
-  /** "identificar ou N/A", conforme a especificação. */
-  responsavelConjunto: z.string().optional(),
 
-  // Caracterização
+  // ── Tratamento e base legal ────────────────────────────────────────
   finalidade: z.string().optional(),
-  operacoesTratamento: z.string().optional(),
+  baseLegal: z.string().optional(),
   recolhaDados: z.string().optional(),
-  dadosPessoais: z.string().optional(),
-  dadosNecessariosParaFinalidade: respostaSimNaoSchema.optional(),
-  categoriasDados: z.string().optional(),
-  categoriasEspeciais: respostaSimNaoSchema.optional(),
-  categoriasEspeciaisNecessarias: respostaSimNaoSchema.optional(),
+
+  // ── Titulares e dados ──────────────────────────────────────────────
   categoriasTitulares: z.string().optional(),
-  entidadesQueEnviamDados: z.string().optional(),
-  destinatarios: z.string().optional(),
-  suportesFisicos: z.string().optional(),
-  localizacaoSuportesFisicos: z.string().optional(),
+  categoriasDados: z.string().optional(),
+  dadosPessoais: z.string().optional(),
+  categoriasEspeciais: respostaSimNaoSchema.optional(),
 
-  // Ferramentas
-  ferramentasAplicacoes: z.string().optional(),
-  numeroCamposComDadosPessoais: contagemSchema.optional(),
-  volumeDadosPessoais: contagemSchema.optional(),
-  numeroUtilizadoresComAcesso: contagemSchema.optional(),
-
-  // Outros subcontratantes (art. 28.º)
-  entidadesSubcontratadas: z.string().optional(),
-  operacoesTratamentoSubcontratadas: z.string().optional(),
-  existeContrato: respostaSimNaoSchema.optional(),
-  contratoComClausulasProtecaoDados: respostaSimNaoSchema.optional(),
-  anexosContrato: z.array(anexoSchema).optional(),
-  auditoriasAoSubcontratado: respostaSimNaoSchema.optional(),
-  pedidoAutorizacaoCnpd: respostaCnpdSchema.optional(),
-
-  // Transferências internacionais (art. 44.º)
+  // ── Transferências e conservação ───────────────────────────────────
   transferenciasPaisesTerceiros: respostaSimNaoSchema.optional(),
   paisesTerceiros: z.string().optional(),
-
-  // Base legal e conservação
-  baseLegal: z.string().optional(),
-  consentimentoMecanismosDemonstracao: z.string().optional(),
-  consentimentoResponsabilidadeParental: respostaSimNaoSchema.optional(),
   prazoConservacao: z.string().optional(),
   criterioRetencao: z.string().optional(),
-  retencaoPorNormativosLegais: z.string().optional(),
 
-  // Direitos dos titulares
-  deverInformar: z.string().optional(),
-  direitoAcesso: z.string().optional(),
-  direitoRetificacao: z.string().optional(),
-  direitoApagamento: z.string().optional(),
-  direitoPortabilidade: z.string().optional(),
-  direitoLimitacao: z.string().optional(),
-  direitoDecisoesAutomatizadas: z.string().optional(),
-  direitoOposicao: z.string().optional(),
-
-  // Controlos operacionais
-  procedimentosAcessosDocumentados: respostaSimNaoSchema.optional(),
-  procedimentosAcessosImplementados: respostaSimNaoSchema.optional(),
-  acessosFormalmenteAutorizados: respostaSimNaoSchema.optional(),
-  controlosAcessosPrivilegiados: respostaSimNaoSchema.optional(),
-  revisaoPeriodicaAcessos: respostaSimNaoSchema.optional(),
-  remocaoAcessosASaida: respostaSimNaoSchema.optional(),
-  /** Movida dos direitos dos titulares para aqui, a pedido do utilizador. */
-  detecaoNotificacaoViolacoes: z.string().optional(),
+  // ── Segurança e observações ────────────────────────────────────────
+  // medidasTecnicasOrganizativas, anexos, observacoes, aipdRealizada e
+  // gestorProjeto vêm de campoBaseRegisto.
+  /** Outros subcontratantes contratados pela organização (art. 28.º). */
+  existemOutrosSubcontratantes: respostaSimNaoSchema.optional(),
+  entidadesSubcontratadas: z.string().optional(),
 })
 export type RegistoSubcontratado = z.infer<typeof registoSubcontratadoSchema>
