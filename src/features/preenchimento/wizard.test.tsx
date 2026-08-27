@@ -4,13 +4,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { textos } from '@/i18n/pt'
 
+/** Preenche a secção 1 do responsável até ao mínimo para o registo existir. */
+async function identificarResponsavel(
+  utilizador: ReturnType<typeof userEvent.setup>,
+  nome: string,
+) {
+  await utilizador.type(await screen.findByLabelText(textos.campos.direcao), 'Direção Fictícia')
+  await utilizador.type(screen.getByLabelText(textos.campos.nomeTratamento), nome)
+  await utilizador.click(screen.getByRole('tab', { name: /Observações Gerais/ }))
+  await utilizador.type(
+    await screen.findByLabelText(textos.campos['gestorProjeto.nome']),
+    'Ana Fictícia',
+  )
+}
+
 describe('wizard de preenchimento', () => {
   beforeEach(() => {
     window.localStorage.clear()
     window.location.hash = ''
   })
 
-  it('cria um registo de responsável de início a fim e mostra-o na lista', async () => {
+  it('mostra as sete secções da especificação no formulário do responsável', async () => {
     const utilizador = userEvent.setup()
     render(<App />)
 
@@ -19,37 +33,36 @@ describe('wizard de preenchimento', () => {
       (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
     )
 
-    // Passo 1: Identificação
-    await utilizador.type(await screen.findByLabelText(textos.campos.direcao), 'Direção Fictícia')
-    await utilizador.type(screen.getByLabelText(textos.campos.nomeTratamento), 'Tratamento Fictício de Teste')
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.nome']), 'Ana Fictícia')
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.contacto']), 'ana@exemplo.pt')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
+    const abas = await screen.findAllByRole('tab')
+    expect(abas.map((a) => a.textContent?.replace(/^\d+/, ''))).toEqual([
+      textos.passos.caracterizacao,
+      textos.passos.ferramentas,
+      textos.passos.subcontratados,
+      textos.passos.baseLicitude,
+      textos.passos.requisitosFuncionais,
+      textos.passos.controlosOperacionais,
+      textos.passos.observacoesGerais,
+    ])
+  })
 
-    // Passo 2: Finalidade e base de licitude
-    await utilizador.type(await screen.findByLabelText(textos.campos.finalidades), 'Finalidade fictícia de teste.')
-    await utilizador.type(screen.getByLabelText(textos.campos.recolhaDados), 'Formulário eletrónico fictício.')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
+  it('cria um registo de responsável e mostra-o na lista', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
 
-    // Titulares e dados
-    await utilizador.click(screen.getByRole('tab', { name: /Titulares e dados/ }))
-    await utilizador.click(await screen.findByLabelText('Colaboradores'))
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.adicionar }))
-    await utilizador.type(screen.getByLabelText(textos.campos['categoriaDados.tipos']), 'Nome')
-
-    // Conservação e segurança
-    await utilizador.click(screen.getByRole('tab', { name: /Conservação e segurança/ }))
-    await utilizador.type(await screen.findByLabelText(textos.campos.prazoConservacao), '5 anos, fictício.')
-    await utilizador.click(screen.getByLabelText('Passwords'))
-
+    await utilizador.click(await screen.findByRole('button', { name: textos.lista.botaoNovoRegisto }))
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
+    )
+    await identificarResponsavel(utilizador, 'Tratamento Fictício de Teste')
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
-    const linha = (await screen.findByText('Tratamento Fictício de Teste')).closest('tr')
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText('Tratamento Fictício de Teste').closest('tr')
     expect(linha).not.toBeNull()
     expect(within(linha as HTMLElement).getByText(textos.lista.tipoResponsavel)).toBeInTheDocument()
   })
 
-  it('cria um registo de subcontratado de início a fim e mostra-o na lista', async () => {
+  it('cria um registo de subcontratado e mostra-o na lista', async () => {
     const utilizador = userEvent.setup()
     render(<App />)
 
@@ -58,33 +71,53 @@ describe('wizard de preenchimento', () => {
       (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[1],
     )
 
-    // Passo 1: Identificação
-    await utilizador.type(await screen.findByLabelText(textos.campos.direcao), 'Direção Fictícia')
+    await utilizador.type(
+      await screen.findByLabelText(textos.campos.nomeResponsavelTratamento),
+      'Cliente Fictício, S.A.',
+    )
+    await utilizador.type(screen.getByLabelText(textos.campos.direcao), 'Direção Fictícia')
     await utilizador.type(
       screen.getByLabelText(textos.campos.nomeTratamento),
       'Serviço Subcontratado Fictício',
     )
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.nome']), 'Bruno Fictício')
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.contacto']), 'bruno@exemplo.pt')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
 
-    // Passo 2: Responsáveis por conta de quem se atua
-    await utilizador.click(await screen.findByRole('button', { name: textos.formulario.adicionar }))
-    await utilizador.type(screen.getByLabelText(textos.campos['responsaveis.nome']), 'Cliente Fictício')
+    await utilizador.click(screen.getByRole('tab', { name: /Observações Gerais/ }))
     await utilizador.type(
-      screen.getByLabelText(textos.campos['responsaveis.categoriasTratamento']),
-      'Armazenamento fictício de dados de teste.',
+      await screen.findByLabelText(textos.campos['gestorProjeto.nome']),
+      'Bruno Fictício',
     )
-
-    // Segurança e observações
-    await utilizador.click(screen.getByRole('tab', { name: /Segurança e observações/ }))
-    await utilizador.click(await screen.findByLabelText('Cibersegurança'))
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
-    const linha = (await screen.findByText('Serviço Subcontratado Fictício')).closest('tr')
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText('Serviço Subcontratado Fictício').closest('tr')
     expect(linha).not.toBeNull()
+    expect(within(linha as HTMLElement).getByText(textos.lista.tipoSubcontratado)).toBeInTheDocument()
+  })
+
+  it('mostra as perguntas de consentimento só quando a base é o consentimento', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+
+    await utilizador.click(await screen.findByRole('button', { name: textos.lista.botaoNovoRegisto }))
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
+    )
+    await utilizador.click(await screen.findByRole('tab', { name: /Base de Licitude/ }))
+
     expect(
-      within(linha as HTMLElement).getByText(textos.lista.tipoSubcontratado),
+      screen.queryByLabelText(textos.campos.consentimentoMecanismosDemonstracao),
+    ).not.toBeInTheDocument()
+
+    await utilizador.selectOptions(
+      await screen.findByLabelText(textos.campos.baseLicitude),
+      'consentimento',
+    )
+
+    expect(
+      await screen.findByLabelText(textos.campos.consentimentoMecanismosDemonstracao),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByLabelText(textos.campos.consentimentoResponsabilidadeParental),
     ).toBeInTheDocument()
   })
 
@@ -96,36 +129,18 @@ describe('wizard de preenchimento', () => {
     await utilizador.click(
       (await screen.findAllByRole('button', { name: textos.escolhaTipo.botaoContinuar }))[0],
     )
-    await utilizador.type(await screen.findByLabelText(textos.campos.direcao), 'Direção Fictícia')
-    await utilizador.type(screen.getByLabelText(textos.campos.nomeTratamento), 'Registo a Remover')
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.nome']), 'Ana Fictícia')
-    await utilizador.type(screen.getByLabelText(textos.campos['gestorProjeto.contacto']), 'ana@exemplo.pt')
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoSeguinte }))
-
-    await utilizador.type(await screen.findByLabelText(textos.campos.finalidades), 'Finalidade fictícia.')
-    await utilizador.type(screen.getByLabelText(textos.campos.recolhaDados), 'Formulário fictício.')
-
-    await utilizador.click(screen.getByRole('tab', { name: /Titulares e dados/ }))
-    await utilizador.click(await screen.findByLabelText('Colaboradores'))
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.adicionar }))
-    await utilizador.type(screen.getByLabelText(textos.campos['categoriaDados.tipos']), 'Nome')
-
-    await utilizador.click(screen.getByRole('tab', { name: /Conservação e segurança/ }))
-    await utilizador.type(await screen.findByLabelText(textos.campos.prazoConservacao), '5 anos, fictício.')
-    await utilizador.click(screen.getByLabelText('Passwords'))
-
+    await identificarResponsavel(utilizador, 'Registo a Remover')
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
-    expect(await screen.findByText('Registo a Remover')).toBeInTheDocument()
-
-    const linha = screen.getByText('Registo a Remover').closest('tr')
-    expect(linha).not.toBeNull()
-
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText('Registo a Remover').closest('tr')
     const confirmarSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
-    await utilizador.click(within(linha as HTMLElement).getByRole('button', { name: textos.lista.botaoRemover }))
+    await utilizador.click(
+      within(linha as HTMLElement).getByRole('button', { name: textos.lista.botaoRemover }),
+    )
     confirmarSpy.mockRestore()
 
-    expect(screen.queryByText('Registo a Remover')).not.toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
     expect(screen.getByText(textos.lista.semRegistos)).toBeInTheDocument()
   })
 })

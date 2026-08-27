@@ -1,307 +1,269 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces'
 import type { FicheiroRat } from '@/domain/schema/ficheiro'
 import type { Registo } from '@/domain/schema/registo'
-import type { AvaliacaoControlos } from '@/domain/schema/avaliacao'
-import type { MatrizLevantamento } from '@/domain/schema/matriz'
+import type { RegistoResponsavel } from '@/domain/schema/responsavel'
+import type { RegistoSubcontratado } from '@/domain/schema/subcontratado'
 import { avaliarFicheiro } from '@/domain/rules/motor'
 import type { Ocorrencia } from '@/domain/rules/types'
 import { descarregarFicheiro } from '@/io/descarregar'
 import { nomeBaseFicheiro } from '@/io/nome-ficheiro'
 import {
-  rotuloAipd,
   rotuloBaseLicitude,
   rotuloCategoriasDados,
-  rotuloMecanismoTransferencia,
   rotuloMedidas,
-  rotuloSimNao,
+  rotuloResposta,
   rotulosCategoriasTitulares,
-  rotulosCondicaoArt9,
 } from '@/io/excel/rotulos'
 import { textos } from '@/i18n/pt'
 
 const FUNDAMENTACAO_RODAPE =
   'Regulamento (UE) 2016/679 (RGPD) — Registo de Atividades de Tratamento nos termos do art. 30.º'
 
+const c = textos.campos
+
+/** Uma linha "Rótulo: valor". Campos vazios não ocupam espaço no PDF. */
 function campo(label: string, valor: string | undefined): Content[] {
   if (!valor) return []
   return [{ text: [{ text: `${label}: `, bold: true }, valor], margin: [0, 0, 0, 4] }]
 }
 
-/** Respostas preenchidas do módulo de avaliação, agrupadas por secção. */
-function linhasAvaliacao(avaliacao: AvaliacaoControlos): Content[] {
-  const rotulos = textos.avaliacao.campos as Record<string, string>
-  const respostas = textos.avaliacao.respostas as Record<string, string>
-
-  const grupos: [string, Record<string, unknown> | undefined][] = [
-    [textos.avaliacao.seccoes.requisitosFuncionais, avaliacao.requisitosFuncionais],
-    [textos.avaliacao.seccoes.controlosOperacionais, avaliacao.controlosOperacionais],
-    [textos.avaliacao.seccoes.ferramentasSistemas, avaliacao.ferramentasSistemas],
-    [textos.avaliacao.seccoes.governoSubcontratacao, avaliacao.governoSubcontratacao],
-    [textos.avaliacao.seccoes.governoConsentimento, avaliacao.governoConsentimento],
-  ]
-
-  const conteudo: Content[] = []
-
-  for (const [titulo, grupo] of grupos) {
-    if (!grupo) continue
-    const itens = Object.entries(grupo)
-      .filter(([, valor]) => typeof valor === 'string' && valor !== '')
-      .map(([chave, valor]) => {
-        const rotulo = rotulos[chave] ?? chave
-        const texto = respostas[valor as string] ?? String(valor)
-        return `${rotulo}: ${texto}`
-      })
-    if (itens.length === 0) continue
-    conteudo.push({ text: titulo, bold: true, margin: [0, 6, 0, 2] })
-    conteudo.push({ ul: itens })
-  }
-
-  conteudo.push(...campo(textos.avaliacao.campos.normativosAplicaveis, avaliacao.normativosAplicaveis))
-  conteudo.push(...campo(textos.avaliacao.campos.diagramaProcesso, avaliacao.diagramaProcesso))
-
-  return conteudo
+function titulo(texto: string): Content {
+  return { text: texto, style: 'tituloSeccao' }
 }
 
-/**
- * Matriz de levantamento do responsável (folha "Responsavél de Tratamento"
- * do Livro6.xlsx). Ao contrário do módulo de avaliação, isto faz parte do
- * próprio formulário do responsável, por isso entra no corpo do registo.
- */
-function linhasMatriz(matriz: MatrizLevantamento): Content[] {
-  const rotulos = textos.matriz.campos as Record<string, string>
-  const respostas = textos.matriz.respostas as Record<string, string>
+/** Uma secção só entra no PDF se tiver conteúdo. */
+function seccao(nome: string, linhas: Content[]): Content[] {
+  return linhas.length > 0 ? [titulo(nome), ...linhas] : []
+}
 
-  const rotulo = (chave: string, valor: string | undefined): Content[] =>
-    campo(rotulos[chave] ?? chave, valor ? (respostas[valor] ?? valor) : undefined)
-
-  const conteudo: Content[] = []
-
-  const caracterizacao = matriz.caracterizacao
-  if (caracterizacao) {
-    const itens: Content[] = [
-      ...rotulo('operacoesTratamento', caracterizacao.operacoesTratamento),
-      ...rotulo('temDadosPessoais', caracterizacao.temDadosPessoais),
-      ...rotulo('dadosNecessariosParaFinalidade', caracterizacao.dadosNecessariosParaFinalidade),
-      ...rotulo('categoriasEspeciaisNecessarias', caracterizacao.categoriasEspeciaisNecessarias),
-      ...rotulo('entidadesQueEnviamDados', caracterizacao.entidadesQueEnviamDados),
-      ...rotulo('entidadesParaQuemEnvioDados', caracterizacao.entidadesParaQuemEnvioDados),
-      ...rotulo('suportesFisicos', caracterizacao.suportesFisicos),
-      ...rotulo('localizacaoSuportesFisicos', caracterizacao.localizacaoSuportesFisicos),
+function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
+  const subcontratados = (registo.subcontratados ?? []).flatMap((s, indice) => {
+    const linhas = [
+      ...campo(c['subcontratado.nome'], s.nome),
+      ...campo(c['subcontratado.operacoesTratamento'], s.operacoesTratamento),
+      ...campo(c['subcontratado.existeContrato'], rotuloResposta(s.existeContrato)),
+      ...campo(
+        c['subcontratado.contratoComClausulasProtecaoDados'],
+        rotuloResposta(s.contratoComClausulasProtecaoDados),
+      ),
+      ...campo(
+        c['subcontratado.transferenciasPaisesTerceiros'],
+        rotuloResposta(s.transferenciasPaisesTerceiros),
+      ),
+      ...campo(
+        c['subcontratado.auditoriasAoSubcontratado'],
+        rotuloResposta(s.auditoriasAoSubcontratado),
+      ),
+      ...campo(c['subcontratado.pedidoAutorizacaoCnpd'], rotuloResposta(s.pedidoAutorizacaoCnpd)),
     ]
-    if (itens.length > 0) {
-      conteudo.push({ text: textos.passos.caracterizacao, bold: true, margin: [0, 6, 0, 2] })
-      conteudo.push(...itens)
-    }
-  }
-
-  const ferramentas = matriz.ferramentas
-  if (ferramentas) {
-    const itens: Content[] = [
-      ...rotulo('ferramentasAplicacoes', ferramentas.ferramentasAplicacoes),
-      ...rotulo('numeroCamposComDadosPessoais', ferramentas.numeroCamposComDadosPessoais),
-      ...rotulo('volumeDadosPessoais', ferramentas.volumeDadosPessoais),
-      ...rotulo('numeroUtilizadoresComAcesso', ferramentas.numeroUtilizadoresComAcesso),
+    if (linhas.length === 0) return []
+    return [
+      { text: `${indice + 1}.`, bold: true, margin: [0, 4, 0, 2] } as Content,
+      ...linhas,
     ]
-    if (itens.length > 0) {
-      conteudo.push({ text: textos.passos.ferramentas, bold: true, margin: [0, 6, 0, 2] })
-      conteudo.push(...itens)
-    }
-  }
+  })
 
-  for (const subcontratado of matriz.subcontratados ?? []) {
-    const itens: Content[] = [
-      ...rotulo('subcontratadoNome', subcontratado.nome),
-      ...rotulo('subcontratadoOperacoes', subcontratado.operacoesTratamento),
-      ...rotulo('existeContrato', subcontratado.existeContrato),
-      ...rotulo('contratoComClausulasProtecaoDados', subcontratado.contratoComClausulasProtecaoDados),
-      ...rotulo('transferenciasPaisesTerceiros', subcontratado.transferenciasPaisesTerceiros),
-      ...rotulo('auditoriasAoSubcontratado', subcontratado.auditoriasAoSubcontratado),
-      ...rotulo('pedidoAutorizacaoCnpd', subcontratado.pedidoAutorizacaoCnpd),
-    ]
-    if (itens.length === 0) continue
-    conteudo.push({
-      text: `${textos.passos.subcontratados}${subcontratado.nome ? ` — ${subcontratado.nome}` : ''}`,
-      bold: true,
-      margin: [0, 6, 0, 2],
-    })
-    conteudo.push(...itens)
-  }
+  return [
+    ...seccao(textos.passos.caracterizacao, [
+      ...campo(c.direcao, registo.direcao),
+      ...campo(c.unidadeCoordenacao, registo.unidadeCoordenacao),
+      ...campo(c.descricao, registo.descricao),
+      ...campo(c.finalidade, registo.finalidade),
+      ...campo(c.operacoesTratamento, registo.operacoesTratamento),
+      ...campo(c.trataDadosPessoais, rotuloResposta(registo.trataDadosPessoais)),
+      ...campo(
+        c.dadosNecessariosParaFinalidade,
+        rotuloResposta(registo.dadosNecessariosParaFinalidade),
+      ),
+      ...campo(
+        c['categoriasEspeciais.aplicavel'],
+        rotuloResposta(registo.categoriasEspeciais?.aplicavel),
+      ),
+      ...campo(c['categoriasEspeciais.identificar'], registo.categoriasEspeciais?.identificar),
+      ...campo(
+        c.categoriasEspeciaisNecessarias,
+        rotuloResposta(registo.categoriasEspeciaisNecessarias),
+      ),
+      ...campo(
+        c.categoriasTitulares,
+        rotulosCategoriasTitulares(registo.categoriasTitulares, registo.categoriasTitularesOutra),
+      ),
+      ...campo(c.categoriasDados, rotuloCategoriasDados(registo.categoriasDados)),
+      ...campo(c.entidadesQueEnviamDados, registo.entidadesQueEnviamDados),
+      ...campo(c.entidadesParaQuemEnvioDados, registo.entidadesParaQuemEnvioDados),
+      ...campo(c.suportesFisicos, registo.suportesFisicos),
+      ...campo(c.localizacaoSuportesFisicos, registo.localizacaoSuportesFisicos),
+    ]),
 
-  const licitude = matriz.licitudeRetencao
-  if (licitude) {
-    const itens: Content[] = [
-      ...rotulo('mecanismosDemonstracaoConsentimento', licitude.mecanismosDemonstracaoConsentimento),
-      ...rotulo('consentimentoResponsabilidadeParental', licitude.consentimentoResponsabilidadeParental),
-      ...rotulo('retencaoDefinidaPelaOrganizacao', licitude.retencaoDefinidaPelaOrganizacao),
-      ...rotulo('retencaoPorNormativosLegais', licitude.retencaoPorNormativosLegais),
-    ]
-    if (itens.length > 0) {
-      conteudo.push({ text: textos.passos.conservacaoSeguranca, bold: true, margin: [0, 6, 0, 2] })
-      conteudo.push(...itens)
-    }
-  }
+    ...seccao(textos.passos.ferramentas, [
+      ...campo(c.ferramentasAplicacoes, registo.ferramentasAplicacoes),
+      ...campo(c.numeroCamposComDadosPessoais, registo.numeroCamposComDadosPessoais),
+      ...campo(c.volumeDadosPessoais, registo.volumeDadosPessoais),
+      ...campo(c.numeroUtilizadoresComAcesso, registo.numeroUtilizadoresComAcesso),
+    ]),
 
-  const gerais: Content[] = [
-    ...rotulo('normativosAplicaveis', matriz.normativosAplicaveis),
-    ...rotulo('diagramaProcesso', matriz.diagramaProcesso),
-    ...rotulo('comentarios', matriz.comentarios),
+    ...seccao(textos.passos.subcontratados, subcontratados),
+
+    ...seccao(textos.passos.baseLicitude, [
+      ...campo(c.baseLicitude, rotuloBaseLicitude(registo.baseLicitude)),
+      ...campo(
+        c.consentimentoMecanismosDemonstracao,
+        rotuloResposta(registo.consentimentoMecanismosDemonstracao),
+      ),
+      ...campo(
+        c.consentimentoResponsabilidadeParental,
+        rotuloResposta(registo.consentimentoResponsabilidadeParental),
+      ),
+      ...campo(
+        c.retencaoDefinidaPelaOrganizacao('a organização'),
+        rotuloResposta(registo.retencaoDefinidaPelaOrganizacao),
+      ),
+      ...campo(c.retencaoPorNormativosLegais, rotuloResposta(registo.retencaoPorNormativosLegais)),
+    ]),
+
+    ...seccao(textos.passos.requisitosFuncionais, [
+      ...campo(c.deverInformar, rotuloResposta(registo.deverInformar)),
+      ...campo(c.direitoAcesso, rotuloResposta(registo.direitoAcesso)),
+      ...campo(c.direitoRetificacao, rotuloResposta(registo.direitoRetificacao)),
+      ...campo(c.direitoApagamento, rotuloResposta(registo.direitoApagamento)),
+      ...campo(c.direitoPortabilidade, rotuloResposta(registo.direitoPortabilidade)),
+      ...campo(c.direitoLimitacao, rotuloResposta(registo.direitoLimitacao)),
+      ...campo(c.direitoDecisoesAutomatizadas, rotuloResposta(registo.direitoDecisoesAutomatizadas)),
+      ...campo(c.direitoOposicao, rotuloResposta(registo.direitoOposicao)),
+      ...campo(c.detecaoNotificacaoViolacoes, rotuloResposta(registo.detecaoNotificacaoViolacoes)),
+    ]),
+
+    ...seccao(textos.passos.controlosOperacionais, [
+      ...campo(
+        c.procedimentosAcessosDocumentados,
+        rotuloResposta(registo.procedimentosAcessosDocumentados),
+      ),
+      ...campo(
+        c.procedimentosAcessosImplementados,
+        rotuloResposta(registo.procedimentosAcessosImplementados),
+      ),
+      ...campo(c.acessosFormalmenteAutorizados, rotuloResposta(registo.acessosFormalmenteAutorizados)),
+      ...campo(c.controlosAcessosPrivilegiados, rotuloResposta(registo.controlosAcessosPrivilegiados)),
+      ...campo(c.revisaoPeriodicaAcessos, rotuloResposta(registo.revisaoPeriodicaAcessos)),
+      ...campo(c.remocaoAcessosASaida, rotuloResposta(registo.remocaoAcessosASaida)),
+    ]),
+
+    ...seccao(textos.passos.observacoesGerais, [
+      ...campo(c.medidasTecnicasOrganizativas, rotuloMedidas(registo.medidasTecnicasOrganizativas)),
+      ...campo(c.normativosAplicaveis, registo.normativosAplicaveis),
+      ...campo(c.diagramaProcesso, registo.diagramaProcesso),
+      ...campo(c.aipdRealizada, rotuloResposta(registo.aipdRealizada)),
+      ...campo(c['gestorProjeto.nome'], registo.gestorProjeto.nome),
+      ...campo(c['gestorProjeto.contacto'], registo.gestorProjeto.contacto),
+      ...campo(c.observacoes, registo.observacoes),
+    ]),
   ]
-  if (gerais.length > 0) {
-    conteudo.push({ text: textos.passos.observacoesGerais, bold: true, margin: [0, 6, 0, 2] })
-    conteudo.push(...gerais)
-  }
+}
 
-  return conteudo
+function seccoesSubcontratado(registo: RegistoSubcontratado): Content[] {
+  return [
+    ...seccao(textos.passos.identificacaoSubcontratado, [
+      ...campo(c.nomeResponsavelTratamento, registo.nomeResponsavelTratamento),
+      ...campo(c.direcao, registo.direcao),
+      ...campo(c.unidadeCoordenacao, registo.unidadeCoordenacao),
+      ...campo(c.descricao, registo.descricao),
+    ]),
+
+    ...seccao(textos.passos.tratamentoSubcontratado, [
+      ...campo(c.finalidadeSubcontratado, registo.finalidade),
+      ...campo(c.responsavelConjunto, registo.responsavelConjunto),
+      ...campo(c.baseLegal, rotuloBaseLicitude(registo.baseLegal)),
+      ...campo(c.recolhaDados, registo.recolhaDados),
+    ]),
+
+    ...seccao(textos.passos.dadosSubcontratado, [
+      ...campo(
+        c.categoriasTitulares,
+        rotulosCategoriasTitulares(registo.categoriasTitulares, registo.categoriasTitularesOutra),
+      ),
+      ...campo(c.categoriasDados, rotuloCategoriasDados(registo.categoriasDados)),
+      ...campo(
+        c['categoriasEspeciais.aplicavel'],
+        rotuloResposta(registo.categoriasEspeciais?.aplicavel),
+      ),
+      ...campo(c['categoriasEspeciais.identificar'], registo.categoriasEspeciais?.identificar),
+    ]),
+
+    ...seccao(textos.passos.destinatariosSubcontratado, [
+      ...campo(c.destinatarios, registo.destinatarios),
+      ...campo(c['transferencias.existem'], rotuloResposta(registo.transferencias?.existem)),
+      ...campo(c['transferencias.identificar'], registo.transferencias?.identificar),
+    ]),
+
+    ...seccao(textos.passos.segurancaSubcontratado, [
+      ...campo(c.prazoConservacao, registo.prazoConservacao),
+      ...campo(c.medidasTecnicasOrganizativas, rotuloMedidas(registo.medidasTecnicasOrganizativas)),
+      ...campo(
+        c.outrosSubcontratantes,
+        (registo.outrosSubcontratantes ?? [])
+          .map(
+            (s) =>
+              `${s.nome ?? ''}${s.contacto ? ` (${s.contacto})` : ''}${
+                s.dataContrato ? ` — ${s.dataContrato}` : ''
+              }`,
+          )
+          .join('; '),
+      ),
+    ]),
+
+    ...seccao(textos.passos.observacoesSubcontratado, [
+      ...campo(c.observacoes, registo.observacoes),
+      ...campo(c.diagramaEcosistema, registo.diagramaEcosistema),
+      ...campo(c.aipdRealizada, rotuloResposta(registo.aipdRealizada)),
+      ...campo(c['gestorProjeto.nome'], registo.gestorProjeto.nome),
+      ...campo(c['gestorProjeto.contacto'], registo.gestorProjeto.contacto),
+    ]),
+  ]
 }
 
 function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
-  const identificacao: Content[] = [
+  const cabecalho: Content[] = [
     { text: registo.nomeTratamento, style: 'tituloRegisto' },
     {
-      text: registo.tipoRegisto === 'responsavel' ? textos.lista.tipoResponsavel : textos.lista.tipoSubcontratado,
+      text:
+        registo.tipoRegisto === 'responsavel'
+          ? textos.lista.tipoResponsavel
+          : textos.lista.tipoSubcontratado,
       style: 'subtituloRegisto',
     },
     ...campo(textos.estado.etiqueta, textos.estado[registo.estado]),
-    ...campo(textos.campos.direcao, registo.direcao),
-    ...campo(textos.campos.unidadeCoordenacao, registo.unidadeCoordenacao),
-    ...campo(textos.campos.descricao, registo.descricao),
-    ...campo(textos.campos['gestorProjeto.nome'], registo.gestorProjeto.nome),
-    ...campo(textos.campos['gestorProjeto.contacto'], registo.gestorProjeto.contacto),
-  ]
-
-  const especifico: Content[] =
-    registo.tipoRegisto === 'responsavel'
-      ? [
-          ...campo(textos.campos.finalidades, registo.finalidades),
-          ...campo(textos.campos.responsavelConjunto, registo.responsavelConjunto),
-          ...campo(textos.campos.representante, registo.representante),
-          ...campo(textos.campos.baseLicitude, rotuloBaseLicitude(registo.baseLicitude)),
-          ...campo(textos.campos.recolhaDados, registo.recolhaDados),
-          ...campo(
-            textos.campos.categoriasTitulares,
-            rotulosCategoriasTitulares(registo.categoriasTitulares, registo.categoriasTitularesOutra),
-          ),
-          ...campo(textos.campos.categoriasDados, rotuloCategoriasDados(registo.categoriasDados)),
-          ...campo(
-            textos.campos['categoriasEspeciais.aplicavel'],
-            rotuloSimNao(registo.categoriasEspeciais.aplicavel),
-          ),
-          ...(registo.categoriasEspeciais.aplicavel
-            ? [
-                ...campo(
-                  textos.campos['categoriasEspeciais.condicoesArt9'],
-                  rotulosCondicaoArt9(registo.categoriasEspeciais.condicoesArt9),
-                ),
-                ...campo(
-                  textos.campos['categoriasEspeciais.identificar'],
-                  registo.categoriasEspeciais.identificar,
-                ),
-              ]
-            : []),
-          ...campo(textos.campos.destinatarios, registo.destinatarios),
-          ...campo(textos.campos.prazoConservacao, registo.prazoConservacao),
-          ...campo(
-            textos.matriz.campos.criterioPrazoConservacao,
-            registo.criterioPrazoConservacao,
-          ),
-          ...campo(
-            textos.campos.subcontratantesContratados,
-            (registo.subcontratantesContratados ?? []).map((s) => s.nome).join('; '),
-          ),
-          ...(registo.matriz ? linhasMatriz(registo.matriz) : []),
-        ]
-      : [
-          ...campo(
-            textos.campos.responsaveis,
-            registo.responsaveis
-              .map((r) => `${r.nome}${r.contacto ? ` (${r.contacto})` : ''}: ${r.categoriasTratamento}`)
-              .join('; '),
-          ),
-          // Campos da folha "Subcontratante" que são do responsável e por
-          // isso opcionais aqui (ver schema/subcontratado.ts): só saem no
-          // PDF quando a equipa os preencheu.
-          ...campo(textos.campos.finalidades, registo.finalidades),
-          ...campo(textos.campos.responsavelConjunto, registo.responsavelConjunto),
-          ...campo(textos.campos.representante, registo.representante),
-          ...campo(
-            textos.campos.baseLicitude,
-            registo.baseLicitude ? rotuloBaseLicitude(registo.baseLicitude) : undefined,
-          ),
-          ...campo(textos.campos.recolhaDados, registo.recolhaDados),
-          ...campo(
-            textos.campos.categoriasTitulares,
-            registo.categoriasTitulares
-              ? rotulosCategoriasTitulares(registo.categoriasTitulares, registo.categoriasTitularesOutra)
-              : undefined,
-          ),
-          ...campo(
-            textos.campos.categoriasDados,
-            registo.categoriasDados ? rotuloCategoriasDados(registo.categoriasDados) : undefined,
-          ),
-          ...(registo.categoriasEspeciais?.aplicavel
-            ? [
-                ...campo(
-                  textos.campos['categoriasEspeciais.condicoesArt9'],
-                  rotulosCondicaoArt9(registo.categoriasEspeciais.condicoesArt9),
-                ),
-                ...campo(
-                  textos.campos['categoriasEspeciais.identificar'],
-                  registo.categoriasEspeciais.identificar,
-                ),
-              ]
-            : []),
-          ...campo(textos.campos.destinatarios, registo.destinatarios),
-          ...campo(textos.campos.prazoConservacao, registo.prazoConservacao),
-          ...campo(
-            textos.matriz.campos.criterioPrazoConservacao,
-            registo.criterioPrazoConservacao,
-          ),
-          ...campo(
-            textos.campos.subcontratantesContratados,
-            (registo.subcontratantesContratados ?? []).map((s) => s.nome).join('; '),
-          ),
-        ]
-
-  const cauda: Content[] = [
-    ...campo(
-      textos.campos['transferenciasInternacionais.existem'],
-      rotuloSimNao(registo.transferenciasInternacionais.existem),
-    ),
-    ...(registo.transferenciasInternacionais.existem
-      ? [
-          ...campo(
-            textos.campos['transferenciasInternacionais.paisesOuOrganizacoes'],
-            (registo.transferenciasInternacionais.paisesOuOrganizacoes ?? []).join('; '),
-          ),
-          ...campo(
-            textos.campos['transferenciasInternacionais.mecanismo'],
-            rotuloMecanismoTransferencia(registo.transferenciasInternacionais),
-          ),
-        ]
+    ...(registo.validacao
+      ? campo(
+          textos.estado.campoValidadoPor,
+          `${registo.validacao.validadoPor ?? '—'} (${new Date(
+            registo.validacao.data,
+          ).toLocaleDateString('pt-PT')})`,
+        )
       : []),
-    ...campo(textos.campos.medidasTecnicasOrganizativas, rotuloMedidas(registo.medidasTecnicasOrganizativas)),
-    ...campo(textos.campos.aipdRealizada, rotuloAipd(registo.aipdRealizada)),
-    ...campo(textos.campos.observacoes, registo.observacoes),
   ]
 
-  // Módulo de avaliação de controlos — opcional e à parte do RAT
-  // (CLAUDE.md §3). Só entra no PDF quando a equipa o ativou, e sempre
-  // numa secção própria, nunca misturado com o registo do art. 30.º.
-  const avaliacao: Content[] = registo.avaliacao
-    ? [
-        {
-          text: textos.avaliacao.titulo,
-          style: 'subtituloRegisto',
-          margin: [0, 10, 0, 2],
-        },
-        ...linhasAvaliacao(registo.avaliacao),
-      ]
-    : []
+  const corpo =
+    registo.tipoRegisto === 'responsavel'
+      ? seccoesResponsavel(registo)
+      : seccoesSubcontratado(registo)
+
+  const anotacoes = registo.anotacoes ?? []
+  const seccaoAnotacoes: Content[] =
+    anotacoes.length > 0
+      ? [
+          titulo(textos.validador.anotacoesTitulo),
+          {
+            ul: anotacoes.map(
+              (a) => `[${a.campo}] ${a.texto}${a.autor ? ` — ${a.autor}` : ''}`,
+            ),
+          },
+        ]
+      : []
 
   const sumarioValidacao: Content[] =
     ocorrencias.length > 0
       ? [
-          { text: textos.formulario.avisosTitulo, style: 'subtituloRegisto', margin: [0, 8, 0, 2] },
+          titulo(textos.formulario.avisosTitulo),
           {
             ul: ocorrencias.map((o) => ({
               text: `[${o.severidade === 'erro' ? 'ERRO' : 'AVISO'}] ${o.mensagem}`,
@@ -312,7 +274,7 @@ function seccaoRegisto(registo: Registo, ocorrencias: Ocorrencia[]): Content {
       : []
 
   return {
-    stack: [...identificacao, ...especifico, ...cauda, ...avaliacao, ...sumarioValidacao],
+    stack: [...cabecalho, ...corpo, ...seccaoAnotacoes, ...sumarioValidacao],
     margin: [0, 0, 0, 16],
   }
 }
@@ -329,14 +291,22 @@ export function gerarDocDefinition(ficheiro: FicheiroRat): TDocumentDefinitions 
 
   const conteudo: Content[] = [
     { text: textos.app.titulo, style: 'titulo' },
-    {
-      text: `${textos.lista.campoEquipa}: ${ficheiro.metadados.equipa}`,
-      margin: [0, 0, 0, 2],
-    },
-    ...(ficheiro.metadados.contacto
-      ? [{ text: `${textos.lista.campoContactoEquipa}: ${ficheiro.metadados.contacto}`, margin: [0, 0, 0, 2] as [number, number, number, number] }]
+    ...(ficheiro.metadados.organizacao
+      ? [{ text: ficheiro.metadados.organizacao, margin: [0, 0, 0, 2] as [number, number, number, number] }]
       : []),
-    { text: `Exportado em: ${new Date(ficheiro.metadados.dataUltimaEdicao).toLocaleString('pt-PT')}`, margin: [0, 0, 0, 16] },
+    { text: `${textos.lista.campoEquipa}: ${ficheiro.metadados.equipa}`, margin: [0, 0, 0, 2] },
+    ...(ficheiro.metadados.contacto
+      ? [
+          {
+            text: `${textos.lista.campoContactoEquipa}: ${ficheiro.metadados.contacto}`,
+            margin: [0, 0, 0, 2] as [number, number, number, number],
+          },
+        ]
+      : []),
+    {
+      text: `Exportado em: ${new Date(ficheiro.metadados.dataUltimaEdicao).toLocaleString('pt-PT')}`,
+      margin: [0, 0, 0, 16],
+    },
     ...ficheiro.registos.map((registo) =>
       seccaoRegisto(registo, ocorrenciasPorRegisto.get(registo.id) ?? []),
     ),
@@ -349,11 +319,17 @@ export function gerarDocDefinition(ficheiro: FicheiroRat): TDocumentDefinitions 
       titulo: { fontSize: 16, bold: true, margin: [0, 0, 0, 8] },
       tituloRegisto: { fontSize: 13, bold: true, margin: [0, 12, 0, 2] },
       subtituloRegisto: { fontSize: 10, italics: true, margin: [0, 0, 0, 6] },
+      tituloSeccao: { fontSize: 11, bold: true, margin: [0, 8, 0, 3] },
     },
     footer: (paginaAtual: number, totalPaginas: number) => ({
       columns: [
         { text: FUNDAMENTACAO_RODAPE, fontSize: 7, margin: [40, 0, 0, 0] },
-        { text: `${paginaAtual} / ${totalPaginas}`, alignment: 'right', fontSize: 7, margin: [0, 0, 40, 0] },
+        {
+          text: `${paginaAtual} / ${totalPaginas}`,
+          alignment: 'right',
+          fontSize: 7,
+          margin: [0, 0, 40, 0],
+        },
       ],
     }),
     pageMargins: [40, 40, 40, 40],
@@ -394,14 +370,12 @@ async function criarPdfMake(): Promise<PdfMakeInstancia> {
 
 export async function gerarPdfBlob(ficheiro: FicheiroRat): Promise<Blob> {
   const pdfMake = await criarPdfMake()
-  const docDefinition = gerarDocDefinition(ficheiro)
-  return pdfMake.createPdf(docDefinition).getBlob()
+  return pdfMake.createPdf(gerarDocDefinition(ficheiro)).getBlob()
 }
 
 export async function gerarPdfBuffer(ficheiro: FicheiroRat): Promise<Uint8Array> {
   const pdfMake = await criarPdfMake()
-  const docDefinition = gerarDocDefinition(ficheiro)
-  return pdfMake.createPdf(docDefinition).getBuffer()
+  return pdfMake.createPdf(gerarDocDefinition(ficheiro)).getBuffer()
 }
 
 export function nomeFicheiroPdf(ficheiro: FicheiroRat): string {

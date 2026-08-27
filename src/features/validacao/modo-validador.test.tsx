@@ -5,16 +5,27 @@ import { describe, expect, it } from 'vitest'
 import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
 import { textos } from '@/i18n/pt'
 import { serializarJson } from '@/io/json/exportar'
-import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
+import { ficheiroRatFixtureValido, registoResponsavelMinimo } from '@/domain/fixtures/registos'
+import { FicheiroProvider } from '@/features/preenchimento/store/ficheiro-context'
+
+/**
+ * O modo validador precisa do contexto do ficheiro: o botão "corrigir no
+ * formulário" carrega lá o ficheiro da sessão.
+ */
+function renderValidador() {
+  return render(
+    <MemoryRouter>
+      <FicheiroProvider>
+        <ModoValidador />
+      </FicheiroProvider>
+    </MemoryRouter>,
+  )
+}
 
 describe('ModoValidador', () => {
   it('importa múltiplos ficheiros e mostra o resumo da sessão', async () => {
     const utilizador = userEvent.setup()
-    render(
-      <MemoryRouter>
-        <ModoValidador />
-      </MemoryRouter>,
-    )
+    renderValidador()
 
     const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'sessao.json', {
       type: 'application/json',
@@ -30,11 +41,7 @@ describe('ModoValidador', () => {
 
   it('permite adicionar uma anotação geral a um registo no detalhe', async () => {
     const utilizador = userEvent.setup()
-    render(
-      <MemoryRouter>
-        <ModoValidador />
-      </MemoryRouter>,
-    )
+    renderValidador()
 
     const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'sessao.json', {
       type: 'application/json',
@@ -56,3 +63,58 @@ describe('ModoValidador', () => {
     expect(await screen.findByText('Rever esta secção, por favor.')).toBeInTheDocument()
   })
 })
+
+describe('decisão do validador', () => {
+  async function abrirDetalhe(utilizador: ReturnType<typeof userEvent.setup>) {
+    renderValidador()
+    const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'sessao.json', {
+      type: 'application/json',
+    })
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+    await utilizador.upload(input, ficheiro)
+    await utilizador.click(
+      await screen.findByRole('button', { name: textos.validador.botaoVerDetalhe }),
+    )
+  }
+
+  it('valida um registo e regista quem validou', async () => {
+    const utilizador = userEvent.setup()
+    await abrirDetalhe(utilizador)
+
+    await utilizador.type(
+      await screen.findByLabelText(textos.estado.campoValidadoPor),
+      'Eva Revisora Fictícia',
+    )
+
+    // O primeiro cartão é o do primeiro registo do ficheiro.
+    expect(screen.getAllByRole('heading')[1]).toHaveTextContent(
+      registoResponsavelMinimo.nomeTratamento,
+    )
+    const validar = (await screen.findAllByRole('button', { name: textos.estado.validar }))[0]
+    await utilizador.click(validar)
+
+    expect(await screen.findByText(/Validado por Eva Revisora Fictícia/)).toBeInTheDocument()
+  })
+
+  it('devolve um registo para correção', async () => {
+    const utilizador = userEvent.setup()
+    await abrirDetalhe(utilizador)
+
+    const devolver = (
+      await screen.findAllByRole('button', { name: textos.estado.devolver })
+    )[0]
+    await utilizador.click(devolver)
+
+    expect(screen.getAllByText(textos.estado.devolvido).length).toBeGreaterThan(0)
+  })
+
+  it('oferece corrigir o ficheiro no formulário de preenchimento', async () => {
+    const utilizador = userEvent.setup()
+    await abrirDetalhe(utilizador)
+
+    expect(
+      await screen.findByRole('button', { name: textos.validador.botaoCorrigir }),
+    ).toBeInTheDocument()
+  })
+})
+

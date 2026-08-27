@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { textos } from '@/i18n/pt'
 import type { Registo } from '@/domain/schema/registo'
-import type { AnotacaoCampo } from '@/domain/schema/comum'
+import type { AnotacaoCampo, EstadoRegisto } from '@/domain/schema/comum'
+import { EstadoRegistoBadge } from '@/components/estado-registo'
 import type { Ocorrencia } from '@/domain/rules/types'
 
 interface CartaoRegistoProps {
@@ -13,6 +14,7 @@ interface CartaoRegistoProps {
   ocorrencias: Ocorrencia[]
   onAdicionarAnotacao: (anotacao: AnotacaoCampo) => void
   onAlternarResolvida: (anotacaoId: string) => void
+  onMudarEstado: (estado: EstadoRegisto) => void
 }
 
 function novaAnotacao(campo: string, texto: string): AnotacaoCampo {
@@ -30,6 +32,7 @@ export function CartaoRegisto({
   ocorrencias,
   onAdicionarAnotacao,
   onAlternarResolvida,
+  onMudarEstado,
 }: CartaoRegistoProps) {
   const [campoEmAnotacao, setCampoEmAnotacao] = useState<string | null>(null)
   const [textoAnotacao, setTextoAnotacao] = useState('')
@@ -50,7 +53,10 @@ export function CartaoRegisto({
     <Card>
       <CardHeader>
         <CardTitle>{registo.nomeTratamento}</CardTitle>
-        <p className="text-sm text-muted-foreground">{registo.direcao}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted-foreground">{registo.direcao}</p>
+          <EstadoRegistoBadge estado={registo.estado} />
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div>
@@ -117,6 +123,30 @@ export function CartaoRegisto({
               {textos.validador.botaoAnotarGeral}
             </Button>
           )}
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-border pt-4">
+          <p className="text-sm font-medium">{textos.validador.estadoTitulo}</p>
+          <div className="flex flex-wrap gap-2">
+            {registo.estado !== 'validado' ? (
+              <Button size="sm" variant="subtle" onClick={() => onMudarEstado('validado')}>
+                {textos.estado.validar}
+              </Button>
+            ) : null}
+            {registo.estado !== 'devolvido' ? (
+              <Button size="sm" variant="outline" onClick={() => onMudarEstado('devolvido')}>
+                {textos.estado.devolver}
+              </Button>
+            ) : null}
+          </div>
+          {registo.validacao ? (
+            <p className="text-xs text-muted-foreground">
+              {textos.estado.validadoEm(
+                registo.validacao.validadoPor ?? '—',
+                new Date(registo.validacao.data).toLocaleString('pt-PT'),
+              )}
+            </p>
+          ) : null}
         </div>
       </CardContent>
     </Card>

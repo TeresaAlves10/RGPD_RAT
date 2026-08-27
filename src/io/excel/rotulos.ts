@@ -1,78 +1,58 @@
 import {
-  aipdSchema,
-  type Aipd,
-  type CategoriaDados,
-  type MedidaTecnicaOrganizativa,
-  type TransferenciaInternacional,
-} from '@/domain/schema/comum'
-import {
   baseLicitude,
   categoriasDados,
   categoriasTitulares,
-  condicaoArt9,
-  mecanismoTransferencia,
   medidasTecnicasOrganizativas,
-  type ItemVocabulario,
 } from '@/domain/schema/vocabularios'
+import type { CategoriaDados, MedidaTecnicaOrganizativa } from '@/domain/schema/comum'
 import { textos } from '@/i18n/pt'
 
-/**
- * Tradução de ids de vocabulário controlado para os rótulos legíveis
- * usados na folha "Registos" do Excel exportado (CLAUDE.md §7: "folha
- * legível"). O ficheiro `_dados` continua a guardar os ids, não os
- * rótulos — só esta folha é traduzida.
- */
+/** Conversão de ids de vocabulário e de respostas fechadas para texto legível. */
 
-function rotulo(vocabulario: ItemVocabulario[], id: string | undefined): string {
+function rotuloDe(lista: { id: string; label: string }[], id: string | undefined): string {
   if (!id) return ''
-  return vocabulario.find((item) => item.id === id)?.label ?? id
+  return lista.find((item) => item.id === id)?.label ?? id
 }
 
-export function rotuloBaseLicitude(id: string): string {
-  return rotulo(baseLicitude, id)
+export function rotuloBaseLicitude(id: string | undefined): string {
+  return rotuloDe(baseLicitude, id)
 }
 
-export function rotulosCondicaoArt9(ids: string[] | undefined): string {
-  return (ids ?? []).map((id) => rotulo(condicaoArt9, id)).join('; ')
+/** Sim / Parcialmente / Não / Não aplicável — vazio quando por responder. */
+export function rotuloResposta(valor: string | undefined): string {
+  if (!valor) return ''
+  const respostas = textos.respostas as Record<string, string>
+  return respostas[valor] ?? valor
 }
 
-export function rotulosCategoriasTitulares(ids: string[], outra?: string): string {
-  const rotulos = ids.map((id) => rotulo(categoriasTitulares, id))
-  if (outra) return [...rotulos, `Outro: ${outra}`].join('; ')
-  return rotulos.join('; ')
+export function rotulosCategoriasTitulares(
+  ids: string[] | undefined,
+  outra: string | undefined,
+): string {
+  return (ids ?? [])
+    .map((id) => (id === 'outro' && outra ? `Outro: ${outra}` : rotuloDe(categoriasTitulares, id)))
+    .join('; ')
 }
 
-export function rotuloCategoriasDados(itens: CategoriaDados[]): string {
-  return itens
+export function rotuloCategoriasDados(lista: CategoriaDados[] | undefined): string {
+  return (lista ?? [])
     .map((item) => {
-      const nomeCategoria =
-        item.categoria === 'outro' ? item.categoriaOutra || textos.formulario.outroEspecificar : rotulo(categoriasDados, item.categoria)
-      return `${nomeCategoria}: ${item.tipos.join(', ')}`
+      const categoria =
+        item.categoria === 'outro' && item.categoriaOutra
+          ? `Outro: ${item.categoriaOutra}`
+          : rotuloDe(categoriasDados, item.categoria)
+      const tipos = item.tipos.filter(Boolean).join(', ')
+      return tipos ? `${categoria} (${tipos})` : categoria
     })
     .join('; ')
 }
 
-export function rotuloMecanismoTransferencia(t: TransferenciaInternacional): string {
-  if (!t.existem) return textos.formulario.simNao.nao
-  if (t.mecanismo === 'outro') return t.mecanismoOutro || textos.formulario.outroEspecificar
-  return rotulo(mecanismoTransferencia, t.mecanismo)
-}
-
-export function rotuloMedidas(itens: MedidaTecnicaOrganizativa[]): string {
-  return itens
+export function rotuloMedidas(lista: MedidaTecnicaOrganizativa[] | undefined): string {
+  return (lista ?? [])
     .map((item) =>
-      item.medida === 'outro'
-        ? item.medidaOutra || textos.formulario.outroEspecificar
-        : rotulo(medidasTecnicasOrganizativas, item.medida),
+      item.medida === 'outro' && item.medidaOutra
+        ? `Outro: ${item.medidaOutra}`
+        : rotuloDe(medidasTecnicasOrganizativas, item.medida),
     )
     .join('; ')
-}
-
-export function rotuloAipd(valor: Aipd): string {
-  const validado = aipdSchema.safeParse(valor)
-  return validado.success ? textos.aipd[validado.data] : valor
-}
-
-export function rotuloSimNao(valor: boolean): string {
-  return valor ? textos.formulario.simNao.sim : textos.formulario.simNao.nao
 }

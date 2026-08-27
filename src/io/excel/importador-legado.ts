@@ -119,91 +119,111 @@ export async function importarExcelLegado(ficheiro: ArrayBuffer): Promise<Result
     porPreencher('gestorProjeto.contacto')
 
     const aipdTexto = valorCelula(linha, 'W')
-    const aipdRealizada = comecaPorSim(aipdTexto) ? 'sim' : /^n(ão|ao)?\b/i.test(aipdTexto) ? 'nao' : 'nao_aplicavel'
+    const aipdRealizada = comecaPorSim(aipdTexto)
+      ? 'sim'
+      : /^n(ão|ao)?\b/i.test(aipdTexto)
+        ? 'nao'
+        : 'nao_aplicavel'
     mapeado('aipdRealizada')
 
     porPreencher('medidasTecnicasOrganizativas', valorCelula(linha, 'T'))
-
-    const transferenciasTexto = valorCelula(linha, 'R')
-    const transferenciasExistem = comecaPorSim(transferenciasTexto)
-    mapeado('transferenciasInternacionais.existem')
-    if (transferenciasExistem) {
-      porPreencher('transferenciasInternacionais.mecanismo', transferenciasTexto)
-    }
 
     const observacoesBase = valorCelula(linha, 'V')
     if (observacoesBase) mapeado('observacoes')
 
     const camposComuns = {
       id: crypto.randomUUID(),
+      estado: 'rascunho',
       direcao,
       unidadeCoordenacao: unidadeCoordenacao || undefined,
       nomeTratamento,
       descricao: descricao || undefined,
-      gestorProjeto: { nome: nomeGp, contacto: '' },
+      gestorProjeto: { nome: nomeGp || 'Por preencher' },
       medidasTecnicasOrganizativas: [] as { medida: string }[],
-      transferenciasInternacionais: { existem: transferenciasExistem },
       aipdRealizada,
+      anotacoes: [],
+    }
+
+    // Campos que o template antigo tem e que existem nas duas qualidades.
+    const finalidade = valorCelula(linha, 'H')
+    if (finalidade) mapeado('finalidade')
+    const responsavelConjunto = valorCelula(linha, 'I')
+    if (responsavelConjunto) mapeado('responsavelConjunto')
+    porPreencher('baseLicitude', valorCelula(linha, 'K'))
+    const recolhaDados = valorCelula(linha, 'L')
+    porPreencher('categoriasTitulares', valorCelula(linha, 'M'))
+    porPreencher(
+      'categoriasDados',
+      [valorCelula(linha, 'N'), valorCelula(linha, 'O')].filter(Boolean).join(' / '),
+    )
+
+    const especiaisTexto = valorCelula(linha, 'P')
+    const especiaisAplicavel = comecaPorSim(especiaisTexto)
+    mapeado('categoriasEspeciais.aplicavel')
+    if (especiaisAplicavel) mapeado('categoriasEspeciais.identificar')
+
+    const destinatarios = valorCelula(linha, 'Q')
+    if (destinatarios) mapeado('destinatarios')
+
+    const transferenciasTexto = valorCelula(linha, 'R')
+    const transferenciasExistem = comecaPorSim(transferenciasTexto)
+
+    const prazoConservacao = valorCelula(linha, 'S')
+
+    const subcontratanteTexto = valorCelula(linha, 'U')
+    const outrosSubcontratantes = comecaPorSim(subcontratanteTexto)
+      ? [{ nome: subcontratanteTexto }]
+      : []
+
+    const categoriasEspeciais = {
+      aplicavel: especiaisAplicavel ? 'sim' : 'nao',
+      identificar: especiaisAplicavel ? especiaisTexto : undefined,
     }
 
     let registo: Record<string, unknown>
 
     if (tipoRegisto === 'responsavel') {
-      const finalidades = valorCelula(linha, 'H')
-      if (finalidades) mapeado('finalidades')
-      const responsavelConjunto = valorCelula(linha, 'I')
-      if (responsavelConjunto) mapeado('responsavelConjunto')
-      const representante = valorCelula(linha, 'J')
-      if (representante) mapeado('representante')
-      porPreencher('baseLicitude', valorCelula(linha, 'K'))
-      const recolhaDados = valorCelula(linha, 'L')
-      if (recolhaDados) mapeado('recolhaDados')
-      porPreencher('categoriasTitulares', valorCelula(linha, 'M'))
-      porPreencher('categoriasDados', [valorCelula(linha, 'N'), valorCelula(linha, 'O')].filter(Boolean).join(' / '))
-
-      const especiaisTexto = valorCelula(linha, 'P')
-      const especiaisAplicavel = comecaPorSim(especiaisTexto)
-      mapeado('categoriasEspeciais.aplicavel')
-      if (especiaisAplicavel) {
-        porPreencher('categoriasEspeciais.condicoesArt9')
-        mapeado('categoriasEspeciais.identificar')
-      }
-
-      const destinatarios = valorCelula(linha, 'Q')
-      if (destinatarios) mapeado('destinatarios')
-      const prazoConservacao = valorCelula(linha, 'S')
-      if (prazoConservacao) mapeado('prazoConservacao')
-
-      const subcontratanteTexto = valorCelula(linha, 'U')
-      const subcontratantesContratados = comecaPorSim(subcontratanteTexto)
-        ? [{ nome: subcontratanteTexto }]
-        : []
-      if (subcontratantesContratados.length > 0) mapeado('subcontratantesContratados')
+      // O responsável em v5 não tem "destinatários" nem "prazo de
+      // conservação" como campos próprios: o equivalente é
+      // "entidades a quem envio dados" e as duas perguntas de retenção.
+      if (recolhaDados) porPreencher('recolhaDados', recolhaDados)
+      if (prazoConservacao) porPreencher('retencaoDefinidaPelaOrganizacao', prazoConservacao)
+      if (transferenciasExistem) porPreencher('subcontratados', transferenciasTexto)
 
       registo = {
         ...camposComuns,
         tipoRegisto: 'responsavel',
-        finalidades,
-        responsavelConjunto: responsavelConjunto || undefined,
-        representante: representante || undefined,
-        baseLicitude: '',
-        recolhaDados,
+        finalidade: finalidade || undefined,
         categoriasTitulares: [],
         categoriasDados: [],
-        categoriasEspeciais: {
-          aplicavel: especiaisAplicavel,
-          identificar: especiaisAplicavel ? especiaisTexto : undefined,
-        },
-        destinatarios: destinatarios || undefined,
-        prazoConservacao,
-        subcontratantesContratados,
+        categoriasEspeciais,
+        entidadesParaQuemEnvioDados: destinatarios || undefined,
+        subcontratados: outrosSubcontratantes,
       }
     } else {
-      porPreencher('responsaveis')
+      if (recolhaDados) mapeado('recolhaDados')
+      if (prazoConservacao) mapeado('prazoConservacao')
+      mapeado('transferencias.existem')
+      if (outrosSubcontratantes.length > 0) mapeado('outrosSubcontratantes')
+      porPreencher('nomeResponsavelTratamento', valorCelula(linha, 'B'))
+
       registo = {
         ...camposComuns,
         tipoRegisto: 'subcontratado',
-        responsaveis: [],
+        nomeResponsavelTratamento: valorCelula(linha, 'B') || undefined,
+        finalidade: finalidade || undefined,
+        responsavelConjunto: responsavelConjunto || undefined,
+        recolhaDados: recolhaDados || undefined,
+        categoriasTitulares: [],
+        categoriasDados: [],
+        categoriasEspeciais,
+        destinatarios: destinatarios || undefined,
+        transferencias: {
+          existem: transferenciasExistem ? 'sim' : 'nao',
+          identificar: transferenciasExistem ? transferenciasTexto : undefined,
+        },
+        prazoConservacao: prazoConservacao || undefined,
+        outrosSubcontratantes,
       }
     }
 

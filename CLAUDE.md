@@ -53,71 +53,85 @@ importa, corrige, reenvia
 
 ## 3. Modelo de negócio do domínio (decisões já tomadas)
 
-- **O RAT está separado da avaliação de controlos/maturidade — com uma
-  exceção decidida pelo utilizador para o responsável de tratamento.**
+- **Circuito Gestor de Projeto → validador, sem contas nem servidor.**
+  O GP cria o registo, preenche-o e submete-o; o validador revê, corrige
+  e valida (ou devolve para correção). Cada registo tem um `estado`:
 
-  - **Módulo RAT** (obrigatório) — o registo nos termos do art. 30.º.
-  - **Módulo de avaliação** (opcional, ativável por *toggle*) — gestão de
-    acessos, revisões periódicas, auditorias a subcontratados, capacidade de
-    detetar violações, etc.
+  `rascunho` → `submetido` → `validado`, com `devolvido` como caminho de
+  volta quando o validador prefere que seja o GP a corrigir.
 
-    *Implementado* em `src/domain/schema/avaliacao.ts` (campo opcional
-    `avaliacao` no registo) e no ecrã próprio `/registos/:id/avaliacao`.
-    A ausência do módulo nunca torna um RAT inválido.
+  É apenas um marcador que viaja dentro do ficheiro exportado. Não há
+  submissão em rede, aprovação nem autenticação (ver regra 8 e §2.2):
+  "submeter" é marcar o registo e enviar o ficheiro; "validar" é o
+  validador fazer o mesmo no sentido inverso, deixando `validacao`
+  (quem validou e quando) dentro do registo.
 
-  **Alteração posterior (schema v4):** o utilizador forneceu a lista
-  completa de campos a considerar em cada qualidade e pediu explicitamente
-  que, no **responsável de tratamento**, a matriz de levantamento da folha
-  "Responsavél de Tratamento" do `Livro6.xlsx` fizesse parte do próprio
-  formulário. Por isso, e apenas nesse tipo de registo:
+  A separação de papéis é **por ecrã**, não por utilizador: o formulário
+  de preenchimento oferece submeter/reabrir; o modo validador oferece
+  validar/devolver/anotar. Não existe noção de utilizador em lado nenhum.
 
-  - Caracterização, Ferramentas/Aplicações, Subcontratados (detalhe),
-    Requisitos funcionais e Controlos operacionais são **passos do wizard
-    do responsável**, guardados em `matriz` (`src/domain/schema/matriz.ts`)
-    — todos os campos opcionais, para que um RAT do art. 30.º continue
-    válido sem eles.
-  - O botão para o módulo à parte **deixou de aparecer no formulário do
-    responsável**: seria incoerente ter as mesmas perguntas em dois sítios.
-  - O **subcontratante** mantém o módulo à parte tal como estava, e o seu
-    ecrã de RAT continua sem qualquer pergunta de controlo.
+- **Os campos da especificação são obrigatórios no catálogo de regras,
+  não no schema Zod.** O schema só exige o que é preciso para o registo
+  existir na lista (`id`, `tipoRegisto`, `estado`, `direcao`,
+  `nomeTratamento`, `gestorProjeto.nome`); tudo o resto é `optional()`.
 
-- **Estado do registo, sem contas nem servidor.** Cada registo tem um
-  `estado`: `rascunho` → `pronto` → `validado`. É apenas um marcador que
-  viaja dentro do ficheiro exportado; não há submissão, aprovação nem
-  autenticação (ver regra 8 e §2.2). "Submeter" continua a ser exportar o
-  ficheiro e enviá-lo ao DPO, que o devolve com o estado `validado`.
+  A obrigatoriedade é imposta por uma regra declarativa por campo em
+  `src/domain/rules/catalog.ts`, com severidade `erro`, e tem um único
+  efeito prático: **`podeSubmeter()` é falso enquanto houver erros**.
+  Guardar, importar e exportar nunca são bloqueados (§7). É isto que
+  permite guardar um rascunho a meio sem inventar valores.
 
-- **Dentro do módulo RAT, há dois tipos de registo**, correspondentes às duas
-  qualidades em que a organização pode atuar (isto substitui a ideia de um
-  único formulário universal — são dois formulários com secções distintas,
-  porque o art. 30.º/1 e o art. 30.º/2 pedem conteúdo diferente):
-  - **RAT — Responsável de Tratamento** (art. 30.º/1): finalidades, base de
-    licitude, categorias de titulares e dados, destinatários,
-    transferências, prazo de conservação, medidas técnicas e organizativas,
-    subcontratantes que a organização contrata.
-  - **RAT — Subcontratado** (art. 30.º/2): identificação de cada responsável
-    por conta de quem a organização atua, categorias de tratamento
-    efetuadas para cada um, transferências, medidas técnicas e
-    organizativas. **Não** repetir campos do outro tipo que não se aplicam
-    (ex.: base de licitude é do responsável, não do subcontratado).
-  - Um mesmo ficheiro pode conter registos dos dois tipos, misturados.
+- **Dois tipos de registo, com listas de campos distintas** — as duas
+  qualidades em que a organização pode atuar, conforme a especificação
+  do utilizador:
 
-- **Um ficheiro = vários tratamentos da mesma equipa.** A estrutura do JSON
-  é sempre `{ metadados-da-equipa, registos: [...] }`, nunca um único
-  tratamento por ficheiro. Ver estrutura de referência em `PLANO-RAT.md §6`
-  — adaptar essa estrutura para refletir os dois tipos de registo acima
-  (campo `tipoRegisto: "responsavel" | "subcontratado"` em vez de
-  `qualidade`, com os dois schemas Zod distintos e um *discriminated union*).
+  - **Responsável pelo Tratamento** (art. 30.º/1) — organizado em sete
+    secções, que são também os sete passos do wizard e a ordem das
+    colunas no Excel e das secções no PDF:
+    1. Descrição do Processo / Caracterização
+    2. Ferramentas / Aplicações utilizadas
+    3. Subcontratados
+    4. Base de Licitude
+    5. Requisitos Funcionais / Direitos dos Titulares
+    6. Controlos Operacionais
+    7. Observações Gerais
 
-- **Glossário de termos do template original:**
-  - `GP` = Gestor de Projeto → campo `gestorProjeto: { nome, contacto }`.
-  - `AIPD para SI/BD` = Avaliação de Impacto sobre a Proteção de Dados,
-    referente ao Sistema de Informação / Base de Dados em causa.
+  - **Subcontratante** (art. 30.º/2) — lista própria, encabeçada pelo
+    `nomeResponsavelTratamento` (por conta de quem se trata), com
+    categorias e tipos de dados, transferências do art. 44.º e outros
+    subcontratantes do art. 28.º.
+
+  Um mesmo ficheiro pode conter registos dos dois tipos, misturados.
+  `tipoRegisto: "responsavel" | "subcontratado"` é o discriminante do
+  *discriminated union*.
+
+- **Um ficheiro = vários tratamentos da mesma equipa.** A estrutura do
+  JSON é sempre `{ metadados, registos: [...] }`.
+
+- **Perguntas condicionais.** Só aparecem quando se aplicam, e só então
+  são obrigatórias: as duas do consentimento (arts. 7.º e 8.º) apenas se
+  a base de licitude for o consentimento; a identificação das categorias
+  especiais apenas se a resposta for "sim"; a identificação do destino
+  das transferências apenas se existirem.
+
+- **Duas escalas de resposta fechada.** `respostaSimNao`
+  (sim/não/não aplicável) para perguntas factuais; `respostaControlo`
+  (com "parcialmente") para perguntas de capacidade e de controlo, onde
+  a nuance é o que interessa ao validador. `undefined` significa sempre
+  "por responder" — nunca se assume um "não" que ninguém deu.
+
+- **Nome da organização.** O rótulo do período de retenção interno é
+  parametrizado por `metadados.organizacao` em vez de trazer o nome de
+  uma instituição escrito no código (ver regra 7). Sem esse valor, lê-se
+  "pela organização".
+
+- **Glossário:**
+  - `GP` = Gestor de Projeto → `gestorProjeto: { nome, contacto? }`.
+  - `AIPD` = Avaliação de Impacto sobre a Proteção de Dados.
 
 - **Não incluir nenhum aviso do tipo "não introduza dados pessoais de
   titulares neste formulário"** — nem como banner, nem como regra de
-  validação heurística que procure dados pessoais reais nos campos de
-  texto. Esta funcionalidade foi explicitamente excluída do âmbito.
+  validação heurística. Excluído do âmbito.
 
 ## 4. Ajuda contextual
 
@@ -234,9 +248,15 @@ Não avances de fase sem os testes da fase anterior a passar.
 ```
 npm run dev
 npm run test
+npm run typecheck   # tsc -b --force
 npm run build
 npm run lint
+npm run test:zero-rede
 ```
+
+Atenção: `npx tsc --noEmit` **não verifica nada** neste projeto — o
+`tsconfig.json` da raiz tem `files: []` e só agrega referências. Usa
+sempre `npm run typecheck`.
 
 ## 13. Primeiro prompt a dar ao Claude Code
 

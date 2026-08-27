@@ -1,11 +1,16 @@
 import { z } from 'zod'
 import { registoSchema } from '@/domain/schema/registo'
 
-export const SCHEMA_VERSION_ATUAL = 4
+export const SCHEMA_VERSION_ATUAL = 5
 
 export const metadadosEquipaSchema = z.object({
   equipa: z.string().min(1, 'Indica o nome da equipa/direção responsável pelo ficheiro.'),
   contacto: z.string().optional(),
+  /**
+   * Nome da organização. Usado nos rótulos que falam do período de
+   * retenção "definido pela organização" e no cabeçalho dos exports.
+   */
+  organizacao: z.string().optional(),
   dataCriacao: z.iso.datetime(),
   dataUltimaEdicao: z.iso.datetime(),
 })

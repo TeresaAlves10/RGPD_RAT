@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:zero-rede": "npm run build && vitest run --config vitest.zero-rede.config.ts"
+    "test:zero-rede": "npm run build && vitest run --config vitest.zero-rede.config.ts",
+    "typecheck": "tsc -b --force"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

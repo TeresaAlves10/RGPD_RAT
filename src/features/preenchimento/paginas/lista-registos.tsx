@@ -276,7 +276,8 @@ export function ListaRegistos() {
             >
               <option value="">{textos.estado.filtroTodos}</option>
               <option value="rascunho">{textos.estado.rascunho}</option>
-              <option value="pronto">{textos.estado.pronto}</option>
+              <option value="submetido">{textos.estado.submetido}</option>
+              <option value="devolvido">{textos.estado.devolvido}</option>
               <option value="validado">{textos.estado.validado}</option>
             </Select>
             <Select

@@ -49,3 +49,18 @@ export function avaliarFicheiro(
 export function temErros(ocorrencias: Ocorrencia[]): boolean {
   return ocorrencias.some((o) => o.severidade === 'erro')
 }
+
+/**
+ * Um registo só pode ser submetido a validação quando não tem erros.
+ * É aqui que a obrigatoriedade dos campos da especificação ganha efeito
+ * prático — e o único sítio onde alguma coisa é bloqueada: guardar,
+ * exportar e importar nunca dependem disto (CLAUDE.md §7).
+ */
+export function podeSubmeter(registo: Registo, catalogo: Regra[] = catalogoRegras): boolean {
+  return !temErros(avaliarRegisto(registo, catalogo))
+}
+
+/** Erros por resolver antes de submeter, para mostrar ao GP. */
+export function errosPorResolver(registo: Registo, catalogo: Regra[] = catalogoRegras): Ocorrencia[] {
+  return avaliarRegisto(registo, catalogo).filter((o) => o.severidade === 'erro')
+}

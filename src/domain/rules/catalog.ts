@@ -1,206 +1,441 @@
-import type { Regra } from '@/domain/rules/types'
+import type { Registo } from '@/domain/schema/registo'
+import type { RegistoResponsavel } from '@/domain/schema/responsavel'
+import type { RegistoSubcontratado } from '@/domain/schema/subcontratado'
+import type { Regra, RegraRegisto } from '@/domain/rules/types'
+import { textos } from '@/i18n/pt'
 
 /**
- * Catálogo declarativo de regras de validação de negócio, para além do que
- * o schema Zod já garante estruturalmente (tipos, obrigatoriedade, enums).
- * Nunca embutir esta lógica em componentes de UI (CLAUDE.md §2.4) — o
- * formulário e o modo validador consomem este catálogo através do motor
- * em src/domain/rules/motor.ts.
+ * Catálogo declarativo de regras de negócio (CLAUDE.md §2.4).
+ *
+ * Duas famílias:
+ *  - `obrigatorio*`: um campo da especificação do utilizador que tem de
+ *    estar preenchido. Severidade `erro` — impede submeter a validação,
+ *    nunca impede guardar nem exportar.
+ *  - regras condicionais e de coerência: só se aplicam em certos casos
+ *    (consentimento, categorias especiais, transferências) ou comparam
+ *    campos entre si.
+ *
+ * Nenhuma regra vive dentro de um componente de UI.
  */
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const TELEFONE_RE = /^[+()0-9 .-]{9,}$/
-const DATA_ISO_RE = /^\d{4}-\d{2}-\d{2}$/
+const ORGANIZACAO_GENERICA = 'a organização'
 
-export const catalogoRegras: Regra[] = [
+function preenchido(valor: unknown): boolean {
+  if (valor === undefined || valor === null) return false
+  if (typeof valor === 'string') return valor.trim() !== ''
+  if (Array.isArray(valor)) return valor.length > 0
+  return true
+}
+
+function ehResponsavel(registo: Registo): registo is RegistoResponsavel {
+  return registo.tipoRegisto === 'responsavel'
+}
+
+function ehSubcontratado(registo: Registo): registo is RegistoSubcontratado {
+  return registo.tipoRegisto === 'subcontratado'
+}
+
+/**
+ * Constrói a regra "este campo é obrigatório" para uma das qualidades.
+ * `ler` só é chamada para registos da qualidade certa, por isso pode
+ * assumir o tipo concreto.
+ */
+function obrigatorio<T extends Registo>(
+  prefixo: string,
+  qualidade: (registo: Registo) => registo is T,
+  campo: string,
+  rotulo: string,
+  ler: (registo: T) => unknown = (registo) => (registo as unknown as Record<string, unknown>)[campo],
+): RegraRegisto {
+  return {
+    id: `${prefixo}.obrigatorio.${campo}`,
+    escopo: 'registo',
+    severidade: 'erro',
+    campo,
+    descricao: `${rotulo} tem de estar preenchido.`,
+    verificar: (registo) => !qualidade(registo) || preenchido(ler(registo)),
+    mensagem: `${rotulo} — por preencher.`,
+  }
+}
+
+function obrigatorioResponsavel(
+  campo: string,
+  rotulo: string,
+  ler?: (registo: RegistoResponsavel) => unknown,
+): RegraRegisto {
+  return obrigatorio('resp', ehResponsavel, campo, rotulo, ler)
+}
+
+function obrigatorioSubcontratado(
+  campo: string,
+  rotulo: string,
+  ler?: (registo: RegistoSubcontratado) => unknown,
+): RegraRegisto {
+  return obrigatorio('sub', ehSubcontratado, campo, rotulo, ler)
+}
+
+const c = textos.campos
+
+/** Campos comuns às duas qualidades, exigidos em ambas. */
+const regrasComuns: RegraRegisto[] = [
   {
-    id: 'MTO_OUTRO_ESPECIFICADO',
+    id: 'comum.obrigatorio.gestorProjeto.nome',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'gestorProjeto.nome',
+    descricao: 'O nome do Gestor de Projeto tem de estar preenchido.',
+    verificar: (registo) => preenchido(registo.gestorProjeto?.nome),
+    mensagem: `${c['gestorProjeto.nome']} — por preencher.`,
+  },
+  {
+    id: 'comum.obrigatorio.unidadeCoordenacao',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'unidadeCoordenacao',
+    descricao: 'A Unidade de Coordenação tem de estar preenchida.',
+    verificar: (registo) => preenchido(registo.unidadeCoordenacao),
+    mensagem: `${c.unidadeCoordenacao} — por preencher.`,
+  },
+  {
+    id: 'comum.obrigatorio.descricao',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'descricao',
+    descricao: 'A descrição do processo tem de estar preenchida.',
+    verificar: (registo) => preenchido(registo.descricao),
+    mensagem: `${c.descricao} — por preencher.`,
+  },
+  {
+    id: 'comum.obrigatorio.medidasTecnicasOrganizativas',
     escopo: 'registo',
     severidade: 'erro',
     campo: 'medidasTecnicasOrganizativas',
-    descricao:
-      'Quando se escolhe "Outro" numa medida técnica/organizativa, tem de se especificar qual.',
+    descricao: 'Tem de estar indicada pelo menos uma medida técnica ou organizativa.',
+    verificar: (registo) => preenchido(registo.medidasTecnicasOrganizativas),
+    mensagem: `${c.medidasTecnicasOrganizativas} — indica pelo menos uma.`,
+  },
+  {
+    id: 'comum.obrigatorio.aipdRealizada',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'aipdRealizada',
+    descricao: 'Tem de estar respondido se foi realizada AIPD.',
+    verificar: (registo) => preenchido(registo.aipdRealizada),
+    mensagem: `${c.aipdRealizada} — por responder.`,
+  },
+  {
+    id: 'comum.medidaOutraPorEspecificar',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'medidasTecnicasOrganizativas',
+    descricao: 'Uma medida "Outro" tem de ser especificada.',
     verificar: (registo) =>
-      registo.medidasTecnicasOrganizativas.every(
-        (m) => m.medida !== 'outro' || Boolean(m.medidaOutra?.trim()),
+      (registo.medidasTecnicasOrganizativas ?? []).every(
+        (m) => m.medida !== 'outro' || preenchido(m.medidaOutra),
       ),
-    mensagem: 'Especifica a medida técnica/organizativa quando escolhes "Outro".',
+    mensagem: 'Especifica a medida assinalada como "Outro".',
   },
+]
+
+/** Responsável pelo tratamento — as sete secções da especificação. */
+const regrasResponsavel: RegraRegisto[] = [
+  // 1. Descrição do Processo / Caracterização
+  obrigatorioResponsavel('finalidade', c.finalidade),
+  obrigatorioResponsavel('operacoesTratamento', c.operacoesTratamento),
+  obrigatorioResponsavel('trataDadosPessoais', c.trataDadosPessoais),
+  obrigatorioResponsavel('dadosNecessariosParaFinalidade', c.dadosNecessariosParaFinalidade),
+  obrigatorioResponsavel(
+    'categoriasEspeciais.aplicavel',
+    c['categoriasEspeciais.aplicavel'],
+    (registo) => registo.categoriasEspeciais?.aplicavel,
+  ),
+  obrigatorioResponsavel('categoriasTitulares', c.categoriasTitulares),
+  obrigatorioResponsavel('categoriasDados', c.categoriasDados),
+  obrigatorioResponsavel('entidadesQueEnviamDados', c.entidadesQueEnviamDados),
+  obrigatorioResponsavel('entidadesParaQuemEnvioDados', c.entidadesParaQuemEnvioDados),
+  obrigatorioResponsavel('suportesFisicos', c.suportesFisicos),
+  obrigatorioResponsavel('localizacaoSuportesFisicos', c.localizacaoSuportesFisicos),
+
+  // 2. Ferramentas / Aplicações
+  obrigatorioResponsavel('ferramentasAplicacoes', c.ferramentasAplicacoes),
+  obrigatorioResponsavel('numeroCamposComDadosPessoais', c.numeroCamposComDadosPessoais),
+  obrigatorioResponsavel('volumeDadosPessoais', c.volumeDadosPessoais),
+  obrigatorioResponsavel('numeroUtilizadoresComAcesso', c.numeroUtilizadoresComAcesso),
+
+  // 4. Base de Licitude
+  obrigatorioResponsavel('baseLicitude', c.baseLicitude),
+  obrigatorioResponsavel(
+    'retencaoDefinidaPelaOrganizacao',
+    c.retencaoDefinidaPelaOrganizacao(ORGANIZACAO_GENERICA),
+  ),
+  obrigatorioResponsavel('retencaoPorNormativosLegais', c.retencaoPorNormativosLegais),
+
+  // 5. Requisitos Funcionais / Direitos dos Titulares
+  obrigatorioResponsavel('deverInformar', c.deverInformar),
+  obrigatorioResponsavel('direitoAcesso', c.direitoAcesso),
+  obrigatorioResponsavel('direitoRetificacao', c.direitoRetificacao),
+  obrigatorioResponsavel('direitoApagamento', c.direitoApagamento),
+  obrigatorioResponsavel('direitoPortabilidade', c.direitoPortabilidade),
+  obrigatorioResponsavel('direitoLimitacao', c.direitoLimitacao),
+  obrigatorioResponsavel('direitoDecisoesAutomatizadas', c.direitoDecisoesAutomatizadas),
+  obrigatorioResponsavel('direitoOposicao', c.direitoOposicao),
+  obrigatorioResponsavel('detecaoNotificacaoViolacoes', c.detecaoNotificacaoViolacoes),
+
+  // 6. Controlos Operacionais
+  obrigatorioResponsavel('procedimentosAcessosDocumentados', c.procedimentosAcessosDocumentados),
+  obrigatorioResponsavel('procedimentosAcessosImplementados', c.procedimentosAcessosImplementados),
+  obrigatorioResponsavel('acessosFormalmenteAutorizados', c.acessosFormalmenteAutorizados),
+  obrigatorioResponsavel('controlosAcessosPrivilegiados', c.controlosAcessosPrivilegiados),
+  obrigatorioResponsavel('revisaoPeriodicaAcessos', c.revisaoPeriodicaAcessos),
+  obrigatorioResponsavel('remocaoAcessosASaida', c.remocaoAcessosASaida),
+
+  // 7. Observações Gerais
+  obrigatorioResponsavel('normativosAplicaveis', c.normativosAplicaveis),
+
+  // ── Condicionais e de coerência ────────────────────────────────────
   {
-    id: 'TRANSFERENCIA_MECANISMO_OBRIGATORIO',
+    id: 'resp.categoriasEspeciaisPorIdentificar',
     escopo: 'registo',
     severidade: 'erro',
-    campo: 'transferenciasInternacionais',
+    campo: 'categoriasEspeciais.identificar',
     descricao:
-      'Se existem transferências internacionais de dados, o mecanismo de garantia (art. 44.º) é obrigatório.',
-    verificar: (registo) => {
-      const t = registo.transferenciasInternacionais
-      return !t.existem || Boolean(t.mecanismo)
-    },
-    mensagem: 'Indica o mecanismo de garantia da transferência internacional (art. 44.º RGPD).',
-  },
-  {
-    id: 'TRANSFERENCIA_MECANISMO_OUTRO_ESPECIFICADO',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'transferenciasInternacionais',
-    descricao: 'Quando o mecanismo de transferência é "Outro", tem de se especificar qual.',
-    verificar: (registo) => {
-      const t = registo.transferenciasInternacionais
-      return t.mecanismo !== 'outro' || Boolean(t.mecanismoOutro?.trim())
-    },
-    mensagem: 'Especifica o mecanismo de transferência quando escolhes "Outro".',
-  },
-  {
-    id: 'TRANSFERENCIA_PAISES_OBRIGATORIO',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'transferenciasInternacionais',
-    descricao: 'Se existem transferências internacionais, o(s) país(es)/organização(ões) de destino são obrigatórios.',
-    verificar: (registo) => {
-      const t = registo.transferenciasInternacionais
-      return !t.existem || (t.paisesOuOrganizacoes?.length ?? 0) > 0
-    },
-    mensagem: 'Indica pelo menos um país ou organização internacional de destino.',
-  },
-  {
-    id: 'TRANSFERENCIA_SEM_DADOS_QUANDO_NAO_EXISTEM',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'transferenciasInternacionais',
-    descricao:
-      'Se não existem transferências internacionais, não deve haver mecanismo nem países preenchidos (inconsistência a rever).',
-    verificar: (registo) => {
-      const t = registo.transferenciasInternacionais
-      if (t.existem) return true
-      return !t.mecanismo && (t.paisesOuOrganizacoes?.length ?? 0) === 0
-    },
-    mensagem: 'Há dados de transferência preenchidos apesar de "existem" estar como não. Confirma qual está correto.',
-  },
-  {
-    id: 'GESTOR_PROJETO_CONTACTO_FORMATO',
-    escopo: 'registo',
-    severidade: 'aviso',
-    campo: 'gestorProjeto',
-    descricao: 'O contacto do GP deve parecer um email ou um número de telefone válido.',
-    verificar: (registo) => {
-      const contacto = registo.gestorProjeto.contacto.trim()
-      // Campo vazio é assinalado pela obrigatoriedade do schema, não por esta regra de formato.
-      if (!contacto) return true
-      return EMAIL_RE.test(contacto) || TELEFONE_RE.test(contacto)
-    },
-    mensagem: 'O contacto do gestor de projeto não parece um email nem um telefone válido.',
-  },
-  {
-    id: 'CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'categoriasEspeciais',
-    descricao:
-      'Se há categorias especiais de dados (art. 9.º), a condição que afasta a proibição e a identificação são obrigatórias.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'responsavel') return true
-      const ce = registo.categoriasEspeciais
-      if (!ce.aplicavel) return true
-      return (ce.condicoesArt9?.length ?? 0) > 0 && Boolean(ce.identificar?.trim())
-    },
+      'Se existem categorias especiais de dados (art. 9.º), têm de ser identificadas.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.categoriasEspeciais?.aplicavel !== 'sim' ||
+      preenchido(registo.categoriasEspeciais?.identificar),
     mensagem:
-      'Indica a condição do art. 9.º/2 aplicável e identifica as categorias especiais de dados tratadas.',
+      'Indicaste que há categorias especiais de dados — identifica quais (art. 9.º/1).',
   },
   {
-    id: 'CATEGORIAS_ESPECIAIS_SEM_DADOS_QUANDO_NAO_APLICAVEL',
+    id: 'resp.categoriasEspeciaisNecessidadePorResponder',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'categoriasEspeciaisNecessarias',
+    descricao:
+      'Se existem categorias especiais, tem de estar respondido se todas são necessárias.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.categoriasEspeciais?.aplicavel !== 'sim' ||
+      preenchido(registo.categoriasEspeciaisNecessarias),
+    mensagem: `${c.categoriasEspeciaisNecessarias} — por responder.`,
+  },
+  {
+    id: 'resp.consentimentoDemonstracaoPorResponder',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'consentimentoMecanismosDemonstracao',
+    descricao:
+      'Com base no consentimento, tem de haver forma de o demonstrar (art. 7.º/1).',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.baseLicitude !== 'consentimento' ||
+      preenchido(registo.consentimentoMecanismosDemonstracao),
+    mensagem: `${c.consentimentoMecanismosDemonstracao} — por responder.`,
+  },
+  {
+    id: 'resp.consentimentoParentalPorResponder',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'consentimentoResponsabilidadeParental',
+    descricao:
+      'Com base no consentimento, tem de estar respondida a questão do consentimento de menores (art. 8.º).',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.baseLicitude !== 'consentimento' ||
+      preenchido(registo.consentimentoResponsabilidadeParental),
+    mensagem: `${c.consentimentoResponsabilidadeParental} — por responder.`,
+  },
+  {
+    id: 'resp.consentimentoSemDemonstracao',
     escopo: 'registo',
     severidade: 'aviso',
-    campo: 'categoriasEspeciais',
+    campo: 'consentimentoMecanismosDemonstracao',
     descricao:
-      'Se não há categorias especiais de dados, não deve haver condição do art. 9.º nem identificação preenchidas.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'responsavel') return true
-      const ce = registo.categoriasEspeciais
-      if (ce.aplicavel) return true
-      return (ce.condicoesArt9?.length ?? 0) === 0 && !ce.identificar?.trim()
-    },
+      'O art. 7.º/1 exige poder demonstrar o consentimento a qualquer momento.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.baseLicitude !== 'consentimento' ||
+      registo.consentimentoMecanismosDemonstracao !== 'nao',
     mensagem:
-      'Há uma condição do art. 9.º ou identificação preenchidas apesar de não haver categorias especiais. Confirma qual está correto.',
+      'O tratamento assenta no consentimento mas não há forma de o demonstrar — o art. 7.º/1 exige que o responsável o consiga provar a qualquer momento.',
   },
   {
-    id: 'CATEGORIA_DADOS_OUTRO_ESPECIFICADA',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'categoriasDados',
-    descricao: 'Quando uma categoria de dados é "Outro", tem de se especificar qual.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'responsavel') return true
-      return registo.categoriasDados.every(
-        (c) => c.categoria !== 'outro' || Boolean(c.categoriaOutra?.trim()),
-      )
-    },
-    mensagem: 'Especifica a categoria de dados pessoais quando escolhes "Outro".',
-  },
-  {
-    id: 'CATEGORIAS_TITULARES_OUTRO_ESPECIFICADA',
-    escopo: 'registo',
-    severidade: 'erro',
-    campo: 'categoriasTitulares',
-    descricao: 'Quando a categoria de titulares é "Outro", tem de se especificar qual.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'responsavel') return true
-      return (
-        !registo.categoriasTitulares.includes('outro') ||
-        Boolean(registo.categoriasTitularesOutra?.trim())
-      )
-    },
-    mensagem: 'Especifica a categoria de titulares dos dados quando escolhes "Outro".',
-  },
-  {
-    id: 'RESPONSAVEIS_CATEGORIAS_TRATAMENTO_DESCRITIVAS',
+    id: 'resp.semPeriodoDeRetencao',
     escopo: 'registo',
     severidade: 'aviso',
-    campo: 'responsaveis',
+    campo: 'retencaoDefinidaPelaOrganizacao',
     descricao:
-      'A descrição das categorias de tratamento efetuadas por conta de cada responsável deve ser suficientemente descritiva.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'subcontratado') return true
-      return registo.responsaveis.every((r) => r.categoriasTratamento.trim().length >= 10)
-    },
-    mensagem: 'A descrição das categorias de tratamento parece demasiado curta — detalha melhor.',
+      'O art. 30.º/1 f) pede o prazo de conservação ou, na sua falta, o critério que o determina.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      registo.retencaoDefinidaPelaOrganizacao !== 'nao' ||
+      registo.retencaoPorNormativosLegais !== 'nao',
+    mensagem:
+      'Não há prazo de retenção definido internamente nem por normativo legal — o art. 30.º/1 f) pede um ou o critério que o determine.',
   },
   {
-    id: 'SUBCONTRATANTE_DATA_CONTRATO_FORMATO',
+    id: 'resp.subcontratadoSemNome',
     escopo: 'registo',
     severidade: 'erro',
-    campo: 'subcontratantesContratados',
-    descricao: 'A data do contrato de subcontratação, quando indicada, deve estar no formato AAAA-MM-DD.',
-    verificar: (registo) => {
-      if (registo.tipoRegisto !== 'responsavel') return true
-      return (registo.subcontratantesContratados ?? []).every(
-        (s) => !s.dataContrato || DATA_ISO_RE.test(s.dataContrato),
-      )
-    },
-    mensagem: 'A data do contrato de subcontratação deve estar no formato AAAA-MM-DD.',
+    campo: 'subcontratados',
+    descricao: 'Cada entidade subcontratada tem de ter nome.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      (registo.subcontratados ?? []).every((s) => preenchido(s.nome)),
+    mensagem: 'Há uma entidade subcontratada sem nome.',
   },
   {
-    id: 'REGISTOS_NOME_TRATAMENTO_UNICO',
+    id: 'resp.subcontratadoSemContrato',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'subcontratados',
+    descricao:
+      'O art. 28.º/3 exige contrato escrito com o subcontratante.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      (registo.subcontratados ?? []).every((s) => s.existeContrato !== 'nao'),
+    mensagem:
+      'Há uma entidade subcontratada sem contrato — o art. 28.º/3 exige que a subcontratação seja regulada por contrato escrito.',
+  },
+  {
+    id: 'resp.subcontratadoSemClausulas',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'subcontratados',
+    descricao:
+      'O contrato de subcontratação tem de conter as matérias do art. 28.º/3.',
+    verificar: (registo) =>
+      !ehResponsavel(registo) ||
+      (registo.subcontratados ?? []).every(
+        (s) => s.contratoComClausulasProtecaoDados !== 'nao',
+      ),
+    mensagem:
+      'Há um contrato de subcontratação sem cláusulas de proteção de dados — o art. 28.º/3 enumera o que tem de constar do contrato.',
+  },
+  {
+    id: 'resp.dadosDesnecessarios',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'dadosNecessariosParaFinalidade',
+    descricao: 'Princípio da minimização dos dados (art. 5.º/1 c)).',
+    verificar: (registo) =>
+      !ehResponsavel(registo) || registo.dadosNecessariosParaFinalidade !== 'nao',
+    mensagem:
+      'Indicaste que nem todos os dados recolhidos são necessários para a finalidade — o princípio da minimização (art. 5.º/1 c)) obriga a reduzir a recolha ao necessário.',
+  },
+  {
+    id: 'resp.semDeverInformar',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'deverInformar',
+    descricao: 'Dever de informar o titular (arts. 13.º e 14.º).',
+    verificar: (registo) => !ehResponsavel(registo) || registo.deverInformar !== 'nao',
+    mensagem:
+      'O dever de informar não foi exercido antes do início do tratamento — os arts. 13.º e 14.º obrigam a informar o titular no momento da recolha.',
+  },
+  {
+    id: 'resp.semDetecaoViolacoes',
+    escopo: 'registo',
+    severidade: 'aviso',
+    campo: 'detecaoNotificacaoViolacoes',
+    descricao:
+      'Notificação de violações de dados à CNPD em 72 horas (art. 33.º).',
+    verificar: (registo) =>
+      !ehResponsavel(registo) || registo.detecaoNotificacaoViolacoes !== 'nao',
+    mensagem:
+      'Sem capacidade de detetar e notificar violações de dados, o prazo de 72 horas do art. 33.º/1 não é cumprível.',
+  },
+]
+
+/** Subcontratante (art. 30.º/2). */
+const regrasSubcontratado: RegraRegisto[] = [
+  obrigatorioSubcontratado('nomeResponsavelTratamento', c.nomeResponsavelTratamento),
+  obrigatorioSubcontratado('finalidade', c.finalidadeSubcontratado),
+  obrigatorioSubcontratado('responsavelConjunto', c.responsavelConjunto),
+  obrigatorioSubcontratado('baseLegal', c.baseLegal),
+  obrigatorioSubcontratado('recolhaDados', c.recolhaDados),
+  obrigatorioSubcontratado('categoriasTitulares', c.categoriasTitulares),
+  obrigatorioSubcontratado('categoriasDados', c.categoriasDados),
+  obrigatorioSubcontratado(
+    'categoriasEspeciais.aplicavel',
+    c['categoriasEspeciais.aplicavel'],
+    (registo) => registo.categoriasEspeciais?.aplicavel,
+  ),
+  obrigatorioSubcontratado('destinatarios', c.destinatarios),
+  obrigatorioSubcontratado(
+    'transferencias.existem',
+    c['transferencias.existem'],
+    (registo) => registo.transferencias?.existem,
+  ),
+  obrigatorioSubcontratado('prazoConservacao', c.prazoConservacao),
+
+  {
+    id: 'sub.categoriasEspeciaisPorIdentificar',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'categoriasEspeciais.identificar',
+    descricao: 'Se existem categorias especiais de dados, têm de ser identificadas.',
+    verificar: (registo) =>
+      !ehSubcontratado(registo) ||
+      registo.categoriasEspeciais?.aplicavel !== 'sim' ||
+      preenchido(registo.categoriasEspeciais?.identificar),
+    mensagem: 'Indicaste que há categorias especiais de dados — identifica quais (art. 9.º/1).',
+  },
+  {
+    id: 'sub.transferenciasPorIdentificar',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'transferencias.identificar',
+    descricao:
+      'Havendo transferências para países terceiros, é preciso identificar o destino (art. 30.º/2 c)).',
+    verificar: (registo) =>
+      !ehSubcontratado(registo) ||
+      registo.transferencias?.existem !== 'sim' ||
+      preenchido(registo.transferencias?.identificar),
+    mensagem:
+      'Indicaste que há transferências para países terceiros — identifica quais (art. 30.º/2 c) e art. 44.º).',
+  },
+  {
+    id: 'sub.outroSubcontratanteSemNome',
+    escopo: 'registo',
+    severidade: 'erro',
+    campo: 'outrosSubcontratantes',
+    descricao: 'Cada subcontratante indicado tem de ter nome.',
+    verificar: (registo) =>
+      !ehSubcontratado(registo) ||
+      (registo.outrosSubcontratantes ?? []).every((s) => preenchido(s.nome)),
+    mensagem: 'Há um subcontratante sem nome na lista do art. 28.º.',
+  },
+]
+
+/** Regras de âmbito ficheiro. */
+const regrasFicheiro: Regra[] = [
+  {
+    id: 'ficheiro.nomesDuplicados',
     escopo: 'ficheiro',
     severidade: 'aviso',
     campo: 'nomeTratamento',
-    descricao:
-      'Dois registos com a mesma direção e o mesmo nome de tratamento são provavelmente um duplicado a rever.',
+    descricao: 'Dois registos com o mesmo nome de tratamento são difíceis de distinguir.',
     avaliar: (ficheiro) => {
-      const vistos = new Map<string, string>()
-      const ocorrencias: Array<{ registoId: string | null; mensagem: string }> = []
+      const contagem = new Map<string, number>()
       for (const registo of ficheiro.registos) {
-        const chave = `${registo.direcao.trim().toLowerCase()}::${registo.nomeTratamento.trim().toLowerCase()}`
-        if (vistos.has(chave)) {
-          ocorrencias.push({
-            registoId: registo.id,
-            mensagem: `Já existe um registo com o mesmo nome de tratamento ("${registo.nomeTratamento}") na mesma direção.`,
-          })
-        } else {
-          vistos.set(chave, registo.id)
-        }
+        const chave = registo.nomeTratamento.trim().toLowerCase()
+        contagem.set(chave, (contagem.get(chave) ?? 0) + 1)
       }
-      return ocorrencias
+      return ficheiro.registos
+        .filter((registo) => (contagem.get(registo.nomeTratamento.trim().toLowerCase()) ?? 0) > 1)
+        .map((registo) => ({
+          registoId: registo.id,
+          mensagem: `Existe mais do que um registo com o nome "${registo.nomeTratamento}".`,
+        }))
     },
   },
+]
+
+export const catalogoRegras: Regra[] = [
+  ...regrasComuns,
+  ...regrasResponsavel,
+  ...regrasSubcontratado,
+  ...regrasFicheiro,
 ]

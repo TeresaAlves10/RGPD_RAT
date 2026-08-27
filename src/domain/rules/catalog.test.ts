@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { avaliarFicheiro, avaliarRegisto } from '@/domain/rules/motor'
+import { catalogoRegras } from '@/domain/rules/catalog'
+import { avaliarFicheiro, avaliarRegisto, errosPorResolver, podeSubmeter } from '@/domain/rules/motor'
 import {
   ficheiroRatFixtureValido,
   registoResponsavelCompleto,
@@ -7,207 +8,204 @@ import {
   registoSubcontratadoCompleto,
   registoSubcontratadoMinimo,
 } from '@/domain/fixtures/registos'
-import type { Registo } from '@/domain/schema/registo'
-import type { FicheiroRat } from '@/domain/schema/ficheiro'
+import type { RegistoResponsavel } from '@/domain/schema/responsavel'
+import type { RegistoSubcontratado } from '@/domain/schema/subcontratado'
 
-function clone<T>(valor: T): T {
-  return structuredClone(valor)
+/** Ids das regras violadas por um registo — o que os testes verificam. */
+function violadas(registo: RegistoResponsavel | RegistoSubcontratado): string[] {
+  return avaliarRegisto(registo).map((o) => o.regraId)
 }
 
-function temOcorrencia(registo: Registo, regraId: string): boolean {
-  return avaliarRegisto(registo).some((o) => o.regraId === regraId)
-}
+const responsavel = (alteracoes: Partial<RegistoResponsavel>): RegistoResponsavel => ({
+  ...registoResponsavelCompleto,
+  ...alteracoes,
+})
 
-describe('MTO_OUTRO_ESPECIFICADO', () => {
-  it('passa quando "outro" tem medidaOutra preenchida', () => {
-    const registo = clone(registoResponsavelCompleto)
-    expect(temOcorrencia(registo, 'MTO_OUTRO_ESPECIFICADO')).toBe(false)
+const subcontratado = (alteracoes: Partial<RegistoSubcontratado>): RegistoSubcontratado => ({
+  ...registoSubcontratadoCompleto,
+  ...alteracoes,
+})
+
+describe('catálogo de regras', () => {
+  it('não tem ids duplicados', () => {
+    const ids = catalogoRegras.map((r) => r.id)
+    expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('falha quando "outro" não tem medidaOutra', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.medidasTecnicasOrganizativas = [{ medida: 'outro' }]
-    expect(temOcorrencia(registo, 'MTO_OUTRO_ESPECIFICADO')).toBe(true)
+  it('cada regra tem descrição e campo ancorável na UI', () => {
+    for (const regra of catalogoRegras) {
+      expect(regra.descricao.length).toBeGreaterThan(0)
+      expect(regra.campo.length).toBeGreaterThan(0)
+    }
   })
 })
 
-describe('TRANSFERENCIA_MECANISMO_OBRIGATORIO', () => {
-  it('passa quando não existem transferências', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_MECANISMO_OBRIGATORIO')).toBe(false)
+describe('campos obrigatórios do responsável', () => {
+  it('positivo: um registo completo não tem erros', () => {
+    expect(errosPorResolver(registoResponsavelCompleto)).toHaveLength(0)
+    expect(podeSubmeter(registoResponsavelCompleto)).toBe(true)
   })
 
-  it('falha quando existem transferências sem mecanismo', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.transferenciasInternacionais = { existem: true, paisesOuOrganizacoes: ['França'] }
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_MECANISMO_OBRIGATORIO')).toBe(true)
-  })
-})
-
-describe('TRANSFERENCIA_MECANISMO_OUTRO_ESPECIFICADO', () => {
-  it('passa quando o mecanismo não é "outro"', () => {
-    const registo = clone(registoResponsavelCompleto)
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_MECANISMO_OUTRO_ESPECIFICADO')).toBe(false)
+  it('negativo: um registo mínimo acusa os campos por preencher', () => {
+    const ids = violadas(registoResponsavelMinimo)
+    expect(ids).toContain('resp.obrigatorio.finalidade')
+    expect(ids).toContain('resp.obrigatorio.operacoesTratamento')
+    expect(ids).toContain('resp.obrigatorio.ferramentasAplicacoes')
+    expect(ids).toContain('resp.obrigatorio.direitoAcesso')
+    expect(ids).toContain('resp.obrigatorio.revisaoPeriodicaAcessos')
+    expect(ids).toContain('comum.obrigatorio.unidadeCoordenacao')
+    expect(podeSubmeter(registoResponsavelMinimo)).toBe(false)
   })
 
-  it('falha quando o mecanismo é "outro" sem especificação', () => {
-    const registo = clone(registoResponsavelCompleto)
-    registo.transferenciasInternacionais = { ...registo.transferenciasInternacionais, mecanismo: 'outro' }
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_MECANISMO_OUTRO_ESPECIFICADO')).toBe(true)
+  it('negativo: apagar um único campo obrigatório acusa só esse campo', () => {
+    const ids = violadas(responsavel({ suportesFisicos: '   ' }))
+    expect(ids).toContain('resp.obrigatorio.suportesFisicos')
+    expect(ids).not.toContain('resp.obrigatorio.localizacaoSuportesFisicos')
   })
 })
 
-describe('TRANSFERENCIA_PAISES_OBRIGATORIO', () => {
-  it('passa quando existem transferências com países indicados', () => {
-    const registo = clone(registoResponsavelCompleto)
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_PAISES_OBRIGATORIO')).toBe(false)
-  })
-
-  it('falha quando existem transferências sem países indicados', () => {
-    const registo = clone(registoResponsavelCompleto)
-    registo.transferenciasInternacionais = { existem: true, mecanismo: 'cct' }
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_PAISES_OBRIGATORIO')).toBe(true)
-  })
-})
-
-describe('TRANSFERENCIA_SEM_DADOS_QUANDO_NAO_EXISTEM', () => {
-  it('passa quando não existem transferências e nada está preenchido', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_SEM_DADOS_QUANDO_NAO_EXISTEM')).toBe(false)
-  })
-
-  it('falha quando não existem transferências mas há mecanismo preenchido', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.transferenciasInternacionais = { existem: false, mecanismo: 'cct' }
-    expect(temOcorrencia(registo, 'TRANSFERENCIA_SEM_DADOS_QUANDO_NAO_EXISTEM')).toBe(true)
-  })
-})
-
-describe('GESTOR_PROJETO_CONTACTO_FORMATO', () => {
-  it('passa com um email válido', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'GESTOR_PROJETO_CONTACTO_FORMATO')).toBe(false)
-  })
-
-  it('falha com um contacto que não é email nem telefone', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.gestorProjeto = { ...registo.gestorProjeto, contacto: 'fala comigo' }
-    expect(temOcorrencia(registo, 'GESTOR_PROJETO_CONTACTO_FORMATO')).toBe(true)
-  })
-
-  it('não reporta a regra de formato quando o contacto está vazio (é assunto da obrigatoriedade do schema)', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.gestorProjeto = { ...registo.gestorProjeto, contacto: '' }
-    expect(temOcorrencia(registo, 'GESTOR_PROJETO_CONTACTO_FORMATO')).toBe(false)
-  })
-})
-
-describe('CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA', () => {
-  it('passa quando categorias especiais aplicável tem condição e identificação', () => {
-    const registo = clone(registoResponsavelCompleto)
-    expect(temOcorrencia(registo, 'CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA')).toBe(false)
-  })
-
-  it('falha quando categorias especiais aplicável não tem condição', () => {
-    const registo = clone(registoResponsavelCompleto)
-    registo.categoriasEspeciais = { aplicavel: true }
-    expect(temOcorrencia(registo, 'CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA')).toBe(true)
-  })
-
-  it('não se aplica a registos de subcontratado', () => {
-    const registo = clone(registoSubcontratadoMinimo)
-    expect(temOcorrencia(registo, 'CATEGORIAS_ESPECIAIS_CONDICAO_OBRIGATORIA')).toBe(false)
-  })
-})
-
-describe('CATEGORIAS_ESPECIAIS_SEM_DADOS_QUANDO_NAO_APLICAVEL', () => {
-  it('passa quando não aplicável e nada está preenchido', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'CATEGORIAS_ESPECIAIS_SEM_DADOS_QUANDO_NAO_APLICAVEL')).toBe(false)
-  })
-
-  it('falha quando não aplicável mas há identificação preenchida', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.categoriasEspeciais = { aplicavel: false, identificar: 'dados de saúde' }
-    expect(temOcorrencia(registo, 'CATEGORIAS_ESPECIAIS_SEM_DADOS_QUANDO_NAO_APLICAVEL')).toBe(true)
-  })
-})
-
-describe('CATEGORIA_DADOS_OUTRO_ESPECIFICADA', () => {
-  it('passa quando não há categoria "outro"', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'CATEGORIA_DADOS_OUTRO_ESPECIFICADA')).toBe(false)
-  })
-
-  it('falha quando categoria "outro" não tem especificação', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.categoriasDados = [{ categoria: 'outro', tipos: ['algo'] }]
-    expect(temOcorrencia(registo, 'CATEGORIA_DADOS_OUTRO_ESPECIFICADA')).toBe(true)
-  })
-})
-
-describe('CATEGORIAS_TITULARES_OUTRO_ESPECIFICADA', () => {
-  it('passa quando não há categoria de titulares "outro"', () => {
-    const registo = clone(registoResponsavelMinimo)
-    expect(temOcorrencia(registo, 'CATEGORIAS_TITULARES_OUTRO_ESPECIFICADA')).toBe(false)
-  })
-
-  it('falha quando categoria de titulares "outro" não tem especificação', () => {
-    const registo = clone(registoResponsavelMinimo)
-    registo.categoriasTitulares = ['outro']
-    expect(temOcorrencia(registo, 'CATEGORIAS_TITULARES_OUTRO_ESPECIFICADA')).toBe(true)
-  })
-})
-
-describe('RESPONSAVEIS_CATEGORIAS_TRATAMENTO_DESCRITIVAS', () => {
-  it('passa com uma descrição suficientemente longa', () => {
-    const registo = clone(registoSubcontratadoCompleto)
-    expect(temOcorrencia(registo, 'RESPONSAVEIS_CATEGORIAS_TRATAMENTO_DESCRITIVAS')).toBe(false)
-  })
-
-  it('falha com uma descrição demasiado curta', () => {
-    const registo = clone(registoSubcontratadoMinimo)
-    registo.responsaveis = [{ nome: 'Cliente Fictício', categoriasTratamento: 'ok' }]
-    expect(temOcorrencia(registo, 'RESPONSAVEIS_CATEGORIAS_TRATAMENTO_DESCRITIVAS')).toBe(true)
-  })
-})
-
-describe('SUBCONTRATANTE_DATA_CONTRATO_FORMATO', () => {
-  it('passa com data no formato AAAA-MM-DD', () => {
-    const registo = clone(registoResponsavelCompleto)
-    expect(temOcorrencia(registo, 'SUBCONTRATANTE_DATA_CONTRATO_FORMATO')).toBe(false)
-  })
-
-  it('falha com uma data em formato inválido', () => {
-    const registo = clone(registoResponsavelCompleto)
-    registo.subcontratantesContratados = [{ nome: 'Fornecedor Fictício', dataContrato: '15/01/2023' }]
-    expect(temOcorrencia(registo, 'SUBCONTRATANTE_DATA_CONTRATO_FORMATO')).toBe(true)
-  })
-})
-
-describe('REGISTOS_NOME_TRATAMENTO_UNICO', () => {
-  it('passa quando não há registos duplicados', () => {
-    const ficheiro = clone(ficheiroRatFixtureValido)
-    expect(avaliarFicheiro(ficheiro).some((o) => o.regraId === 'REGISTOS_NOME_TRATAMENTO_UNICO')).toBe(
-      false,
+describe('categorias especiais de dados (art. 9.º)', () => {
+  it('positivo: identificadas quando existem', () => {
+    expect(violadas(registoResponsavelCompleto)).not.toContain(
+      'resp.categoriasEspeciaisPorIdentificar',
     )
   })
 
-  it('falha quando dois registos partilham direção e nome de tratamento', () => {
-    const ficheiro: FicheiroRat = clone(ficheiroRatFixtureValido)
-    const duplicado = clone(registoResponsavelMinimo)
-    duplicado.id = '55555555-5555-4555-8555-555555555555'
-    ficheiro.registos = [registoResponsavelMinimo, duplicado]
-    expect(avaliarFicheiro(ficheiro).some((o) => o.regraId === 'REGISTOS_NOME_TRATAMENTO_UNICO')).toBe(
-      true,
+  it('negativo: assinaladas mas não identificadas', () => {
+    const ids = violadas(
+      responsavel({ categoriasEspeciais: { aplicavel: 'sim', identificar: '' } }),
+    )
+    expect(ids).toContain('resp.categoriasEspeciaisPorIdentificar')
+  })
+
+  it('não se aplica quando não há categorias especiais', () => {
+    const ids = violadas(
+      responsavel({
+        categoriasEspeciais: { aplicavel: 'nao' },
+        categoriasEspeciaisNecessarias: undefined,
+      }),
+    )
+    expect(ids).not.toContain('resp.categoriasEspeciaisPorIdentificar')
+    expect(ids).not.toContain('resp.categoriasEspeciaisNecessidadePorResponder')
+  })
+})
+
+describe('consentimento (arts. 7.º e 8.º)', () => {
+  it('positivo: com consentimento e mecanismos de demonstração', () => {
+    const ids = violadas(
+      responsavel({
+        baseLicitude: 'consentimento',
+        consentimentoMecanismosDemonstracao: 'sim',
+        consentimentoResponsabilidadeParental: 'nao_aplicavel',
+      }),
+    )
+    expect(ids).not.toContain('resp.consentimentoDemonstracaoPorResponder')
+    expect(ids).not.toContain('resp.consentimentoSemDemonstracao')
+  })
+
+  it('negativo: com consentimento e sem forma de o demonstrar', () => {
+    const ids = violadas(
+      responsavel({
+        baseLicitude: 'consentimento',
+        consentimentoMecanismosDemonstracao: 'nao',
+        consentimentoResponsabilidadeParental: 'nao_aplicavel',
+      }),
+    )
+    expect(ids).toContain('resp.consentimentoSemDemonstracao')
+  })
+
+  it('as perguntas de consentimento não se aplicam a outra base de licitude', () => {
+    const ids = violadas(responsavel({ baseLicitude: 'obrigacao_juridica' }))
+    expect(ids).not.toContain('resp.consentimentoDemonstracaoPorResponder')
+    expect(ids).not.toContain('resp.consentimentoParentalPorResponder')
+  })
+})
+
+describe('subcontratados (art. 28.º)', () => {
+  it('positivo: com contrato e cláusulas de proteção de dados', () => {
+    const ids = violadas(registoResponsavelCompleto)
+    expect(ids).not.toContain('resp.subcontratadoSemContrato')
+    expect(ids).not.toContain('resp.subcontratadoSemClausulas')
+  })
+
+  it('negativo: subcontratado sem contrato e sem cláusulas', () => {
+    const ids = violadas(
+      responsavel({
+        subcontratados: [
+          { nome: 'Fornecedor Fictício', existeContrato: 'nao', contratoComClausulasProtecaoDados: 'nao' },
+        ],
+      }),
+    )
+    expect(ids).toContain('resp.subcontratadoSemContrato')
+    expect(ids).toContain('resp.subcontratadoSemClausulas')
+  })
+
+  it('negativo: subcontratado sem nome', () => {
+    expect(violadas(responsavel({ subcontratados: [{ operacoesTratamento: 'Alojamento.' }] }))).toContain(
+      'resp.subcontratadoSemNome',
     )
   })
 })
 
-describe('avaliarFicheiro', () => {
-  it('não reporta nenhum erro para o ficheiro de fixture válido', () => {
-    const ocorrencias = avaliarFicheiro(ficheiroRatFixtureValido)
-    const erros = ocorrencias.filter((o) => o.severidade === 'erro')
-    expect(erros).toEqual([])
+describe('período de retenção (art. 30.º/1 f))', () => {
+  it('positivo: retenção definida internamente', () => {
+    expect(violadas(registoResponsavelCompleto)).not.toContain('resp.semPeriodoDeRetencao')
+  })
+
+  it('negativo: sem retenção definida nem por normativo', () => {
+    const ids = violadas(
+      responsavel({ retencaoDefinidaPelaOrganizacao: 'nao', retencaoPorNormativosLegais: 'nao' }),
+    )
+    expect(ids).toContain('resp.semPeriodoDeRetencao')
+  })
+})
+
+describe('campos obrigatórios do subcontratante', () => {
+  it('positivo: um registo completo não tem erros', () => {
+    expect(errosPorResolver(registoSubcontratadoCompleto)).toHaveLength(0)
+    expect(podeSubmeter(registoSubcontratadoCompleto)).toBe(true)
+  })
+
+  it('negativo: um registo mínimo acusa os campos por preencher', () => {
+    const ids = violadas(registoSubcontratadoMinimo)
+    expect(ids).toContain('sub.obrigatorio.nomeResponsavelTratamento')
+    expect(ids).toContain('sub.obrigatorio.baseLegal')
+    expect(ids).toContain('sub.obrigatorio.prazoConservacao')
+    expect(podeSubmeter(registoSubcontratadoMinimo)).toBe(false)
+  })
+
+  it('as regras do responsável não se aplicam ao subcontratante', () => {
+    const ids = violadas(registoSubcontratadoMinimo)
+    expect(ids.filter((id) => id.startsWith('resp.'))).toHaveLength(0)
+  })
+})
+
+describe('transferências para países terceiros (art. 44.º)', () => {
+  it('positivo: identificadas quando existem', () => {
+    expect(violadas(registoSubcontratadoCompleto)).not.toContain('sub.transferenciasPorIdentificar')
+  })
+
+  it('negativo: assinaladas mas não identificadas', () => {
+    const ids = violadas(subcontratado({ transferencias: { existem: 'sim' } }))
+    expect(ids).toContain('sub.transferenciasPorIdentificar')
+  })
+})
+
+describe('regras de âmbito ficheiro', () => {
+  it('positivo: a fixture não tem nomes de tratamento duplicados', () => {
+    const ids = avaliarFicheiro(ficheiroRatFixtureValido).map((o) => o.regraId)
+    expect(ids).not.toContain('ficheiro.nomesDuplicados')
+  })
+
+  it('negativo: dois registos com o mesmo nome', () => {
+    const duplicado = {
+      ...ficheiroRatFixtureValido,
+      registos: [
+        registoResponsavelCompleto,
+        { ...registoSubcontratadoCompleto, nomeTratamento: registoResponsavelCompleto.nomeTratamento },
+      ],
+    }
+    const ids = avaliarFicheiro(duplicado).map((o) => o.regraId)
+    expect(ids).toContain('ficheiro.nomesDuplicados')
   })
 })

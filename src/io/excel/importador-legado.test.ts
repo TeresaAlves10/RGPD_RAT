@@ -132,7 +132,7 @@ describe('importador do Excel legado', () => {
 
     const resultado = await importarExcelLegado(buffer)
     expect(resultado.registos[0].tipoRegisto).toBe('subcontratado')
-    expect(resultado.relatorio[0].camposPorPreencher).toContain('responsaveis')
+    expect(resultado.relatorio[0].camposPorPreencher).toContain('nomeResponsavelTratamento')
   })
 
   it('para na primeira linha em branco (nome do tratamento vazio)', async () => {
