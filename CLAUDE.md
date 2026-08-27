@@ -100,10 +100,19 @@ importa, corrige, reenvia
     6. Controlos Operacionais
     7. Observações Gerais
 
-  - **Subcontratante** (art. 30.º/2) — lista própria, encabeçada pelo
-    `nomeResponsavelTratamento` (por conta de quem se trata), com
-    categorias e tipos de dados, transferências do art. 44.º e outros
-    subcontratantes do art. 28.º.
+  - **Subcontratante** (art. 30.º/2) — lista própria e claramente mais
+    curta, porque o art. 30.º/2 exige menos do subcontratante do que o
+    art. 30.º/1 exige de quem determina as finalidades e os meios: caem
+    por completo as secções de Ferramentas/Aplicações, Direitos dos
+    Titulares e Controlos Operacionais. Cinco secções, não sete, também
+    a ordem das colunas no Excel e das secções no PDF:
+    1. Identificação (inclui `nomeResponsavelTratamento` — por conta de
+       quem se trata — e a caracterização base)
+    2. Tratamento e base legal
+    3. Titulares e dados
+    4. Transferências (art. 44.º) e conservação
+    5. Segurança e observações (inclui outros subcontratantes do
+       art. 28.º e AIPD)
 
   Um mesmo ficheiro pode conter registos dos dois tipos, misturados.
   `tipoRegisto: "responsavel" | "subcontratado"` é o discriminante do

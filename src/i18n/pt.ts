@@ -281,10 +281,9 @@ export const textos = {
 
     // Subcontratante
     nomeResponsavelTratamento: 'Nome do Responsável pelo Tratamento',
-    responsavelConjunto: 'Identificação do responsável conjunto pelo tratamento (identificar ou N/A)',
     recolhaDados: 'Recolha dos dados (como é efetuada)',
-    destinatarios: 'Destinatários ou categorias de destinatários',
     prazoConservacao: 'Prazo de conservação dos dados pessoais',
+    existemOutrosSubcontratantes: 'Existem outros subcontratantes? (artigo 28.º do RGPD)',
   },
 
 
@@ -367,6 +366,14 @@ export const textos = {
     requisitosFuncionais: 'Requisitos Funcionais / Direitos dos Titulares',
     controlosOperacionais: 'Controlos Operacionais',
     observacoesGerais: 'Observações Gerais',
+
+    // Subcontratante — lista mais curta, cinco secções (art. 30.º/2
+    // exige menos do que o art. 30.º/1).
+    subIdentificacao: 'Identificação',
+    subTratamentoBaseLegal: 'Tratamento e base legal',
+    subTitularesDados: 'Titulares e dados',
+    subTransferenciasConservacao: 'Transferências e conservação',
+    subSegurancaObservacoes: 'Segurança e observações',
   },
 
   importar: {

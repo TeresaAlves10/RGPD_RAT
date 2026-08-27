@@ -6,9 +6,13 @@ import { textos } from '@/i18n/pt'
 import { DIRECAO_POR_OMISSAO, UNIDADES_COORDENACAO } from '@/config/organizacao'
 
 /** Preenche o mínimo para o registo existir na lista. */
-async function identificar(utilizador: ReturnType<typeof userEvent.setup>, nome: string) {
+async function identificar(
+  utilizador: ReturnType<typeof userEvent.setup>,
+  nome: string,
+  abaComGestorProjeto: RegExp = /Observações Gerais/,
+) {
   await utilizador.type(await screen.findByLabelText(textos.campos.nomeTratamento), nome)
-  await utilizador.click(screen.getByRole('tab', { name: /Observações Gerais/ }))
+  await utilizador.click(screen.getByRole('tab', { name: abaComGestorProjeto }))
   await utilizador.type(
     await screen.findByLabelText(textos.campos['gestorProjeto.nome']),
     'Ana Fictícia',
@@ -72,7 +76,7 @@ describe('wizard de preenchimento', () => {
       await screen.findByLabelText(textos.campos.nomeResponsavelTratamento),
       'Cliente Fictício, S.A.',
     )
-    await identificar(utilizador, 'Serviço Subcontratado Fictício')
+    await identificar(utilizador, 'Serviço Subcontratado Fictício', /Segurança e observações/)
     await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
     const tabela = within(await screen.findByRole('table'))

@@ -96,7 +96,7 @@ describe('Excel — folhas legíveis', () => {
 
     expect(texto).toContain(registoSubcontratadoCompleto.nomeResponsavelTratamento)
     expect(texto).toContain(registoSubcontratadoCompleto.prazoConservacao)
-    expect(texto).toContain(registoSubcontratadoCompleto.destinatarios)
+    expect(texto).toContain(registoSubcontratadoCompleto.entidadesSubcontratadas)
     expect(texto).toContain(registoSubcontratadoCompleto.paisesTerceiros)
   })
 
