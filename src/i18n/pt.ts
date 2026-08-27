@@ -13,7 +13,7 @@ export const textos = {
     etiqueta: 'Artigo 30.º do RGPD',
     titulo: 'Registo de Atividades de Tratamento, mantido e validado num só sítio',
     subtitulo:
-      'Substitui a folha de cálculo por um registo estruturado, com validação das regras de negócio, circuito de submissão e validação, e exportação para Excel e PDF.',
+      'Repositório centralizado da informação, que permite uma visão agregada sobre a proteção de dados, com validação das regras de negócio, circuito de submissão e validação, e exportação para Excel e PDF.',
     botaoEntrar: 'Aceder aos registos',
     botaoNovoRegisto: 'Criar um registo',
     destaquesTitulo: 'O que a aplicação faz',
