@@ -104,4 +104,23 @@ describe('circuito GP -> validador', () => {
       within(linhaSubmetido as HTMLElement).getByText(textos.estado.submetido),
     ).toBeInTheDocument()
   })
+
+  it('conta os registos por qualidade, estado e AIPD', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+    await importarFixture(utilizador)
+
+    const painel = within(screen.getByRole('region', { name: textos.totais.titulo }))
+    const total = (rotulo: string) =>
+      painel.getByText(rotulo).closest('div')?.textContent?.match(/^\d+/)?.[0]
+
+    // A fixture tem 2 responsáveis e 2 subcontratantes; 1 submetido,
+    // 1 validado, 1 com AIPD.
+    expect(total(textos.totais.total)).toBe('4')
+    expect(total(textos.totais.responsavel)).toBe('2')
+    expect(total(textos.totais.subcontratante)).toBe('2')
+    expect(total(textos.totais.emValidacao)).toBe('1')
+    expect(total(textos.totais.validados)).toBe('1')
+    expect(total(textos.totais.comAipd)).toBe('1')
+  })
 })

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
@@ -40,8 +40,13 @@ describe('ModoValidador', () => {
     await utilizador.upload(input, ficheiro)
 
     expect(await screen.findByText('sessao.json')).toBeInTheDocument()
-    expect(screen.getByText(ficheiroRatFixtureValido.metadados.equipa)).toBeInTheDocument()
-    expect(screen.getByText(String(ficheiroRatFixtureValido.registos.length))).toBeInTheDocument()
+    // Escopado à tabela do resumo: o painel de totais mostra os mesmos
+    // números e tornaria a procura ambígua.
+    const resumo = within(screen.getByRole('table'))
+    expect(resumo.getByText(ficheiroRatFixtureValido.metadados.equipa)).toBeInTheDocument()
+    expect(
+      resumo.getByText(String(ficheiroRatFixtureValido.registos.length)),
+    ).toBeInTheDocument()
   })
 
   it('permite adicionar uma anotação geral a um registo no detalhe', async () => {
@@ -161,5 +166,41 @@ describe('decisão do validador', () => {
       screen.queryByText(new RegExp(registoSubcontratadoCompleto.nomeTratamento)),
     ).not.toBeInTheDocument()
   })
-})
 
+  it('valida um registo direto da lista de submetidos, sem abrir o formulário', async () => {
+    const utilizador = userEvent.setup()
+    renderValidador()
+    const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'sessao.json', {
+      type: 'application/json',
+    })
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+    await utilizador.upload(input, ficheiro)
+
+    await utilizador.type(
+      await screen.findByLabelText(textos.estado.campoValidadoPor),
+      'Eva Revisora Fictícia',
+    )
+    await utilizador.click(
+      (await screen.findAllByRole('button', { name: textos.estado.validar }))[0],
+    )
+
+    // O registo sai da lista de submetidos assim que fica validado.
+    expect(
+      screen.queryByText(new RegExp(registoResponsavelCompleto.nomeTratamento)),
+    ).not.toBeInTheDocument()
+  })
+
+  it('mostra os totais da sessão, incluindo a divisão por qualidade', async () => {
+    const utilizador = userEvent.setup()
+    renderValidador()
+    const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'sessao.json', {
+      type: 'application/json',
+    })
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+    await utilizador.upload(input, ficheiro)
+
+    const painel = within(await screen.findByRole('region', { name: textos.totais.titulo }))
+    expect(painel.getByText(textos.totais.responsavel)).toBeInTheDocument()
+    expect(painel.getByText(textos.totais.subcontratante)).toBeInTheDocument()
+  })
+})

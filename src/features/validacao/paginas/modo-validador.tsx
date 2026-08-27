@@ -280,6 +280,10 @@ export function ModoValidador() {
         </div>
       ) : (
         <>
+          {sessao.length > 0 ? (
+            <PainelTotais registos={sessao.flatMap((e) => e.ficheiro.registos)} />
+          ) : null}
+
           {submetidos.length > 0 ? (
             <section className="flex flex-col gap-3">
               <div>
@@ -287,6 +291,14 @@ export function ModoValidador() {
                 <p className="text-sm text-muted-foreground">
                   {textos.validador.submetidosDescricao}
                 </p>
+              </div>
+              <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4">
+                <Label htmlFor="nomeValidadorSessao">{textos.estado.campoValidadoPor}</Label>
+                <Input
+                  id="nomeValidadorSessao"
+                  value={nomeValidador}
+                  onChange={(e) => setNomeValidador(e.target.value)}
+                />
               </div>
               <ul className="flex flex-col gap-2">
                 {submetidos.map(({ entrada, registo }) => (
@@ -303,7 +315,7 @@ export function ModoValidador() {
                         {registo.gestorProjeto.nome}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <EstadoRegistoBadge estado={registo.estado} />
                       <Button
                         size="sm"
@@ -314,6 +326,22 @@ export function ModoValidador() {
                         }}
                       >
                         {textos.validador.botaoRever}
+                      </Button>
+                      {/* Validar direto da lista: o caso comum é o registo
+                          estar bom e não precisar de passar pelo formulário. */}
+                      <Button
+                        size="sm"
+                        variant="subtle"
+                        onClick={() => mudarEstado(entrada.id, registo.id, 'validado')}
+                      >
+                        {textos.estado.validar}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => mudarEstado(entrada.id, registo.id, 'devolvido')}
+                      >
+                        {textos.estado.devolver}
                       </Button>
                     </div>
                   </li>
