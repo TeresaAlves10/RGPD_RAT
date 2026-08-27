@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from '@/App'
 import { textos } from '@/i18n/pt'
-import { serializarJson } from '@/io/json/exportar'
+import { gerarExcel } from '@/io/excel/exportar'
 import {
   ficheiroRatFixtureValido,
   registoResponsavelCompleto,
@@ -17,12 +17,11 @@ import {
  */
 
 async function importarFixture(utilizador: ReturnType<typeof userEvent.setup>) {
-  const ficheiro = new File([serializarJson(ficheiroRatFixtureValido)], 'rat.json', {
-    type: 'application/json',
+  const blob = await gerarExcel(ficheiroRatFixtureValido)
+  const ficheiro = new File([blob], 'rat.xlsx', {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   })
-  const input = document.querySelector(
-    'input[type="file"][accept=".json,.xlsx"]',
-  ) as HTMLInputElement
+  const input = document.querySelector('input[type="file"][accept=".xlsx"]') as HTMLInputElement
   await utilizador.upload(input, ficheiro)
   await screen.findByRole('table')
 }

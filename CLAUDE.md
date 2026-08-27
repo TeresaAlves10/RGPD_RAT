@@ -227,6 +227,14 @@ Implementar, **opcional e claramente sinalizado**:
 O download nunca é bloqueado por erros de validação — o estado de
 validação viaja embutido no ficheiro e é visível no PDF exportado.
 
+A barra de importação do ecrã "Registos" (`BarraImportacao`) só oferece
+Excel nativo — é o que a equipa usa no dia a dia. O JSON continua a ser o
+formato de troca com o validador: o Modo Validador continua a aceitar
+`.json` e `.xlsx`, porque é aí que chegam ficheiros de outras pessoas. O
+importador do template antigo (`io/excel/importador-legado.ts`) mantém-se
+no código e testado, mas sem botão que o exponha em nenhum ecrã — para o
+repor, é só voltar a ligá-lo à UI.
+
 ## 8. Stack técnica
 
 Vite + React + TypeScript · Tailwind + shadcn/ui · react-hook-form + Zod ·
