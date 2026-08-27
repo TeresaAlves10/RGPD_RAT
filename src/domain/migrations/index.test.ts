@@ -51,6 +51,27 @@ describe('migrarParaVersaoAtual', () => {
     expect(resultado.registos[0].estado).toBe('validado')
   })
 
+  it('migra um ficheiro v3 (sem os campos da matriz) para a versão atual', () => {
+    const ficheiroV3 = {
+      schemaVersion: 3,
+      metadados: ficheiroRatFixtureValido.metadados,
+      registos: [registoResponsavelMinimo],
+    }
+
+    const resultado = migrarParaVersaoAtual(ficheiroV3)
+    expect(resultado.schemaVersion).toBe(SCHEMA_VERSION_ATUAL)
+    // Campos novos são todos opcionais: a ausência é o estado correto,
+    // nada é inventado na migração.
+    const registo = resultado.registos[0]
+    expect(registo.tipoRegisto).toBe('responsavel')
+    if (registo.tipoRegisto === 'responsavel') {
+      expect(registo.matriz).toBeUndefined()
+      expect(registo.criterioPrazoConservacao).toBeUndefined()
+    }
+    // E o que já lá estava mantém-se intacto.
+    expect(registo.nomeTratamento).toBe(registoResponsavelMinimo.nomeTratamento)
+  })
+
   it('lança ErroVersaoDesconhecida para uma versão futura sem migrador', () => {
     const dados = { ...ficheiroRatFixtureValido, schemaVersion: SCHEMA_VERSION_ATUAL + 1 }
     expect(() => migrarParaVersaoAtual(dados)).toThrow(ErroVersaoDesconhecida)

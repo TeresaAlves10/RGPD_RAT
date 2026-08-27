@@ -68,6 +68,8 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
   },
   destinatarios: 'Segurança Social, Autoridade Tributária, seguradora de acidentes de trabalho.',
   prazoConservacao: '10 anos após a cessação do contrato de trabalho, por obrigação legal.',
+  criterioPrazoConservacao:
+    'Prazo de prescrição de créditos laborais e obrigações de conservação fiscal.',
   subcontratantesContratados: [
     {
       nome: 'Processamento de Salários Fictícia, Lda.',
@@ -86,43 +88,50 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
     },
   ],
   estado: 'pronto',
-  avaliacao: {
-    requisitosFuncionais: {
-      deverInformar: 'sim',
-      direitoAcesso: 'sim',
-      direitoRetificacao: 'sim',
-      direitoApagamento: 'parcial',
-      direitoPortabilidade: 'nao_aplicavel',
-      direitoLimitacao: 'parcial',
-      direitoNaoDecisoesAutomatizadas: 'nao_aplicavel',
-      direitoOposicao: 'sim',
-      detecaoNotificacaoViolacoes: 'sim',
+  // A matriz de levantamento é parte do formulário do responsável
+  // (passos "Caracterização" a "Observações gerais"), não do módulo
+  // opcional de avaliação — esse ficou reservado ao subcontratante.
+  matriz: {
+    caracterizacao: {
+      operacoesTratamento:
+        'Recolha, registo, organização, conservação, consulta e apagamento de dados de colaboradores.',
+      temDadosPessoais: 'sim',
+      dadosNecessariosParaFinalidade: 'sim',
+      categoriasEspeciaisNecessarias: 'parcial',
+      entidadesQueEnviamDados: 'Segurança Social (declarações de remunerações anteriores).',
+      entidadesParaQuemEnvioDados: 'Autoridade Tributária; seguradora de acidentes de trabalho.',
+      suportesFisicos: 'Processos individuais em papel.',
+      localizacaoSuportesFisicos: 'Arquivo fechado à chave, piso 2.',
     },
-    controlosOperacionais: {
-      procedimentosAcessosDocumentados: 'sim',
-      procedimentosAcessosImplementados: 'sim',
-      acessosFormalmenteAutorizados: 'sim',
-      controlosAcessosPrivilegiados: 'parcial',
-      revisaoPeriodicaAcessos: 'nao',
-      remocaoAcessosASaida: 'sim',
-      notas: 'Revisão periódica de acessos por calendarizar com a equipa de sistemas.',
-    },
-    ferramentasSistemas: {
+    ferramentas: {
       ferramentasAplicacoes: 'Sistema fictício de gestão de recursos humanos.',
       numeroCamposComDadosPessoais: '24',
       volumeDadosPessoais: 'Cerca de 400 colaboradores.',
       numeroUtilizadoresComAcesso: '6',
-      suportesFisicos: 'Processos individuais em papel.',
-      localizacaoSuportesFisicos: 'Arquivo fechado à chave, piso 2.',
     },
-    governoSubcontratacao: {
-      existeContrato: 'sim',
-      contratoComClausulasProtecaoDados: 'sim',
-      auditoriasAoSubcontratado: 'nao',
-      pedidoAutorizacaoCnpd: 'nao_aplicavel',
+    subcontratados: [
+      {
+        nome: 'Processamento de Salários Fictícia, Lda.',
+        operacoesTratamento: 'Processamento salarial e emissão de recibos de vencimento.',
+        existeContrato: 'sim',
+        contratoComClausulasProtecaoDados: 'sim',
+        transferenciasPaisesTerceiros: 'nao',
+        auditoriasAoSubcontratado: 'nao',
+        pedidoAutorizacaoCnpd: 'nao_aplicavel',
+      },
+    ],
+    licitudeRetencao: {
+      mecanismosDemonstracaoConsentimento: 'nao_aplicavel',
+      consentimentoResponsabilidadeParental: 'nao_aplicavel',
+      retencaoDefinidaPelaOrganizacao: 'sim',
+      retencaoPorNormativosLegais: 'sim',
     },
     normativosAplicaveis: 'Código do Trabalho; legislação de segurança social.',
+    diagramaProcesso: 'Diagrama BPMN fictício, arquivado fora desta aplicação.',
+    comentarios: 'Revisão periódica de acessos por calendarizar com a equipa de sistemas.',
   },
+  // Requisitos funcionais e controlos operacionais são passos 9 e 10 do
+  // formulário do responsável, por isso este registo não usa o módulo à parte.
 }
 
 export const registoSubcontratadoMinimo: RegistoSubcontratado = {
@@ -176,12 +185,62 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
       categoriasTratamento: 'Gestão de tickets e histórico de contactos com utilizadores finais.',
     },
   ],
+  // Campos da folha "Subcontratante" que, juridicamente, são obrigações do
+  // responsável (art. 30.º/1). Ficam disponíveis a quem os queira registar,
+  // mas nunca são requisito — ver schema/subcontratado.ts.
+  finalidades: 'Apoio técnico a utilizadores finais, por conta dos clientes.',
+  responsavelConjunto: 'N/A',
+  representante: 'N/A',
+  baseLicitude: 'execucao_contrato',
+  recolhaDados: 'Pedidos submetidos pelos utilizadores finais no portal de suporte.',
+  categoriasTitulares: ['clientes'],
+  categoriasDados: [
+    { categoria: 'identificacao_civil', tipos: ['Nome'] },
+    { categoria: 'morada_contacto', tipos: ['Endereço de correio eletrónico', 'Telefone'] },
+  ],
+  categoriasEspeciais: { aplicavel: false },
+  destinatarios: 'Apenas o responsável pelo tratamento por conta de quem se atua.',
+  prazoConservacao: 'Até 90 dias após o encerramento do pedido de suporte.',
+  criterioPrazoConservacao: 'Prazo contratualmente acordado com cada responsável.',
   anotacoes: [],
   estado: 'rascunho',
+  // O módulo opcional de avaliação de controlos vive aqui, à parte do RAT.
+  avaliacao: {
+    requisitosFuncionais: {
+      deverInformar: 'nao_aplicavel',
+      direitoAcesso: 'sim',
+      direitoRetificacao: 'sim',
+      direitoApagamento: 'sim',
+      direitoPortabilidade: 'nao_aplicavel',
+      direitoLimitacao: 'parcial',
+      direitoNaoDecisoesAutomatizadas: 'nao_aplicavel',
+      direitoOposicao: 'nao_aplicavel',
+      detecaoNotificacaoViolacoes: 'sim',
+    },
+    controlosOperacionais: {
+      procedimentosAcessosDocumentados: 'sim',
+      procedimentosAcessosImplementados: 'sim',
+      acessosFormalmenteAutorizados: 'sim',
+      controlosAcessosPrivilegiados: 'sim',
+      revisaoPeriodicaAcessos: 'parcial',
+      remocaoAcessosASaida: 'sim',
+    },
+    governoSubcontratacao: {
+      existeContrato: 'sim',
+      contratoComClausulasProtecaoDados: 'sim',
+      auditoriasAoSubcontratado: 'parcial',
+      pedidoAutorizacaoCnpd: 'nao_aplicavel',
+    },
+    governoConsentimento: {
+      mecanismosDemonstracaoConsentimento: 'nao_aplicavel',
+      consentimentoResponsabilidadeParental: 'nao_aplicavel',
+    },
+    normativosAplicaveis: 'Contratos de prestação de serviços com cada responsável.',
+  },
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -198,7 +257,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   metadados: {
     // falta "equipa", que é obrigatório
     dataCriacao: '2026-01-15T10:00:00.000Z',

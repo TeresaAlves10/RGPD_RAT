@@ -5,6 +5,7 @@ import {
   idsCategoriasTitulares,
   idsCondicaoArt9,
 } from '@/domain/schema/vocabularios'
+import { matrizLevantamentoSchema } from '@/domain/schema/matriz'
 
 /**
  * RAT — Responsável de Tratamento (art. 30.º/1 do RGPD).
@@ -42,6 +43,13 @@ export const registoResponsavelSchema = campoBaseRegistoSchema.extend({
   categoriasEspeciais: categoriasEspeciaisSchema,
   destinatarios: z.string().optional(),
   prazoConservacao: z.string().min(1, 'Indica o prazo de conservação dos dados pessoais.'),
+  criterioPrazoConservacao: z.string().optional(),
   subcontratantesContratados: z.array(subcontratanteContratadoSchema).optional(),
+  /**
+   * Matriz completa do levantamento de informação (folha "Responsavél de
+   * Tratamento" do Livro6.xlsx). Opcional — o registo do art. 30.º é
+   * válido sem ela.
+   */
+  matriz: matrizLevantamentoSchema.optional(),
 })
 export type RegistoResponsavel = z.infer<typeof registoResponsavelSchema>

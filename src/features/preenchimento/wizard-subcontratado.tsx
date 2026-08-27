@@ -9,25 +9,32 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Campo } from '@/components/form/campo'
 import { PassosWizard, idPainelPasso } from '@/components/form/passos-wizard'
 import { textos } from '@/i18n/pt'
-import { mecanismoTransferencia } from '@/domain/schema/vocabularios'
+import { baseLicitude, categoriasTitulares, mecanismoTransferencia } from '@/domain/schema/vocabularios'
 import { registoSubcontratadoSchema, type RegistoSubcontratado } from '@/domain/schema/subcontratado'
 import { CampoMedidas } from '@/features/preenchimento/campos/campo-medidas'
 import { CampoResponsaveis } from '@/features/preenchimento/campos/campo-responsaveis'
+import { CampoCategoriasDados } from '@/features/preenchimento/campos/campo-categorias-dados'
+import { CampoSubcontratantes } from '@/features/preenchimento/campos/campo-subcontratantes'
+import { SeletorMultiplo } from '@/features/preenchimento/campos/seletor-multiplo'
 import { avaliarRegisto } from '@/domain/rules/motor'
 import { AcoesEstado } from '@/features/preenchimento/acoes-estado'
 
 const PASSOS = [
   textos.passos.identificacao,
   textos.passos.responsaveisPorConta,
+  textos.passos.finalidadeBase,
   textos.passos.transferencias,
+  textos.passos.titularesDados,
   textos.passos.segurancaObservacoes,
 ] as const
 
 const CAMPOS_POR_PASSO: (keyof RegistoSubcontratado)[][] = [
   ['direcao', 'unidadeCoordenacao', 'nomeTratamento', 'descricao', 'gestorProjeto'],
   ['responsaveis'],
-  ['transferenciasInternacionais'],
-  ['medidasTecnicasOrganizativas', 'aipdRealizada', 'observacoes'],
+  ['finalidades', 'responsavelConjunto', 'representante', 'baseLicitude', 'recolhaDados'],
+  ['transferenciasInternacionais', 'destinatarios'],
+  ['categoriasTitulares', 'categoriasDados', 'categoriasEspeciais', 'prazoConservacao'],
+  ['medidasTecnicasOrganizativas', 'aipdRealizada', 'observacoes', 'subcontratantesContratados'],
 ]
 
 function novoIdentificador(): string {
@@ -185,6 +192,42 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
           id={idPainelPasso('wizard-subcontratado', 2)}
           aria-labelledby="wizard-subcontratado-tab-2"
         >
+          <p className="text-sm text-muted-foreground">{textos.formulario.notaCamposDoResponsavel}</p>
+          <Campo id="finalidades" label={textos.campos.finalidades} ajuda="finalidades">
+            <Textarea id="finalidades" {...register('finalidades')} />
+          </Campo>
+          <Campo id="responsavelConjunto" label={textos.campos.responsavelConjunto} ajuda="responsavelConjunto">
+            <Input id="responsavelConjunto" {...register('responsavelConjunto')} />
+          </Campo>
+          <Campo id="representante" label={textos.campos.representante} ajuda="representante">
+            <Input id="representante" {...register('representante')} />
+          </Campo>
+          <Campo id="baseLicitude" label={textos.campos.baseLicitude} ajuda="baseLicitude">
+            <Select id="baseLicitude" {...register('baseLicitude')}>
+              <option value="">{textos.matriz.respostas.porResponder}</option>
+              {baseLicitude.map((opcao) => (
+                <option key={opcao.id} value={opcao.id}>
+                  {opcao.label}
+                </option>
+              ))}
+            </Select>
+          </Campo>
+          <Campo id="recolhaDados" label={textos.campos.recolhaDados}>
+            <Textarea id="recolhaDados" {...register('recolhaDados')} />
+          </Campo>
+        </div>
+      ) : null}
+
+      {passo === 3 ? (
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 3)}
+          aria-labelledby="wizard-subcontratado-tab-3"
+        >
+          <Campo id="destinatarios" label={textos.campos.destinatarios} ajuda="destinatarios">
+            <Textarea id="destinatarios" {...register('destinatarios')} />
+          </Campo>
           <Campo
             id="transferenciasInternacionais.existem"
             label={textos.campos['transferenciasInternacionais.existem']}
@@ -246,12 +289,58 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
         </div>
       ) : null}
 
-      {passo === 3 ? (
+      {passo === 4 ? (
         <div
           className="flex flex-col gap-4"
           role="tabpanel"
-          id={idPainelPasso('wizard-subcontratado', 3)}
-          aria-labelledby="wizard-subcontratado-tab-3"
+          id={idPainelPasso('wizard-subcontratado', 4)}
+          aria-labelledby="wizard-subcontratado-tab-4"
+        >
+          <p className="text-sm text-muted-foreground">{textos.formulario.notaCamposDoResponsavel}</p>
+          <Campo id="categoriasTitulares" label={textos.campos.categoriasTitulares}>
+            <Controller
+              name="categoriasTitulares"
+              control={control}
+              render={({ field }) => (
+                <SeletorMultiplo
+                  name="categoriasTitulares"
+                  opcoes={categoriasTitulares}
+                  valor={field.value ?? []}
+                  onChange={field.onChange}
+                  valorOutro={watch('categoriasTitularesOutra')}
+                  onChangeOutro={(v) => setValue('categoriasTitularesOutra', v)}
+                />
+              )}
+            />
+          </Campo>
+          <Campo id="categoriasDados" label={textos.campos.categoriasDados} ajuda="categoriasDados">
+            <Controller
+              name="categoriasDados"
+              control={control}
+              render={({ field }) => (
+                <CampoCategoriasDados valor={field.value ?? []} onChange={field.onChange} />
+              )}
+            />
+          </Campo>
+          <Campo id="prazoConservacao" label={textos.campos.prazoConservacao} ajuda="prazoConservacao">
+            <Textarea id="prazoConservacao" {...register('prazoConservacao')} />
+          </Campo>
+          <Campo
+            id="criterioPrazoConservacao"
+            label={textos.matriz.campos.criterioPrazoConservacao}
+            descricao={textos.formulario.criterioNota}
+          >
+            <Textarea id="criterioPrazoConservacao" {...register('criterioPrazoConservacao')} />
+          </Campo>
+        </div>
+      ) : null}
+
+      {passo === 5 ? (
+        <div
+          className="flex flex-col gap-4"
+          role="tabpanel"
+          id={idPainelPasso('wizard-subcontratado', 5)}
+          aria-labelledby="wizard-subcontratado-tab-5"
         >
           <Campo
             id="medidasTecnicasOrganizativas"
@@ -275,6 +364,19 @@ export function WizardSubcontratado({ registoInicial, onGuardar, onCancelar }: W
           </Campo>
           <Campo id="observacoes" label={textos.campos.observacoes}>
             <Textarea id="observacoes" {...register('observacoes')} />
+          </Campo>
+          <Campo
+            id="subcontratantesContratados"
+            label={textos.campos.subcontratantesContratados}
+            ajuda="subcontratantesContratados"
+          >
+            <Controller
+              name="subcontratantesContratados"
+              control={control}
+              render={({ field }) => (
+                <CampoSubcontratantes valor={field.value ?? []} onChange={field.onChange} />
+              )}
+            />
           </Campo>
         </div>
       ) : null}

@@ -52,6 +52,7 @@ const CABECALHOS_REGISTOS = [
   'Identificação categorias especiais',
   'Destinatários',
   'Prazo de conservação',
+  'Critério do prazo de conservação',
   'Subcontratantes contratados',
   'Responsáveis (subcontratado)',
   'Transferências internacionais',
@@ -61,6 +62,28 @@ const CABECALHOS_REGISTOS = [
   'AIPD realizada',
   'Observações',
   'Avaliação de controlos preenchida',
+  // Matriz de levantamento (folha "Responsavél de Tratamento" do template
+  // antigo). Só o responsável a preenche; no subcontratado sai vazia.
+  'Operações de tratamento',
+  'Trata dados pessoais',
+  'Dados necessários para a finalidade',
+  'Categorias especiais necessárias',
+  'Entidades que nos enviam dados',
+  'Entidades para quem enviamos dados',
+  'Suportes físicos',
+  'Localização dos suportes físicos',
+  'Ferramentas / aplicações',
+  'N.º de campos com dados pessoais',
+  'Volume de dados pessoais',
+  'N.º de utilizadores com acesso',
+  'Subcontratados (matriz)',
+  'Consentimento: mecanismos de demonstração',
+  'Consentimento: responsabilidade parental',
+  'Retenção definida pela organização',
+  'Retenção por normativos legais',
+  'Normativos aplicáveis',
+  'Diagrama do processo',
+  'Comentários',
 ] as const
 
 function linhaRegisto(registo: Registo): (string | number)[] {
@@ -91,25 +114,31 @@ function linhaRegisto(registo: Registo): (string | number)[] {
           registo.categoriasEspeciais.identificar ?? '',
           registo.destinatarios ?? '',
           registo.prazoConservacao,
+          registo.criterioPrazoConservacao ?? '',
           (registo.subcontratantesContratados ?? [])
             .map((s) => `${s.nome}${s.contacto ? ` (${s.contacto})` : ''}${s.dataContrato ? ` — ${s.dataContrato}` : ''}`)
             .join('; '),
           '',
         ]
       : [
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
+          registo.finalidades ?? '',
+          registo.responsavelConjunto ?? '',
+          registo.representante ?? '',
+          registo.baseLicitude ? rotuloBaseLicitude(registo.baseLicitude) : '',
+          registo.recolhaDados ?? '',
+          registo.categoriasTitulares
+            ? rotulosCategoriasTitulares(registo.categoriasTitulares, registo.categoriasTitularesOutra)
+            : '',
+          registo.categoriasDados ? rotuloCategoriasDados(registo.categoriasDados) : '',
+          registo.categoriasEspeciais ? rotuloSimNao(registo.categoriasEspeciais.aplicavel) : '',
+          rotulosCondicaoArt9(registo.categoriasEspeciais?.condicoesArt9),
+          registo.categoriasEspeciais?.identificar ?? '',
+          registo.destinatarios ?? '',
+          registo.prazoConservacao ?? '',
+          registo.criterioPrazoConservacao ?? '',
+          (registo.subcontratantesContratados ?? [])
+            .map((s) => `${s.nome}${s.contacto ? ` (${s.contacto})` : ''}${s.dataContrato ? ` — ${s.dataContrato}` : ''}`)
+            .join('; '),
           registo.responsaveis
             .map((r) => `${r.nome}${r.contacto ? ` (${r.contacto})` : ''}: ${r.categoriasTratamento}`)
             .join('; '),
@@ -125,7 +154,63 @@ function linhaRegisto(registo: Registo): (string | number)[] {
     rotuloSimNao(Boolean(registo.avaliacao)),
   ]
 
-  return [...comum, ...especifico, ...cauda]
+  return [...comum, ...especifico, ...cauda, ...colunasMatriz(registo)]
+}
+
+/** Rótulo legível de uma resposta da matriz; vazio quando por responder. */
+function rotuloMatriz(valor: string | undefined): string {
+  if (!valor) return ''
+  const respostas = textos.matriz.respostas as Record<string, string>
+  return respostas[valor] ?? valor
+}
+
+/** As colunas da matriz de levantamento, vazias para o subcontratado. */
+function colunasMatriz(registo: Registo): string[] {
+  const matriz = registo.tipoRegisto === 'responsavel' ? registo.matriz : undefined
+  const caracterizacao = matriz?.caracterizacao
+  const ferramentas = matriz?.ferramentas
+  const licitude = matriz?.licitudeRetencao
+
+  return [
+    caracterizacao?.operacoesTratamento ?? '',
+    rotuloMatriz(caracterizacao?.temDadosPessoais),
+    rotuloMatriz(caracterizacao?.dadosNecessariosParaFinalidade),
+    rotuloMatriz(caracterizacao?.categoriasEspeciaisNecessarias),
+    caracterizacao?.entidadesQueEnviamDados ?? '',
+    caracterizacao?.entidadesParaQuemEnvioDados ?? '',
+    caracterizacao?.suportesFisicos ?? '',
+    caracterizacao?.localizacaoSuportesFisicos ?? '',
+    ferramentas?.ferramentasAplicacoes ?? '',
+    ferramentas?.numeroCamposComDadosPessoais ?? '',
+    ferramentas?.volumeDadosPessoais ?? '',
+    ferramentas?.numeroUtilizadoresComAcesso ?? '',
+    (matriz?.subcontratados ?? [])
+      .map((s) => {
+        const detalhes = [
+          s.operacoesTratamento,
+          s.existeContrato ? `contrato: ${rotuloMatriz(s.existeContrato)}` : undefined,
+          s.contratoComClausulasProtecaoDados
+            ? `cláusulas RGPD: ${rotuloMatriz(s.contratoComClausulasProtecaoDados)}`
+            : undefined,
+          s.transferenciasPaisesTerceiros
+            ? `países terceiros: ${rotuloMatriz(s.transferenciasPaisesTerceiros)}`
+            : undefined,
+          s.auditoriasAoSubcontratado
+            ? `auditorias: ${rotuloMatriz(s.auditoriasAoSubcontratado)}`
+            : undefined,
+          s.pedidoAutorizacaoCnpd ? `CNPD: ${rotuloMatriz(s.pedidoAutorizacaoCnpd)}` : undefined,
+        ].filter(Boolean)
+        return `${s.nome ?? ''}${detalhes.length > 0 ? ` (${detalhes.join(', ')})` : ''}`
+      })
+      .join('; '),
+    rotuloMatriz(licitude?.mecanismosDemonstracaoConsentimento),
+    rotuloMatriz(licitude?.consentimentoResponsabilidadeParental),
+    rotuloMatriz(licitude?.retencaoDefinidaPelaOrganizacao),
+    rotuloMatriz(licitude?.retencaoPorNormativosLegais),
+    matriz?.normativosAplicaveis ?? '',
+    matriz?.diagramaProcesso ?? '',
+    matriz?.comentarios ?? '',
+  ]
 }
 
 function escreverTabelaVocabulario(

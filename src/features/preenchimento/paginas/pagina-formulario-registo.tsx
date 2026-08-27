@@ -13,10 +13,15 @@ interface MolduraProps {
   /** Só existe depois do registo estar guardado (tem id na rota). */
   idRegisto?: string
   temAvaliacao?: boolean
+  /**
+   * Só o subcontratante usa o módulo à parte: no responsável, as perguntas
+   * de controlo são secções do próprio formulário.
+   */
+  mostrarAvaliacao?: boolean
   children: ReactNode
 }
 
-function Moldura({ etiqueta, titulo, idRegisto, temAvaliacao, children }: MolduraProps) {
+function Moldura({ etiqueta, titulo, idRegisto, temAvaliacao, mostrarAvaliacao, children }: MolduraProps) {
   const navigate = useNavigate()
 
   return (
@@ -28,7 +33,7 @@ function Moldura({ etiqueta, titulo, idRegisto, temAvaliacao, children }: Moldur
           </span>
           <h1 className="text-2xl font-semibold tracking-tight">{titulo}</h1>
         </div>
-        {idRegisto ? (
+        {idRegisto && mostrarAvaliacao ? (
           <Button
             type="button"
             variant="outline"
@@ -93,6 +98,7 @@ export function PaginaFormularioRegisto() {
         titulo={titulo}
         idRegisto={registoExistente?.id}
         temAvaliacao={Boolean(registoExistente?.avaliacao)}
+        mostrarAvaliacao
       >
         <WizardSubcontratado
           registoInicial={

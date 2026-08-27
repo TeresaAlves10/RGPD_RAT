@@ -53,19 +53,33 @@ importa, corrige, reenvia
 
 ## 3. Modelo de negócio do domínio (decisões já tomadas)
 
-- **O RAT está separado da avaliação de controlos/maturidade.** São dois
-  módulos distintos:
+- **O RAT está separado da avaliação de controlos/maturidade — com uma
+  exceção decidida pelo utilizador para o responsável de tratamento.**
+
   - **Módulo RAT** (obrigatório) — o registo nos termos do art. 30.º.
   - **Módulo de avaliação** (opcional, ativável por *toggle*) — gestão de
     acessos, revisões periódicas, auditorias a subcontratados, capacidade de
-    detetar violações, etc. Nunca aparece misturado no mesmo ecrã do RAT.
+    detetar violações, etc.
 
     *Implementado* em `src/domain/schema/avaliacao.ts` (campo opcional
     `avaliacao` no registo) e no ecrã próprio `/registos/:id/avaliacao`.
-    Cobre as secções que o template Excel antigo misturava nas colunas do
-    RAT: direitos dos titulares, gestão de acessos, ferramentas e
-    suportes, contratos/auditorias a subcontratantes, e consentimento.
     A ausência do módulo nunca torna um RAT inválido.
+
+  **Alteração posterior (schema v4):** o utilizador forneceu a lista
+  completa de campos a considerar em cada qualidade e pediu explicitamente
+  que, no **responsável de tratamento**, a matriz de levantamento da folha
+  "Responsavél de Tratamento" do `Livro6.xlsx` fizesse parte do próprio
+  formulário. Por isso, e apenas nesse tipo de registo:
+
+  - Caracterização, Ferramentas/Aplicações, Subcontratados (detalhe),
+    Requisitos funcionais e Controlos operacionais são **passos do wizard
+    do responsável**, guardados em `matriz` (`src/domain/schema/matriz.ts`)
+    — todos os campos opcionais, para que um RAT do art. 30.º continue
+    válido sem eles.
+  - O botão para o módulo à parte **deixou de aparecer no formulário do
+    responsável**: seria incoerente ter as mesmas perguntas em dois sítios.
+  - O **subcontratante** mantém o módulo à parte tal como estava, e o seu
+    ecrã de RAT continua sem qualquer pergunta de controlo.
 
 - **Estado do registo, sem contas nem servidor.** Cada registo tem um
   `estado`: `rascunho` → `pronto` → `validado`. É apenas um marcador que

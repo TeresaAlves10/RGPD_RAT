@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { registoSchema } from '@/domain/schema/registo'
 
-export const SCHEMA_VERSION_ATUAL = 3
+export const SCHEMA_VERSION_ATUAL = 4
 
 export const metadadosEquipaSchema = z.object({
   equipa: z.string().min(1, 'Indica o nome da equipa/direção responsável pelo ficheiro.'),
