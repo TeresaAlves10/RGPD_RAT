@@ -54,10 +54,10 @@ describe('circuito GP -> validador', () => {
     window.location.hash = `#/registos/${registoResponsavelCompleto.id}/editar`
     await utilizador.click(await screen.findByRole('button', { name: textos.estado.reabrir }))
 
+    // Submeter guarda e marca de uma só vez: não é preciso guardar a seguir.
     const submeter = await screen.findByRole('button', { name: textos.estado.submeter })
     expect(submeter).toBeEnabled()
     await utilizador.click(submeter)
-    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
 
     const tabela = within(await screen.findByRole('table'))
     const linha = tabela.getByText(registoResponsavelCompleto.nomeTratamento).closest('tr')
@@ -73,6 +73,20 @@ describe('circuito GP -> validador', () => {
     await screen.findByRole('button', { name: textos.estado.reabrir })
     expect(screen.queryByRole('button', { name: textos.estado.validar })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: textos.estado.devolver })).not.toBeInTheDocument()
+  })
+
+  it('guardar não muda o estado; só submeter o faz', async () => {
+    const utilizador = userEvent.setup()
+    render(<App />)
+    await importarFixture(utilizador)
+
+    window.location.hash = `#/registos/${registoResponsavelCompleto.id}/editar`
+    await utilizador.click(await screen.findByRole('button', { name: textos.estado.reabrir }))
+    await utilizador.click(screen.getByRole('button', { name: textos.formulario.botaoGuardar }))
+
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText(registoResponsavelCompleto.nomeTratamento).closest('tr')
+    expect(within(linha as HTMLElement).getByText(textos.estado.rascunho)).toBeInTheDocument()
   })
 
   it('o validador corrige um campo e o registo continua editável', async () => {

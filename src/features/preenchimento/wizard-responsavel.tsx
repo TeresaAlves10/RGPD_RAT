@@ -187,7 +187,7 @@ export function WizardResponsavel({
 
   return (
     <form
-      onSubmit={handleSubmit(onGuardar)}
+      onSubmit={handleSubmit((dados) => onGuardar({ ...dados, estado: 'submetido' }))}
       className="grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10"
     >
       <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
@@ -678,7 +678,19 @@ export function WizardResponsavel({
             ) : null}
             {/* Guardar está sempre disponível: quem edita um registo já
                 preenchido não deve ter de percorrer todos os passos. */}
-            <Button type="submit">{textos.formulario.botaoGuardar}</Button>
+            <Button type="button" variant="outline" onClick={handleSubmit(onGuardar)}>
+              {textos.formulario.botaoGuardar}
+            </Button>
+            {/* Submeter guarda e marca o registo de uma só vez — é o que a
+                pessoa quer fazer quando chega ao fim do formulário. Fica
+                indisponível enquanto faltar um campo obrigatório. */}
+            <Button
+              type="submit"
+              disabled={erros.length > 0}
+              title={erros.length > 0 ? textos.estado.submeterBloqueado : undefined}
+            >
+              {textos.estado.submeter}
+            </Button>
           </div>
         </div>
       </div>
