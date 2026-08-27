@@ -378,12 +378,11 @@ export const textos = {
 
   importar: {
     titulo: 'Importar',
-    botaoImportar: 'JSON ou Excel',
-    botaoImportarLegado: 'Template antigo',
+    botaoImportar: 'Importar Excel',
     aImportar: 'A importar…',
     confirmarSubstituicao:
       'Já existem registos neste ficheiro. Importar vai substituí-los por completo. Continuar?',
-    erroGenerico: 'Não foi possível importar este ficheiro. Confirma que é um JSON ou Excel válido.',
+    erroGenerico: 'Não foi possível importar este ficheiro. Confirma que é um Excel válido, exportado por esta aplicação.',
     tituloRelatorio: 'Relatório de importação do template antigo',
     descricaoRelatorio:
       'Os campos assinalados como "por preencher" usam vocabulários fechados que o template antigo não tinha — revê e completa cada registo no formulário. O texto original desses campos foi guardado nas observações.',
