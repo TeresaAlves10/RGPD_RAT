@@ -215,9 +215,9 @@ export const textos = {
       'Todas as categorias especiais de dados são necessárias para a finalidade?',
     categoriasTitulares: 'Qual a categoria de titular dos dados?',
     entidadesQueEnviamDados:
-      'Quem são as entidades que me enviam dados pessoais para além do titular dos dados pessoais?',
+      'Quem são as entidades que enviam dados pessoais para além do titular dos dados pessoais?',
     entidadesParaQuemEnvioDados:
-      'Quem são as entidades a quem envio dados pessoais para além do seu titular?',
+      'Quem são as entidades a quem se envia dados pessoais para além do seu titular?',
     suportesFisicos:
       'Lista de suportes físicos existentes que contêm dados pessoais (e.g. papel, disco externo)',
     localizacaoSuportesFisicos: 'Localização dos dados pessoais em suporte físico',
