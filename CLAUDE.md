@@ -80,10 +80,13 @@ importa, corrige, reenvia
   `nomeTratamento`, `gestorProjeto.nome`); tudo o resto é `optional()`.
 
   A obrigatoriedade é imposta por uma regra declarativa por campo em
-  `src/domain/rules/catalog.ts`, com severidade `erro`, e tem um único
-  efeito prático: **`podeSubmeter()` é falso enquanto houver erros**.
-  Guardar, importar e exportar nunca são bloqueados (§7). É isto que
-  permite guardar um rascunho a meio sem inventar valores.
+  `src/domain/rules/catalog.ts`, com severidade `erro`. Estas regras
+  continuam a assinalar visualmente o que falta preencher — no
+  formulário e no Modo Validador — mas **não bloqueiam nenhuma ação**:
+  guardar, importar, exportar e submeter para validação estão sempre
+  disponíveis, mesmo com erros por resolver (§7). É isto que permite
+  guardar um rascunho a meio, ou submeter um registo incompleto, sem
+  inventar valores.
 
 - **Dois tipos de registo, com listas de campos distintas** — as duas
   qualidades em que a organização pode atuar, conforme a especificação

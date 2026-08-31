@@ -407,13 +407,10 @@ export function WizardSubcontratado({
               {textos.formulario.botaoGuardar}
             </Button>
             {/* Submeter guarda e marca o registo de uma só vez — é o que a
-                pessoa quer fazer quando chega ao fim do formulário. Fica
-                indisponível enquanto faltar um campo obrigatório. */}
-            <Button
-              type="submit"
-              disabled={erros.length > 0}
-              title={erros.length > 0 ? textos.estado.submeterBloqueado : undefined}
-            >
+                pessoa quer fazer quando chega ao fim do formulário. Campos
+                por preencher continuam visíveis como alerta, mas não
+                impedem submeter (ver "Verificações" acima). */}
+            <Button type="submit">
               {textos.estado.submeter}
             </Button>
           </div>

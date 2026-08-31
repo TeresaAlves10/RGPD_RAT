@@ -32,15 +32,21 @@ describe('circuito GP -> validador', () => {
     window.location.hash = '#/registos'
   })
 
-  it('não deixa submeter um registo com campos obrigatórios por preencher', async () => {
+  it('deixa submeter um registo mesmo com campos obrigatórios por preencher, mostrando o alerta', async () => {
     const utilizador = userEvent.setup()
     render(<App />)
     await importarFixture(utilizador)
 
     window.location.hash = `#/registos/${registoResponsavelMinimo.id}/editar`
+    expect(await screen.findByText(new RegExp(textos.estado.camposPorPreencher))).toBeInTheDocument()
+
     const submeter = await screen.findByRole('button', { name: textos.estado.submeter })
-    expect(submeter).toBeDisabled()
-    expect(screen.getByText(new RegExp(textos.estado.submeterBloqueado))).toBeInTheDocument()
+    expect(submeter).toBeEnabled()
+    await utilizador.click(submeter)
+
+    const tabela = within(await screen.findByRole('table'))
+    const linha = tabela.getByText(registoResponsavelMinimo.nomeTratamento).closest('tr')
+    expect(within(linha as HTMLElement).getByText(textos.estado.submetido)).toBeInTheDocument()
   })
 
   it('deixa submeter um registo completo e o estado passa a "submetido"', async () => {
