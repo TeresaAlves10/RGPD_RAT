@@ -7,7 +7,7 @@ import type { Ocorrencia } from '@/domain/rules/types'
 interface AcoesEstadoProps {
   estado: EstadoRegisto
   onMudar: (estado: EstadoRegisto) => void
-  /** Erros por resolver: enquanto existirem, não se pode submeter. */
+  /** Erros por resolver: mostrados como alerta, mas não impedem submeter. */
   erros?: Ocorrencia[]
   /** Só o modo validador pode validar ou devolver. */
   permiteValidar?: boolean
@@ -19,12 +19,10 @@ interface AcoesEstadoProps {
  *
  * Não há servidor por trás disto (CLAUDE.md §2.2). O estado é um marcador
  * dentro do ficheiro: "submeter" marca o registo, e o envio ao validador
- * é a pessoa exportar o ficheiro e mandá-lo. Submeter é a única ação
- * bloqueada por erros de preenchimento — guardar e exportar nunca são.
+ * é a pessoa exportar o ficheiro e mandá-lo. Nenhuma ação é bloqueada por
+ * erros de preenchimento — nem submeter, nem guardar, nem exportar.
  */
 export function AcoesEstado({ estado, onMudar, erros = [], permiteValidar }: AcoesEstadoProps) {
-  const podeSubmeter = erros.length === 0
-
   return (
     <div className="no-print flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-3">
@@ -57,9 +55,9 @@ export function AcoesEstado({ estado, onMudar, erros = [], permiteValidar }: Aco
         ) : null}
       </div>
 
-      {!podeSubmeter && (estado === 'rascunho' || estado === 'devolvido') ? (
+      {erros.length > 0 && (estado === 'rascunho' || estado === 'devolvido') ? (
         <p className="text-xs text-muted-foreground">
-          {textos.estado.submeterBloqueado} ({erros.length}).
+          {textos.estado.camposPorPreencher} ({erros.length}).
         </p>
       ) : null}
     </div>

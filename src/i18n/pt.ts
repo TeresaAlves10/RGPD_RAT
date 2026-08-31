@@ -178,15 +178,14 @@ export const textos = {
     botaoSeguinte: 'Seguinte',
     botaoGuardar: 'Guardar registo',
     botaoCancelar: 'Cancelar',
-    obrigatorio: 'Campos assinalados com * são obrigatórios para submeter o registo a validação.',
+    obrigatorio: 'Campos assinalados com * ficam como alerta enquanto não estiverem preenchidos — não impedem guardar, exportar nem submeter.',
     passo: (atual: number, total: number) => `Passo ${atual} de ${total}`,
     outroEspecificar: 'Outro (especificar)',
     adicionar: 'Adicionar',
     remover: 'Remover',
     porResponder: 'Por responder',
     avisosTitulo: 'Verificações',
-    avisosDescricao:
-      'Nada disto impede guardar ou exportar. Impede apenas submeter o registo a validação.',
+    avisosDescricao: 'Nada disto impede guardar, exportar ou submeter — fica marcado como alerta a corrigir.',
   },
 
   campos: {
@@ -298,7 +297,7 @@ export const textos = {
     devolvidoDescricao: 'O validador pediu correções ao GP antes de validar.',
     validadoDescricao: 'O validador reviu e deu como validado.',
     submeter: 'Submeter para validação',
-    submeterBloqueado: 'Preenche os campos obrigatórios para submeter',
+    camposPorPreencher: 'Ainda há campos obrigatórios por preencher',
     devolver: 'Devolver para correção',
     validar: 'Validar registo',
     reabrir: 'Reabrir para edição',
