@@ -1,11 +1,12 @@
 Logótipo da organização
 =======================
 
-O logótipo em uso está em `public/logo.jpg`, apontado por `LOGO` em
-`src/config/organizacao.ts`.
+Não há logótipo configurado neste momento — `LOGO` está a `undefined`
+em `src/config/organizacao.ts`, e a barra lateral mostra o nome da
+organização em texto.
 
-Para o substituir, troca o ficheiro mantendo o nome, ou muda o nome em
-`LOGO`.
+Para pôr um logótipo, coloca o ficheiro aqui em `public/` e aponta
+`LOGO` para o nome desse ficheiro.
 
 Notas:
 

@@ -20,7 +20,7 @@ export const NOME_ORGANIZACAO = 'SPMS'
  * partida. Para trocar de ficheiro, muda o nome aqui; para não ter
  * logótipo nenhum, põe `undefined`.
  */
-export const LOGO: string | undefined = 'logo.jpg'
+export const LOGO: string | undefined = undefined
 
 /** Direção por omissão de um registo novo. */
 export const DIRECAO_POR_OMISSAO = 'Direção de Arquitetura, Negócio e Análise de Dados (DANAD)'
