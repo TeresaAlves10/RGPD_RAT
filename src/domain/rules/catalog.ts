@@ -111,7 +111,6 @@ const regrasResponsavel: RegraRegisto[] = [
   obrigatorioDe('resp', ehResponsavel, 'entidadesQueEnviamDados', c.entidadesQueEnviamDados),
   obrigatorioDe('resp', ehResponsavel, 'entidadesParaQuemEnvioDados', c.entidadesParaQuemEnvioDados),
   obrigatorioDe('resp', ehResponsavel, 'suportesFisicos', c.suportesFisicos),
-  obrigatorioDe('resp', ehResponsavel, 'localizacaoSuportesFisicos', c.localizacaoSuportesFisicos),
   obrigatorioDe('resp', ehResponsavel, 'ferramentasAplicacoes', c.ferramentasAplicacoes),
   obrigatorioDe(
     'resp',
