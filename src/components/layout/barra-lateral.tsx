@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { textos } from '@/i18n/pt'
-import { LOGO, NOME_ORGANIZACAO } from '@/config/organizacao'
+import { LOGO, NOME_ORGANIZACAO, AUTOR_NOME, AUTOR_LINK } from '@/config/organizacao'
 
 interface ItemNavegacao {
   para: string
@@ -128,6 +128,16 @@ export function BarraLateral() {
 
       <div className="mt-auto border-t border-sidebar-border px-5 py-4">
         <p className="text-xs leading-relaxed text-sidebar-muted">{textos.app.rodape}</p>
+        {AUTOR_NOME && AUTOR_LINK ? (
+          <a
+            href={AUTOR_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 block text-xs leading-relaxed text-sidebar-muted/70 hover:text-sidebar-muted hover:underline"
+          >
+            {textos.app.criadoPor(AUTOR_NOME)}
+          </a>
+        ) : null}
       </div>
     </aside>
   )

@@ -22,6 +22,15 @@ export const NOME_ORGANIZACAO = 'SPMS'
  */
 export const LOGO: string | undefined = undefined
 
+/**
+ * Crédito de autoria, mostrado a par do rodapé de privacidade na barra
+ * lateral — sem logótipo institucional, é o que identifica quem fez esta
+ * instância da aplicação. Põe `undefined` em qualquer um dos dois para
+ * não mostrar nada.
+ */
+export const AUTOR_NOME: string | undefined = 'Teresa Alves'
+export const AUTOR_LINK: string | undefined = 'https://www.linkedin.com/in/teresacalves'
+
 /** Direção por omissão de um registo novo. */
 export const DIRECAO_POR_OMISSAO = 'Direção de Arquitetura, Negócio e Análise de Dados (DANAD)'
 

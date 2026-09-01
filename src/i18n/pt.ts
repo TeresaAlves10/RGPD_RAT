@@ -7,6 +7,7 @@ export const textos = {
     rascunhoGuardado: 'Guardado neste computador',
     rodape:
       'Nada do que escreves aqui sai deste computador. Só os ficheiros que exportares, e só quando os enviares.',
+    criadoPor: (nome: string) => `Criado por ${nome}`,
   },
 
   inicio: {
