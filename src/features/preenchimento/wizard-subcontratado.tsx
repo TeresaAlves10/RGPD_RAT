@@ -242,6 +242,7 @@ export function WizardSubcontratado({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  ajuda="categoriasEspeciais"
                 />
               )}
             />

@@ -152,10 +152,10 @@ export const ajudaOrientacoes: AjudaCampo[] = [
   },
   {
     campo: 'categoriasEspeciais',
-    baseLegal: 'art. 9.º',
+    baseLegal: 'Orientação de preenchimento',
     fonte: 'orientacao',
     texto:
-      'Dados pessoais que, pela sua natureza, beneficiam de proteção reforçada nos termos do RGPD. Incluem dados sobre origem racial ou étnica, opiniões políticas, convicções religiosas ou filosóficas, filiação sindical, dados genéticos, dados biométricos para identificação inequívoca, dados relativos à saúde e dados relativos à vida sexual ou orientação sexual.',
+      'Estão previstas no artigo 9.º do RGPD e incluem:\n🩺 Dados relativos à saúde\n🧬 Dados genéticos\n👆 Dados biométricos, quando utilizados para identificar inequivocamente uma pessoa\n🧑‍🤝‍🧑 Origem racial ou étnica\n🛐 Convicções religiosas ou filosóficas\n🏛️ Opiniões políticas\n👷 Filiação sindical\n❤️ Vida sexual ou orientação sexual',
   },
   {
     campo: 'categoriasTitulares',
