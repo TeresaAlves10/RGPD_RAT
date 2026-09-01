@@ -290,6 +290,7 @@ export function WizardResponsavel({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -311,6 +312,7 @@ export function WizardResponsavel({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -414,6 +416,7 @@ export function WizardResponsavel({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -449,6 +452,7 @@ export function WizardResponsavel({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -467,6 +471,7 @@ export function WizardResponsavel({
                   valor={field.value}
                   onChange={field.onChange}
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -481,6 +486,7 @@ export function WizardResponsavel({
                   onChange={field.onChange}
                   comNaoSei
                   obrigatorio
+                  negrito
                 />
               )}
             />
@@ -573,6 +579,7 @@ export function WizardResponsavel({
                     valor={field.value}
                     onChange={field.onChange}
                     obrigatorio
+                    negrito={campo === 'procedimentosAcessosDocumentados'}
                   />
                 )}
               />
