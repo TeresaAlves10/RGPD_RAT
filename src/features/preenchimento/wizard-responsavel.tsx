@@ -94,7 +94,17 @@ const CAMPOS_POR_PASSO: (keyof RegistoResponsavel)[][] = [
     'remocaoAcessosASaida',
     'detecaoNotificacaoViolacoes',
   ],
-  ['medidasTecnicasOrganizativas', 'normativosAplicaveis', 'anexos', 'aipdRealizada', 'gestorProjeto', 'observacoes'],
+  [
+    'medidasTecnicasOrganizativas',
+    'normativosAplicaveis',
+    'acessoProdutoSistema',
+    'politicaPrivacidade',
+    'politicaPrivacidadeAnexos',
+    'anexos',
+    'aipdRealizada',
+    'gestorProjeto',
+    'observacoes',
+  ],
 ]
 
 /** Os nove campos dos direitos dos titulares, na ordem da especificação. */
@@ -603,6 +613,21 @@ export function WizardResponsavel({
             </Campo>
             <Campo id="normativosAplicaveis" label={textos.campos.normativosAplicaveis} obrigatorio>
               <Textarea id="normativosAplicaveis" {...register('normativosAplicaveis')} />
+            </Campo>
+            <Campo id="acessoProdutoSistema" label={textos.campos.acessoProdutoSistema} ajuda="acessoProdutoSistema">
+              <Input id="acessoProdutoSistema" {...register('acessoProdutoSistema')} />
+            </Campo>
+            <Campo id="politicaPrivacidade" label={textos.campos.politicaPrivacidade} ajuda="politicaPrivacidade">
+              <Input id="politicaPrivacidade" {...register('politicaPrivacidade')} />
+            </Campo>
+            <Campo id="politicaPrivacidadeAnexos" label={textos.campos.politicaPrivacidadeAnexos}>
+              <Controller
+                control={control}
+                name="politicaPrivacidadeAnexos"
+                render={({ field }) => (
+                  <CampoAnexos valor={field.value ?? []} onChange={field.onChange} />
+                )}
+              />
             </Campo>
             <Campo id="anexos" label={textos.campos.anexos}>
               <Controller

@@ -36,6 +36,7 @@ function seccao(nome: string, linhas: Content[]): Content[] {
 function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
   const anexos = registo.anexos ?? []
   const anexosContrato = registo.anexosContrato ?? []
+  const politicaPrivacidadeAnexos = registo.politicaPrivacidadeAnexos ?? []
 
   return [
     ...seccao(textos.passos.caracterizacao, [
@@ -144,6 +145,14 @@ function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
     ...seccao(textos.passos.observacoesGerais, [
       ...campo(c.medidasTecnicasOrganizativas, registo.medidasTecnicasOrganizativas),
       ...campo(c.normativosAplicaveis, registo.normativosAplicaveis),
+      ...campo(c.acessoProdutoSistema, registo.acessoProdutoSistema),
+      ...campo(c.politicaPrivacidade, registo.politicaPrivacidade),
+      ...campo(
+        c.politicaPrivacidadeAnexos,
+        politicaPrivacidadeAnexos.length > 0
+          ? politicaPrivacidadeAnexos.map((a) => a.nome).join('; ')
+          : undefined,
+      ),
       // Os anexos não são embebidos no PDF: lista-se o que existe, porque
       // o PDF é para leitura e arquivo, não para reimportar.
       ...campo(
@@ -166,6 +175,7 @@ function seccoesResponsavel(registo: RegistoResponsavel): Content[] {
  */
 function seccoesSubcontratado(registo: RegistoSubcontratado): Content[] {
   const anexos = registo.anexos ?? []
+  const politicaPrivacidadeAnexos = registo.politicaPrivacidadeAnexos ?? []
 
   return [
     ...seccao(textos.passos.subIdentificacao, [
@@ -200,6 +210,14 @@ function seccoesSubcontratado(registo: RegistoSubcontratado): Content[] {
 
     ...seccao(textos.passos.subSegurancaObservacoes, [
       ...campo(c.medidasTecnicasOrganizativas, registo.medidasTecnicasOrganizativas),
+      ...campo(c.acessoProdutoSistema, registo.acessoProdutoSistema),
+      ...campo(c.politicaPrivacidade, registo.politicaPrivacidade),
+      ...campo(
+        c.politicaPrivacidadeAnexos,
+        politicaPrivacidadeAnexos.length > 0
+          ? politicaPrivacidadeAnexos.map((a) => a.nome).join('; ')
+          : undefined,
+      ),
       ...campo(
         c.existemOutrosSubcontratantes,
         rotuloResposta(registo.existemOutrosSubcontratantes),

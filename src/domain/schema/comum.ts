@@ -96,6 +96,11 @@ export const campoBaseRegistoSchema = z.object({
   aipdRealizada: respostaSimNaoSchema.optional(),
   medidasTecnicasOrganizativas: z.string().optional(),
   normativosAplicaveis: z.string().optional(),
+  /** Link ou identificação por escrito de como se acede, quando aplicável. */
+  acessoProdutoSistema: z.string().optional(),
+  /** Link ou texto livre; pode também vir como documento anexado. */
+  politicaPrivacidade: z.string().optional(),
+  politicaPrivacidadeAnexos: z.array(anexoSchema).optional(),
   observacoes: z.string().optional(),
   anotacoes: z.array(anotacaoCampoSchema).optional(),
   validacao: validacaoSchema.optional(),

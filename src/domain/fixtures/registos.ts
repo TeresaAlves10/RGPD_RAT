@@ -95,6 +95,8 @@ export const registoResponsavelCompleto: RegistoResponsavel = {
   medidasTecnicasOrganizativas:
     'Encriptação em repouso; gestão de direitos de acesso; formação anual dos colaboradores; cláusula de confidencialidade no contrato de trabalho.',
   normativosAplicaveis: 'Código do Trabalho; legislação de segurança social.',
+  acessoProdutoSistema: 'https://rh.exemplo-ficticio.pt/acessos (pedido de acesso via GP).',
+  politicaPrivacidade: 'https://exemplo-ficticio.pt/politica-de-privacidade',
   aipdRealizada: 'nao',
   gestorProjeto: { nome: 'Bruno Fictício', contacto: 'bruno.ficticio@exemplo.pt' },
   observacoes: 'Revisão periódica de acessos por calendarizar com a equipa de sistemas.',
@@ -149,6 +151,8 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
 
   medidasTecnicasOrganizativas:
     'Encriptação em trânsito e em repouso; políticas internas de proteção de dados; avaliação prévia de subcontratantes.',
+  acessoProdutoSistema: 'https://helpdesk.exemplo-ficticio.pt (acesso mediante credenciais do cliente).',
+  politicaPrivacidade: 'https://exemplo-ficticio.pt/politica-de-privacidade',
   existemOutrosSubcontratantes: 'sim',
   entidadesSubcontratadas: 'Centro de Dados Fictício, S.A.',
   aipdRealizada: 'sim',
@@ -164,7 +168,7 @@ export const registoSubcontratadoCompleto: RegistoSubcontratado = {
 }
 
 export const ficheiroRatFixtureValido: FicheiroRat = {
-  schemaVersion: 8,
+  schemaVersion: 9,
   metadados: {
     equipa: 'Equipa Fictícia de Sistemas de Informação',
     contacto: 'equipa.ficticia@exemplo.pt',
@@ -181,7 +185,7 @@ export const ficheiroRatFixtureValido: FicheiroRat = {
 
 /** Fixture propositadamente inválida, para testar mensagens de erro do schema. */
 export const ficheiroRatFixtureInvalida = {
-  schemaVersion: 8,
+  schemaVersion: 9,
   metadados: {
     equipa: '',
     dataCriacao: '2026-01-15T10:00:00.000Z',
