@@ -126,6 +126,12 @@ const COLUNAS_RESPONSAVEL: Coluna<RegistoResponsavel>[] = [
   { cabecalho: c.detecaoNotificacaoViolacoes, ler: (r) => r.detecaoNotificacaoViolacoes ?? '' },
   { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
   { cabecalho: c.normativosAplicaveis, ler: (r) => r.normativosAplicaveis ?? '' },
+  { cabecalho: c.acessoProdutoSistema, ler: (r) => r.acessoProdutoSistema ?? '' },
+  { cabecalho: c.politicaPrivacidade, ler: (r) => r.politicaPrivacidade ?? '' },
+  {
+    cabecalho: c.politicaPrivacidadeAnexos,
+    ler: (r) => (r.politicaPrivacidadeAnexos ?? []).map((a) => a.nome).join('\n'),
+  },
   {
     cabecalho: c.anexos,
     ler: (r) =>
@@ -166,6 +172,12 @@ const COLUNAS_SUBCONTRATANTE: Coluna<RegistoSubcontratado>[] = [
   { cabecalho: c.prazoConservacao, ler: (r) => r.prazoConservacao ?? '' },
   { cabecalho: c.criterioRetencao(NOME_ORGANIZACAO), ler: (r) => r.criterioRetencao ?? '' },
   { cabecalho: c.medidasTecnicasOrganizativas, ler: (r) => r.medidasTecnicasOrganizativas ?? '' },
+  { cabecalho: c.acessoProdutoSistema, ler: (r) => r.acessoProdutoSistema ?? '' },
+  { cabecalho: c.politicaPrivacidade, ler: (r) => r.politicaPrivacidade ?? '' },
+  {
+    cabecalho: c.politicaPrivacidadeAnexos,
+    ler: (r) => (r.politicaPrivacidadeAnexos ?? []).map((a) => a.nome).join('\n'),
+  },
   {
     cabecalho: c.existemOutrosSubcontratantes,
     ler: (r) => rotuloResposta(r.existemOutrosSubcontratantes),

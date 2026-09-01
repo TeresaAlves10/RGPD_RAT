@@ -39,6 +39,9 @@ const CAMPOS_POR_PASSO: (keyof RegistoSubcontratado)[][] = [
   ['transferenciasPaisesTerceiros', 'paisesTerceiros', 'prazoConservacao', 'criterioRetencao'],
   [
     'medidasTecnicasOrganizativas',
+    'acessoProdutoSistema',
+    'politicaPrivacidade',
+    'politicaPrivacidadeAnexos',
     'existemOutrosSubcontratantes',
     'entidadesSubcontratadas',
     'observacoes',
@@ -302,6 +305,21 @@ export function WizardSubcontratado({
                 id="medidasTecnicasOrganizativas"
                 rows={4}
                 {...register('medidasTecnicasOrganizativas')}
+              />
+            </Campo>
+            <Campo id="acessoProdutoSistema" label={textos.campos.acessoProdutoSistema} ajuda="acessoProdutoSistema">
+              <Input id="acessoProdutoSistema" {...register('acessoProdutoSistema')} />
+            </Campo>
+            <Campo id="politicaPrivacidade" label={textos.campos.politicaPrivacidade} ajuda="politicaPrivacidade">
+              <Input id="politicaPrivacidade" {...register('politicaPrivacidade')} />
+            </Campo>
+            <Campo id="politicaPrivacidadeAnexos" label={textos.campos.politicaPrivacidadeAnexos}>
+              <Controller
+                control={control}
+                name="politicaPrivacidadeAnexos"
+                render={({ field }) => (
+                  <CampoAnexos valor={field.value ?? []} onChange={field.onChange} />
+                )}
               />
             </Campo>
             <Controller

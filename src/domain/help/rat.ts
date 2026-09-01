@@ -226,6 +226,20 @@ export const ajudaOrientacoes: AjudaCampo[] = [
     texto:
       'Permite ao titular opor-se ao tratamento dos seus dados pessoais em determinadas situações, nomeadamente quando o tratamento tenha por base o interesse público ou interesses legítimos.',
   },
+  {
+    campo: 'acessoProdutoSistema',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Indica o link de acesso ao produto ou sistema (endereço http/https), quando aplicável, ou identifica por escrito como se processa o acesso.',
+  },
+  {
+    campo: 'politicaPrivacidade',
+    baseLegal: 'Orientação de preenchimento',
+    fonte: 'orientacao',
+    texto:
+      'Indica o link para a política de privacidade publicada (endereço http/https), caso exista, ou descreve-a por escrito. Se tiveres o documento, podes também anexá-lo.',
+  },
 ]
 
 /**
