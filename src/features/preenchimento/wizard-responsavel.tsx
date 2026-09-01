@@ -393,7 +393,12 @@ export function WizardResponsavel({
         {/* ── 3. Subcontratados ───────────────────────────────────── */}
         {passo === 2 ? (
           <div {...painel(2)}>
-            <Campo id="entidadesSubcontratadas" label={textos.campos.entidadesSubcontratadas} obrigatorio>
+            <Campo
+              id="entidadesSubcontratadas"
+              label={textos.campos.entidadesSubcontratadas}
+              obrigatorio
+              ajuda="entidadesSubcontratadas"
+            >
               <Textarea id="entidadesSubcontratadas" {...register('entidadesSubcontratadas')} />
             </Campo>
             <Campo
