@@ -313,6 +313,7 @@ export function WizardResponsavel({
                   onChange={field.onChange}
                   obrigatorio
                   negrito
+                  ajuda="categoriasEspeciais"
                 />
               )}
             />
