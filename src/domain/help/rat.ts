@@ -124,10 +124,10 @@ export const ajudaOrientacoes: AjudaCampo[] = [
   },
   {
     campo: 'finalidade',
-    baseLegal: 'art. 30.º/1, b)',
+    baseLegal: 'Orientação de preenchimento',
     fonte: 'orientacao',
     texto:
-      'A(s) finalidade(s) ou o objetivo do tratamento de dados pessoais devem ser determinadas, explícitas e legítimas.',
+      'A(s) finalidade(s) ou o objetivo do tratamento de dados pessoais devem ser determinadas, explícitas e legítimas (art. 30.º/1, b)).\n\nExemplos:\n– Identificação precoce de condições de saúde: detetar sinais iniciais de doenças, ou outras patologias, através de dados clínicos e exames.\n– Suporte à decisão clínica: fornecer informações aos profissionais de saúde para diagnóstico e intervenção precoce.\n– Monitorização e acompanhamento do paciente: registar e acompanhar a evolução clínica dos utilizadores que participam nos programas de deteção precoce.\n– Agregação e análise de dados para saúde pública: produzir estatísticas e relatórios que ajudem a definir políticas de prevenção e programas de saúde.',
   },
   {
     campo: 'operacoesTratamento',
