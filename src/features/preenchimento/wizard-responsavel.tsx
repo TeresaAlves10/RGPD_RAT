@@ -350,11 +350,7 @@ export function WizardResponsavel({
             <Campo id="suportesFisicos" label={textos.campos.suportesFisicos} obrigatorio>
               <Textarea id="suportesFisicos" {...register('suportesFisicos')} />
             </Campo>
-            <Campo
-              id="localizacaoSuportesFisicos"
-              label={textos.campos.localizacaoSuportesFisicos}
-              obrigatorio
-            >
+            <Campo id="localizacaoSuportesFisicos" label={textos.campos.localizacaoSuportesFisicos}>
               <Input id="localizacaoSuportesFisicos" {...register('localizacaoSuportesFisicos')} />
             </Campo>
           </div>
