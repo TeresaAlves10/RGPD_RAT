@@ -16,6 +16,7 @@ import { avaliarFicheiro } from '@/domain/rules/motor'
 import { registoSchema, type Registo } from '@/domain/schema/registo'
 import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
 import { EstadoRegistoBadge } from '@/components/estado-registo'
+import { IconeEscudoCadeado } from '@/components/icone-escudo'
 
 interface EstadoRegisto {
   erros: number
@@ -417,6 +418,7 @@ export function ListaRegistos() {
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+            <IconeEscudoCadeado className="h-12 w-12 text-muted-foreground/40" />
             <div className="flex flex-col gap-1.5">
               <p className="text-base font-medium">{textos.lista.semRegistos}</p>
               <p className="text-sm text-muted-foreground">{textos.lista.semRegistosSugestao}</p>

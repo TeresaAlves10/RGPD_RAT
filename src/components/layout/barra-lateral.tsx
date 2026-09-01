@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { textos } from '@/i18n/pt'
 import { LOGO, NOME_ORGANIZACAO, AUTOR_NOME, AUTOR_LINK } from '@/config/organizacao'
+import { IconeEscudo } from '@/components/icone-escudo'
 
 interface ItemNavegacao {
   para: string
@@ -98,9 +99,7 @@ export function BarraLateral() {
           <span className="text-[0.95rem] font-semibold">{NOME_ORGANIZACAO}</span>
         )}
         <span className="flex items-center gap-2 text-xs font-medium text-sidebar-foreground/70">
-          <svg viewBox="0 0 24 24" {...traco} className="h-4 w-4 shrink-0" aria-hidden="true">
-            <path d="M12 3 5 6v5.5c0 4.3 2.9 8.2 7 9.5 4.1-1.3 7-5.2 7-9.5V6z" />
-          </svg>
+          <IconeEscudo className="h-4 w-4 shrink-0" />
           {textos.app.marca} · RGPD
         </span>
       </Link>
