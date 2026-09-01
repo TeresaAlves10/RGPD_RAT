@@ -13,8 +13,10 @@ interface CampoSimNaoProps {
   /** Acrescenta "Não sei" — só a pergunta sobre a CNPD o usa. */
   comNaoSei?: boolean
   obrigatorio?: boolean
-  /** Dá peso visual à pergunta, para não passar despercebida. */
+  /** Dá peso visual à pergunta, com caixa destacada — para não passar despercebida. */
   destaque?: boolean
+  /** Só o texto da pergunta a negrito, sem caixa. */
+  negrito?: boolean
 }
 
 /**
@@ -29,6 +31,7 @@ export function CampoSimNao({
   comNaoSei,
   obrigatorio,
   destaque,
+  negrito,
 }: CampoSimNaoProps) {
   return (
     <div
@@ -42,7 +45,7 @@ export function CampoSimNao({
       <div className="flex items-baseline gap-1">
         <Label
           htmlFor={id}
-          className={cn('text-sm leading-snug', destaque ? 'font-semibold' : 'font-normal')}
+          className={cn('text-sm leading-snug', destaque || negrito ? 'font-semibold' : 'font-normal')}
         >
           {label}
         </Label>
