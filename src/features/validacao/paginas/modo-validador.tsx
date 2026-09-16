@@ -235,14 +235,26 @@ export function ModoValidador() {
             if (ficheiros.length > 0) void importarFicheiros(ficheiros)
           }}
         />
-        <Button variant="outline" disabled={aImportar} onClick={() => inputRef.current?.click()}>
-          {aImportar ? textos.validador.aImportar : textos.validador.botaoImportar}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" disabled={aImportar} onClick={() => inputRef.current?.click()}>
+            {aImportar ? textos.validador.aImportar : textos.validador.botaoImportar}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={aExportarResumo}
+            onClick={() => void exportarResumo()}
+          >
+            {aExportarResumo ? textos.validador.aExportarResumo : textos.validador.botaoExportarResumo}
+          </Button>
+        </div>
         {errosImportacao.map((erro) => (
           <p key={erro} className="mt-1 text-sm text-destructive">
             {erro}
           </p>
         ))}
+        {erroExportarResumo ? (
+          <p className="mt-1 text-sm text-destructive">{textos.validador.erroExportarResumo}</p>
+        ) : null}
       </div>
 
       {entradaSelecionada && registoAberto ? (
@@ -343,17 +355,6 @@ export function ModoValidador() {
       ) : (
         <>
           <PainelTotais registos={todasEntradas.flatMap((e) => e.ficheiro.registos)} />
-          <Button
-            variant="outline"
-            className="self-start"
-            disabled={aExportarResumo}
-            onClick={() => void exportarResumo()}
-          >
-            {aExportarResumo ? textos.validador.aExportarResumo : textos.validador.botaoExportarResumo}
-          </Button>
-          {erroExportarResumo ? (
-            <p className="text-sm text-destructive">{textos.validador.erroExportarResumo}</p>
-          ) : null}
 
           {submetidos.length > 0 ? (
             <section className="flex flex-col gap-3">
