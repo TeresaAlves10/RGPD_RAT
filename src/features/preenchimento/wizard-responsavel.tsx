@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
@@ -229,9 +230,9 @@ export function WizardResponsavel({
       <div className="flex min-w-0 flex-col gap-8">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">{textos.formulario.obrigatorio}</p>
-          <p className="text-xs text-muted-foreground">
-            {textos.campos.numero}: <strong>{watch('numero')}</strong>
-          </p>
+          <Badge variant="secondary" className="text-sm font-semibold">
+            {textos.campos.numero}: {watch('numero')}
+          </Badge>
         </div>
 
         {/* ── 1. Descrição do Processo / Caracterização ───────────── */}
@@ -393,7 +394,12 @@ export function WizardResponsavel({
         {/* ── 3. Subcontratados ───────────────────────────────────── */}
         {passo === 2 ? (
           <div {...painel(2)}>
-            <Campo id="entidadesSubcontratadas" label={textos.campos.entidadesSubcontratadas} obrigatorio>
+            <Campo
+              id="entidadesSubcontratadas"
+              label={textos.campos.entidadesSubcontratadas}
+              obrigatorio
+              ajuda="entidadesSubcontratadas"
+            >
               <Textarea id="entidadesSubcontratadas" {...register('entidadesSubcontratadas')} />
             </Campo>
             <Campo

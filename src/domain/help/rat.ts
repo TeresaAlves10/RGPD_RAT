@@ -11,6 +11,8 @@
  * utilizador para as equipas desta organização.
  */
 
+import { NOME_ORGANIZACAO } from '@/config/organizacao'
+
 export interface AjudaCampo {
   /** Identificador do campo no schema Zod (ver src/domain/schema/). */
   campo: string
@@ -163,6 +165,13 @@ export const ajudaOrientacoes: AjudaCampo[] = [
     fonte: 'orientacao',
     texto:
       'Identificar os grupos ou tipos de pessoas singulares a quem respeitam os dados pessoais tratados no âmbito do processo. Exemplos: utentes/doentes; profissionais de saúde; colaboradores; cidadãos; candidatos; fornecedores/prestadores de serviços; representantes legais; visitantes/utilizadores de portais e aplicações; outros.',
+  },
+  {
+    campo: 'entidadesSubcontratadas',
+    baseLegal: 'Conceito — art. 4.º/8',
+    fonte: 'orientacao',
+    texto:
+      `O artigo 4.º, n.º 8, do RGPD define o subcontratante como "a pessoa singular ou coletiva, autoridade pública, agência ou outro organismo que trate os dados pessoais por conta do responsável pelo tratamento."\n\nOu seja, o subcontratante trata os dados pessoais por conta do responsável pelo tratamento, não determinando autonomamente as finalidades do tratamento. Atua de acordo com as instruções e responsabilidades definidas pelo responsável pelo tratamento.\n\nNo âmbito da prestação dos serviços, a organização ${NOME_ORGANIZACAO} poderá recorrer a outras entidades, por exemplo, para serviços de infraestrutura tecnológica, alojamento, manutenção, recursos humanos, suporte ou outros serviços especializados que impliquem o tratamento / acesso a dados pessoais.`,
   },
   {
     campo: 'operacoesTratamentoSubcontratadas',

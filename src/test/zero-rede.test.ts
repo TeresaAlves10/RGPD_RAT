@@ -31,11 +31,19 @@ const PADROES_PROIBIDOS: RegExp[] = [
  * src/io/pdf/exportar.ts desativa essa capacidade explicitamente em
  * runtime com setUrlAccessPolicy(() => false)/setLocalAccessPolicy(() =>
  * false) — mas o código continua presente no bundle, pelo que o *scan*
- * estático de padrões de rede exclui este chunk de terceiros. O scan de
- * domínios de CDN abaixo continua a aplicar-se a todos os ficheiros,
- * incluindo este.
+ * estático de padrões de rede exclui este chunk de terceiros.
+ *
+ * pptxgenjs (usado só em src/io/pptx/exportar.ts, para o resumo em
+ * PowerPoint do Modo Validador) tem o mesmo tipo de código morto: uma
+ * função `addImage({ path: url })` opcional que carrega uma imagem remota
+ * via XMLHttpRequest. A aplicação nunca chama `addImage` — os slides só
+ * têm texto e tabelas — pelo que esse caminho nunca executa, apesar de
+ * continuar presente no bundle.
+ *
+ * O scan de domínios de CDN abaixo continua a aplicar-se a todos os
+ * ficheiros, incluindo estes dois.
  */
-const FICHEIROS_IGNORADOS_EM_PADROES_DE_REDE = [/^pdfmake-/]
+const FICHEIROS_IGNORADOS_EM_PADROES_DE_REDE = [/^pdfmake-/, /^pptxgen\.es-/]
 
 const DOMINIOS_CDN_PROIBIDOS: string[] = [
   'unpkg.com',

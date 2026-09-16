@@ -13,9 +13,15 @@ function slug(texto: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-/** Nome de ficheiro comum aos três formatos de exportação (JSON/Excel/PDF). */
+/** Nome de ficheiro comum aos formatos de exportação (JSON/Excel/PDF/Word). */
 export function nomeBaseFicheiro(ficheiro: FicheiroRat): string {
   const data = ficheiro.metadados.dataUltimaEdicao.slice(0, 10)
   const equipa = slug(ficheiro.metadados.equipa) || 'rat'
-  return `rat-${equipa}-${data}`
+  // Um só registo no ficheiro exportado — por seleção de "registo
+  // específico" na barra de exportação, ou porque o ficheiro só tinha um —
+  // identifica-se no nome, em vez de ficar indistinguível de uma exportação
+  // completa.
+  const sufixoRegisto =
+    ficheiro.registos.length === 1 ? `-registo-${ficheiro.registos[0].numero}` : ''
+  return `rat-${equipa}-${data}${sufixoRegisto}`
 }
