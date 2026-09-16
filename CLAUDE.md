@@ -225,10 +225,18 @@ Implementar, **opcional e claramente sinalizado**:
 | **JSON** | Formato canónico de troca. Inclui `schemaVersion`. |
 | **Excel** | Folha legível (um registo por linha) + folha `Listas` com os vocabulários + folha oculta `_dados` com o JSON completo, para *round-trip* sem perdas. |
 | **PDF** | Apresentação/arquivo. Uma secção por registo, fundamentação legal em rodapé, sumário de validação. Não é reimportável. Usar biblioteca com fonte embebida — sem isto os acentos de PT-PT saem corrompidos. |
+| **Word** | Apresentação/arquivo, mesmo conteúdo e ordem de secções do PDF (`src/io/word/exportar.ts`, biblioteca `docx`). Não é reimportável. |
 | **Excel legado** | Importador dedicado do template antigo (`Livro6.xlsx`, em anexo/fixtures), com relatório de mapeamento: campos mapeados, ignorados, por preencher. |
 
 O download nunca é bloqueado por erros de validação — o estado de
-validação viaja embutido no ficheiro e é visível no PDF exportado.
+validação viaja embutido no ficheiro e é visível no PDF/Word exportado.
+
+Os quatro formatos (JSON/Excel/PDF/Word) têm um seletor de âmbito na
+barra de exportação (`BarraExportacao`): "Todos os registos" ou um
+registo específico, que restringe o `FicheiroRat` antes de gerar
+qualquer um dos formatos (`src/io/filtrar-ficheiro.ts`). O nome do
+ficheiro descarregado identifica o registo quando o âmbito é um só
+(`-registo-<número>`).
 
 A barra de importação do ecrã "Registos" (`BarraImportacao`) só oferece
 Excel nativo — é o que a equipa usa no dia a dia. O JSON continua a ser o
@@ -238,13 +246,25 @@ importador do template antigo (`io/excel/importador-legado.ts`) mantém-se
 no código e testado, mas sem botão que o exponha em nenhum ecrã — para o
 repor, é só voltar a ligá-lo à UI.
 
+No Modo Validador, o botão "Exportar PowerPoint" (`src/io/pptx/exportar.ts`,
+biblioteca `pptxgenjs`) gera um resumo da sessão inteira (todas as
+entradas importadas + o ficheiro deste browser): os seis totais do
+painel (total, Responsável, Subcontratante, em validação, validados, com
+AIPD), depois os mesmos totais agrupados por Direção e por Unidade de
+Coordenação. É só texto/tabelas, sem imagens — não confundir com
+dashboard agregado persistente (regra 8): os números são calculados em
+memória, sobre o que está importado nesta sessão do browser, e
+desaparecem ao fechar a aplicação, tal como o painel de totais.
+
 ## 8. Stack técnica
 
 Vite + React + TypeScript · Tailwind + shadcn/ui · react-hook-form + Zod ·
 Vitest + Testing Library · `exceljs` para Excel (import dinâmico) ·
-`pdfmake` com fonte embebida para PDF (import dinâmico) · GitHub Actions →
-GitHub Pages · `HashRouter` (ou `404.html` de fallback) para as rotas
-funcionarem no Pages.
+`pdfmake` com fonte embebida para PDF (import dinâmico) · `docx` para Word
+(import dinâmico) · `pptxgenjs` para o resumo em PowerPoint do Modo
+Validador (import dinâmico) · GitHub Actions → GitHub Pages ·
+`HashRouter` (ou `404.html` de fallback) para as rotas funcionarem no
+Pages.
 
 ## 9. Prova de "zero rede"
 

@@ -48,6 +48,8 @@ export function ModoValidador() {
   const [aImportar, setAImportar] = useState(false)
   const [errosImportacao, setErrosImportacao] = useState<string[]>([])
   const [aExportar, setAExportar] = useState<string | null>(null)
+  const [aExportarResumo, setAExportarResumo] = useState(false)
+  const [erroExportarResumo, setErroExportarResumo] = useState(false)
   const [nomeValidador, setNomeValidador] = useState('')
   /** Registo aberto no formulário completo, para o validador corrigir. */
   const [registoEmEdicao, setRegistoEmEdicao] = useState<string | null>(null)
@@ -175,7 +177,7 @@ export function ModoValidador() {
     [todasEntradas],
   )
 
-  async function exportar(entrada: EntradaSessao, formato: 'json' | 'excel' | 'pdf') {
+  async function exportar(entrada: EntradaSessao, formato: 'json' | 'excel' | 'pdf' | 'word') {
     setAExportar(entrada.id)
     try {
       if (formato === 'json') {
@@ -183,12 +185,33 @@ export function ModoValidador() {
       } else if (formato === 'excel') {
         const { exportarExcel } = await import('@/io/excel/exportar')
         await exportarExcel(entrada.ficheiro)
-      } else {
+      } else if (formato === 'pdf') {
         const { exportarPdf } = await import('@/io/pdf/exportar')
         await exportarPdf(entrada.ficheiro)
+      } else {
+        const { exportarWord } = await import('@/io/word/exportar')
+        await exportarWord(entrada.ficheiro)
       }
     } finally {
       setAExportar(null)
+    }
+  }
+
+  /**
+   * Resumo agregado da sessão inteira (todas as entradas importadas + o
+   * ficheiro deste browser), não de uma entrada em particular — daí viver
+   * fora de `exportar()`, que opera sobre uma única entrada.
+   */
+  async function exportarResumo() {
+    setAExportarResumo(true)
+    setErroExportarResumo(false)
+    try {
+      const { exportarPptx } = await import('@/io/pptx/exportar')
+      await exportarPptx(todasEntradas.flatMap((entrada) => entrada.ficheiro.registos))
+    } catch {
+      setErroExportarResumo(true)
+    } finally {
+      setAExportarResumo(false)
     }
   }
 
@@ -283,6 +306,13 @@ export function ModoValidador() {
             >
               {textos.exportar.botaoPdf}
             </Button>
+            <Button
+              variant="outline"
+              disabled={aExportar === entradaSelecionada.id}
+              onClick={() => exportar(entradaSelecionada, 'word')}
+            >
+              {textos.exportar.botaoWord}
+            </Button>
           </div>
           <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4">
             <Label htmlFor="nomeValidador">{textos.estado.campoValidadoPor}</Label>
@@ -313,6 +343,17 @@ export function ModoValidador() {
       ) : (
         <>
           <PainelTotais registos={todasEntradas.flatMap((e) => e.ficheiro.registos)} />
+          <Button
+            variant="outline"
+            className="self-start"
+            disabled={aExportarResumo}
+            onClick={() => void exportarResumo()}
+          >
+            {aExportarResumo ? textos.validador.aExportarResumo : textos.validador.botaoExportarResumo}
+          </Button>
+          {erroExportarResumo ? (
+            <p className="text-sm text-destructive">{textos.validador.erroExportarResumo}</p>
+          ) : null}
 
           {submetidos.length > 0 ? (
             <section className="flex flex-col gap-3">

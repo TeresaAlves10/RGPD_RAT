@@ -402,8 +402,11 @@ export const textos = {
     botaoJson: 'Exportar JSON',
     botaoExcel: 'Exportar Excel',
     botaoPdf: 'Exportar PDF',
+    botaoWord: 'Exportar Word',
     aExportar: 'A exportar…',
     erro: 'Não foi possível gerar o ficheiro. Tenta novamente.',
+    escopoLabel: 'O que exportar',
+    escopoTodos: 'Todos os registos',
   },
 
   validador: {
@@ -443,6 +446,20 @@ export const textos = {
     botaoEditar: 'Editar campos',
     botaoVoltarRegistos: '← Voltar aos registos',
     estadoTitulo: 'Decisão do validador',
+    botaoExportarResumo: 'Exportar PowerPoint',
+    aExportarResumo: 'A exportar…',
+    erroExportarResumo: 'Não foi possível gerar o PowerPoint. Tenta novamente.',
+  },
+
+  relatorioResumo: {
+    tituloApresentacao: 'Resumo dos Registos de Atividades de Tratamento',
+    tituloGeral: 'Totais gerais',
+    tituloPorDirecao: 'Por Direção',
+    tituloPorUnidade: 'Por Unidade de Coordenação',
+    colunaDirecao: 'Direção',
+    colunaUnidade: 'Unidade de Coordenação',
+    semUnidade: 'Sem unidade',
+    geradoEm: (data: string) => `Gerado em ${data}`,
   },
 
 
