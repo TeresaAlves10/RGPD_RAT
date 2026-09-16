@@ -18,6 +18,7 @@ import { PaginaInicial } from '@/features/inicio/pagina-inicial'
 import { ListaRegistos } from '@/features/preenchimento/paginas/lista-registos'
 import { EscolhaTipoRegisto } from '@/features/preenchimento/paginas/escolha-tipo-registo'
 import { PaginaFormularioRegisto } from '@/features/preenchimento/paginas/pagina-formulario-registo'
+import { GestorProjeto } from '@/features/preenchimento/paginas/gestor-projeto'
 import { ModoValidador } from '@/features/validacao/paginas/modo-validador'
 import { PaginaAjuda } from '@/features/ajuda/pagina-ajuda'
 
@@ -60,6 +61,7 @@ function ConteudoApp() {
             <Route path="/registos/novo" element={<EscolhaTipoRegisto />} />
             <Route path="/registos/novo/:tipo" element={<PaginaFormularioRegisto />} />
             <Route path="/registos/:id/editar" element={<PaginaFormularioRegisto />} />
+            <Route path="/gestor-projeto" element={<GestorProjeto />} />
             <Route path="/validacao" element={<ModoValidador />} />
             <Route path="/ajuda" element={<PaginaAjuda />} />
           </Routes>

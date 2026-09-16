@@ -54,6 +54,17 @@ const ITENS: ItemNavegacao[] = [
     ),
   },
   {
+    para: '/gestor-projeto',
+    texto: textos.navegacao.gestorProjeto,
+    icone: (
+      <svg viewBox="0 0 24 24" {...traco} aria-hidden="true">
+        <circle cx="10.5" cy="8" r="3.2" />
+        <path d="M4.5 20c0-3.6 2.7-6 6-6s6 2.4 6 6" />
+        <circle cx="17.5" cy="9.5" r="3" />
+      </svg>
+    ),
+  },
+  {
     para: '/validacao',
     texto: textos.validador.tituloNav,
     icone: (

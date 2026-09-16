@@ -1,31 +1,19 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
 import { textos } from '@/i18n/pt'
 import { useFicheiro } from '@/features/preenchimento/store/ficheiro-context'
-import { rotuloUnidade } from '@/config/organizacao'
 import { PainelTotais } from '@/components/painel-totais'
 import { BarraExportacao } from '@/features/preenchimento/barra-exportacao'
 import { BarraImportacao } from '@/features/preenchimento/barra-importacao'
-import { avaliarFicheiro } from '@/domain/rules/motor'
-import { registoSchema, type Registo } from '@/domain/schema/registo'
 import { ficheiroRatFixtureValido } from '@/domain/fixtures/registos'
-import { EstadoRegistoBadge } from '@/components/estado-registo'
 import { IconeEscudoCadeado } from '@/components/icone-escudo'
-
-interface EstadoRegisto {
-  erros: number
-  avisos: number
-  /** Mensagens concretas do que falta, para o bloco de atenção. */
-  mensagens: string[]
-}
-
-const ESTADO_VAZIO: EstadoRegisto = { erros: 0, avisos: 0, mensagens: [] }
+import { ESTADO_VAZIO, calcularEstadoPorRegisto } from '@/features/preenchimento/estado-por-registo'
+import { TabelaRegistos } from '@/features/preenchimento/tabela-registos'
 
 export function ListaRegistos() {
   const navigate = useNavigate()
@@ -37,33 +25,7 @@ export function ListaRegistos() {
   const [filtroQualidade, setFiltroQualidade] = useState('')
   const [filtroDirecao, setFiltroDirecao] = useState('')
 
-  const estadoPorRegisto = useMemo(() => {
-    const mapa = new Map<string, EstadoRegisto>()
-
-    for (const ocorrencia of avaliarFicheiro(ficheiro)) {
-      if (!ocorrencia.registoId) continue
-      const atual = mapa.get(ocorrencia.registoId) ?? { erros: 0, avisos: 0, mensagens: [] }
-      if (ocorrencia.severidade === 'erro') atual.erros += 1
-      else atual.avisos += 1
-      atual.mensagens.push(ocorrencia.mensagem)
-      mapa.set(ocorrencia.registoId, atual)
-    }
-
-    // Campos obrigatórios em falta (ex.: registos importados do template
-    // antigo) contam como erros, ao lado das regras de negócio.
-    for (const registo of ficheiro.registos) {
-      const resultado = registoSchema.safeParse(registo)
-      if (resultado.success) continue
-      const atual = mapa.get(registo.id) ?? { erros: 0, avisos: 0, mensagens: [] }
-      atual.erros += resultado.error.issues.length
-      for (const problema of resultado.error.issues) {
-        atual.mensagens.push(problema.message)
-      }
-      mapa.set(registo.id, atual)
-    }
-
-    return mapa
-  }, [ficheiro])
+  const estadoPorRegisto = useMemo(() => calcularEstadoPorRegisto(ficheiro), [ficheiro])
 
   const direcoes = useMemo(
     () => [...new Set(ficheiro.registos.map((r) => r.direcao).filter(Boolean))].sort(),
@@ -123,12 +85,6 @@ export function ListaRegistos() {
   const temFiltros = Boolean(
     pesquisa || filtroEstado || filtroCompletude || filtroQualidade || filtroDirecao,
   )
-
-  function nomeTipo(registo: Registo) {
-    return registo.tipoRegisto === 'responsavel'
-      ? textos.lista.tipoResponsavel
-      : textos.lista.tipoSubcontratado
-  }
 
   function aoRemover(id: string) {
     if (window.confirm(textos.lista.confirmarRemocao)) removerRegisto(id)
@@ -295,79 +251,12 @@ export function ListaRegistos() {
               </CardContent>
             </Card>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-              <table className="w-full min-w-[64rem] text-left text-sm">
-                <thead className="border-b border-border bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">{textos.campos.numero}</th>
-                    <th className="px-4 py-3 font-medium">{textos.lista.colunaNome}</th>
-                    <th className="px-4 py-3 font-medium">{textos.lista.colunaTipo}</th>
-                    <th className="px-4 py-3 font-medium">{textos.lista.colunaDirecao}</th>
-                    <th className="px-4 py-3 font-medium">{textos.lista.colunaUnidade}</th>
-                    <th className="px-4 py-3 font-medium">{textos.estado.etiqueta}</th>
-                    <th className="px-4 py-3 font-medium">{textos.lista.colunaCamposEmFalta}</th>
-                    <th className="no-print px-4 py-3" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {registosVisiveis.map((registo) => {
-                    const estado = estadoPorRegisto.get(registo.id) ?? ESTADO_VAZIO
-                    return (
-                      <tr key={registo.id} className="transition-colors hover:bg-muted/40">
-                        <td className="px-4 py-3 tabular-nums text-muted-foreground">
-                          {registo.numero}
-                        </td>
-                        <td className="px-4 py-3 font-medium">{registo.nomeTratamento}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{nomeTipo(registo)}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{registo.direcao}</td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {rotuloUnidade(registo.unidadeCoordenacao) || '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <EstadoRegistoBadge estado={registo.estado} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1.5">
-                            {estado.erros === 0 && estado.avisos === 0 ? (
-                              <Badge variant="secondary">{textos.lista.estadoCompleto}</Badge>
-                            ) : null}
-                            {estado.erros > 0 ? (
-                              <Badge variant="destructive">
-                                {textos.lista.estadoErros(estado.erros)}
-                              </Badge>
-                            ) : null}
-                            {estado.avisos > 0 ? (
-                              <Badge variant="warning">
-                                {textos.lista.estadoAvisos(estado.avisos)}
-                              </Badge>
-                            ) : null}
-                            {(registo.anotacoes?.length ?? 0) > 0 ? (
-                              <Badge variant="outline">
-                                {textos.lista.estadoAnotacoes(registo.anotacoes?.length ?? 0)}
-                              </Badge>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="no-print px-4 py-3">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`/registos/${registo.id}/editar`)}
-                            >
-                              {textos.lista.botaoEditar}
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => aoRemover(registo.id)}>
-                              {textos.lista.botaoRemover}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <TabelaRegistos
+              registos={registosVisiveis}
+              estadoPorRegisto={estadoPorRegisto}
+              onEditar={(id) => navigate(`/registos/${id}/editar`)}
+              onRemover={aoRemover}
+            />
           )}
 
           {temFiltros ? (

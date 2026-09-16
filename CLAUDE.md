@@ -134,6 +134,13 @@ importa, corrige, reenvia
   uma permissão de utilizador (continua a não haver utilizadores): é o
   que aquele ecrã oferece.
 
+- **Vista "Gestor de Projeto"** (`/gestor-projeto`) — um GP escreve o
+  próprio nome e vê os registos deste ficheiro, neste browser, onde
+  aparece como `gestorProjeto.nome`, com edição disponível a qualquer
+  momento. Não é autenticação nem uma conta (regra 8): é um filtro de
+  texto sobre os registos já em memória, tal como as outras pesquisas da
+  aplicação — não fica guardado entre visitas.
+
 - **Anexos.** Documentos importantes (imagem, diagrama, Word, PDF) e o
   contrato de subcontratação podem ser anexados ao registo. Sem servidor,
   o conteúdo viaja em base64 dentro do ficheiro — daí os limites de
