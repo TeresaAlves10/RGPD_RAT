@@ -198,7 +198,7 @@ export const textos = {
     nomeTratamento: 'Nome Tratamento / Processo',
     descricao: 'Descrição do Processo',
     'gestorProjeto.nome': 'Nome do Gestor de Projeto (GP)',
-    'gestorProjeto.contacto': 'Contacto do GP',
+    'gestorProjeto.contacto': 'Contacto do GP (email - opcional)',
     medidasTecnicasOrganizativas: 'Medidas Técnicas e Organizativas implementadas',
     normativosAplicaveis: 'Quais os normativos legais ou regulamentares aplicáveis?',
     acessoProdutoSistema: 'Acesso ao Produto / Sistema (quando aplicável)',
