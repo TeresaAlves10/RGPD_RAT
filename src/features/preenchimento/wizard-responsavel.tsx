@@ -207,6 +207,7 @@ export function WizardResponsavel({
     <form
       onSubmit={handleSubmit((dados) => onGuardar({ ...dados, estado: 'submetido' }))}
       className="grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10"
+      noValidate
     >
       <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
         <PassosWizard
@@ -671,7 +672,11 @@ export function WizardResponsavel({
               <Input id="gestorProjeto.nome" {...register('gestorProjeto.nome')} />
             </Campo>
             <Campo id="gestorProjeto.contacto" label={textos.campos['gestorProjeto.contacto']}>
-              <Input id="gestorProjeto.contacto" {...register('gestorProjeto.contacto')} />
+              <Input
+                id="gestorProjeto.contacto"
+                type="email"
+                {...register('gestorProjeto.contacto')}
+              />
             </Campo>
             <Campo id="observacoes" label={textos.campos.observacoes}>
               <Textarea id="observacoes" {...register('observacoes')} />
