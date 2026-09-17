@@ -20,7 +20,7 @@ export const NOME_ORGANIZACAO = 'SPMS'
  * partida. Para trocar de ficheiro, muda o nome aqui; para não ter
  * logótipo nenhum, põe `undefined`.
  */
-export const LOGO: string | undefined = undefined
+export const LOGO: string | undefined = 'logo.jpg'
 
 /**
  * Crédito de autoria, mostrado a par do rodapé de privacidade na barra

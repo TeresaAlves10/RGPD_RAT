@@ -36,6 +36,7 @@ export const textos = {
     inicio: 'Início',
     listaRegistos: 'Registos',
     novoRegisto: 'Novo registo',
+    gestorProjeto: 'Gestor de Projeto',
     ajuda: 'Ajuda',
     principal: 'Navegação principal',
   },
@@ -330,6 +331,17 @@ export const textos = {
     /** Campo livre ao lado da escala, para o número ou a nota exata. */
     valorRotulo: 'Número ou nota (opcional)',
     valorPlaceholder: 'ex.: 24',
+  },
+
+  gestorProjeto: {
+    titulo: 'Gestor de Projeto',
+    descricao:
+      'Procura os teus registos pelo teu nome — sem contas nem palavras-passe, é só um filtro sobre os registos deste ficheiro, neste browser.',
+    campoNome: 'O teu nome',
+    placeholderNome: 'Escreve o teu nome como está nos registos…',
+    semNome: 'Escreve o teu nome para veres os registos onde apareces como gestor de projeto.',
+    semResultados: (nome: string) => `Não encontrámos nenhum registo com "${nome}" como gestor de projeto.`,
+    resultados: (n: number) => `${n} registo${n === 1 ? '' : 's'} encontrado${n === 1 ? '' : 's'}.`,
   },
 
   totais: {
