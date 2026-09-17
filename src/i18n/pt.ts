@@ -83,7 +83,7 @@ export const textos = {
           'Excel: uma folha por qualidade (Responsável e Subcontratante), com os campos na mesma ordem do formulário, mais uma folha "Listas" com os vocabulários e uma folha oculta com o ficheiro completo — é essa que permite voltar a importar sem perder nada.',
           'PDF: para apresentação e arquivo, uma secção por registo, com as anotações do validador e o sumário de verificações. Não é reimportável.',
           'JSON: o formato de troca entre a equipa e o validador. É o mais fiável para reimportar e continuar a editar.',
-          '"Importar" aceita um JSON ou Excel exportado por esta aplicação e substitui o ficheiro em edição (pede confirmação se já tiveres registos).',
+          '"Importar" aceita um Excel exportado por esta aplicação. Se já tiveres registos, é perguntado se queres substituí-los todos ou adicionar os novos aos existentes.',
           '"Template antigo" lê o Excel anterior e mostra um relatório com os campos mapeados e os que ficam por preencher — o texto original desses fica guardado nas observações do registo.',
         ],
       },
@@ -395,8 +395,12 @@ export const textos = {
     titulo: 'Importar',
     botaoImportar: 'Importar Excel',
     aImportar: 'A importar…',
-    confirmarSubstituicao:
-      'Já existem registos neste ficheiro. Importar vai substituí-los por completo. Continuar?',
+    confirmarTitulo: 'Já existem registos neste ficheiro',
+    confirmarDescricao:
+      'Podes substituir os registos atuais pelos do ficheiro importado, ou adicionar os novos aos que já tens.',
+    botaoSubstituir: 'Substituir tudo',
+    botaoAdicionarAosExistentes: 'Adicionar aos existentes',
+    botaoCancelarImportacao: 'Cancelar',
     erroGenerico: 'Não foi possível importar este ficheiro. Confirma que é um Excel válido, exportado por esta aplicação.',
     tituloRelatorio: 'Relatório de importação do template antigo',
     descricaoRelatorio:

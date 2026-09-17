@@ -253,6 +253,13 @@ importador do template antigo (`io/excel/importador-legado.ts`) mantém-se
 no código e testado, mas sem botão que o exponha em nenhum ecrã — para o
 repor, é só voltar a ligá-lo à UI.
 
+Importar sobre um ficheiro que já tem registos pergunta explicitamente
+(`ImportarConfirmacaoDialog`, o mesmo padrão de decisão obrigatória do
+`RascunhoDialog`) entre substituir tudo ou adicionar os novos registos
+aos existentes. Ao adicionar, os `numero` dos registos importados são
+renumerados a continuar a sequência do ficheiro atual — nunca colidem
+com os que já lá estão (`adicionarRegistos` em `ficheiro-context.tsx`).
+
 No Modo Validador, o botão "Exportar PowerPoint" (`src/io/pptx/exportar.ts`,
 biblioteca `pptxgenjs`) gera um resumo da sessão inteira (todas as
 entradas importadas + o ficheiro deste browser): os seis totais do

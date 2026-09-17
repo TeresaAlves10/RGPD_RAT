@@ -56,11 +56,21 @@ export function FicheiroProvider({ ficheiroInicial, children }: FicheiroProvider
   }, [])
 
   const adicionarRegistos = useCallback((novosRegistos: Registo[]) => {
-    setFicheiro((atual) => ({
-      ...atual,
-      registos: [...atual.registos, ...novosRegistos],
-      metadados: { ...atual.metadados, dataUltimaEdicao: agoraIso() },
-    }))
+    setFicheiro((atual) => {
+      // Renumerados a continuar a sequência do ficheiro — os números que
+      // vêm do ficheiro importado são os dele, e colidiriam com os que já
+      // cá estão (ver CLAUDE.md §3, "Numeração automática").
+      const maiorNumero = atual.registos.reduce((max, r) => Math.max(max, r.numero), 0)
+      const renumerados = novosRegistos.map((registo, indice) => ({
+        ...registo,
+        numero: maiorNumero + indice + 1,
+      }))
+      return {
+        ...atual,
+        registos: [...atual.registos, ...renumerados],
+        metadados: { ...atual.metadados, dataUltimaEdicao: agoraIso() },
+      }
+    })
   }, [])
 
   const removerRegisto = useCallback((id: string) => {
