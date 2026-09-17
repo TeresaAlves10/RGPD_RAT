@@ -124,7 +124,7 @@ export const textos = {
     confirmarRemocao: 'Tens a certeza que queres remover este registo? Esta ação não pode ser desfeita.',
     metadadosTitulo: 'Dados da equipa',
     campoEquipa: 'Direção responsável pelo ficheiro',
-    campoContactoEquipa: 'Contacto (opcional)',
+    campoContactoEquipa: 'Contacto (primeiro e último nome)',
     subtitulo: (n: number) => `${n} registo${n === 1 ? '' : 's'} · artigo 30.º do RGPD`,
     pesquisar: 'Pesquisar por nome, unidade ou direção',
     filtroTodosEstados: 'Todos os estados',
